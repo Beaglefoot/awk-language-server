@@ -1,0 +1,23 @@
+{
+  "name": "awk-langage-server",
+  "description": "AWK Language Server",
+  "version": "0.0.1",
+  "author": "Stanislav Chernov <ch-e-st@yandex.ru>",
+  "publisher": "beaglefoot",
+  "license": "MIT",
+  "engines": {
+    "node": ">=16.0.0"
+  },
+  "main": "./out/server.js",
+  "typings": "./out/server.d.ts",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Beaglefoot/awk-language-server"
+  },
+  "dependencies": {
+    "vscode-languageserver": "^7.0.0",
+    "vscode-languageserver-textdocument": "^1.0.1",
+    "web-tree-sitter": "0.19.4"
+  },
+  "scripts": {}
+}

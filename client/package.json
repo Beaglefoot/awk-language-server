@@ -1,0 +1,43 @@
+{
+  "name": "awk-ide-vscode",
+  "displayName": "AWK IDE",
+  "description": "VSCode client for AWK Language Server",
+  "author": "Stanislav Chernov <ch-e-st@yandex.ru>",
+  "license": "MIT",
+  "version": "0.0.1",
+  "publisher": "beaglefoot",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Beaglefoot/awk-language-server"
+  },
+  "engines": {
+    "vscode": "^1.52.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "keywords": [
+    "awk"
+  ],
+  "activationEvents": [
+    "onLanguage:awk"
+  ],
+  "main": "./out/extension",
+  "contributes": {
+    "configuration": {
+      "type": "object",
+      "title": "AWK IDE",
+      "properties": {}
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "cd .. && yarn compile"
+  },
+  "dependencies": {
+    "vscode-languageclient": "^7.0.0"
+  },
+  "devDependencies": {
+    "@types/vscode": "^1.52.0",
+    "vscode-test": "^1.3.0"
+  }
+}

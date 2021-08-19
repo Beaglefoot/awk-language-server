@@ -1,0 +1,14 @@
+{
+  "private": true,
+  "scripts": {
+    "compile": "tsc -b",
+    "watch": "tsc -b -w",
+    "postinstall": "cd client && yarn && cd ../server && yarn && cd .."
+  },
+  "devDependencies": {
+    "@types/node": "^12.12.0",
+    "prettier": "2.3.2",
+    "typescript": "^4.3.2"
+  },
+  "dependencies": {}
+}

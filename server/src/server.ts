@@ -9,7 +9,6 @@ import {
   TextDocumentSyncKind,
   InitializeResult,
   TextDocumentChangeEvent,
-  DidChangeWatchedFilesParams,
 } from 'vscode-languageserver/node'
 
 import { TextDocument } from 'vscode-languageserver-textdocument'

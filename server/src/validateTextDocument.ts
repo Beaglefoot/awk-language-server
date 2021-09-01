@@ -8,8 +8,6 @@ import { TextDocument } from 'vscode-languageserver-textdocument'
 import { Context } from './context'
 import { SyntaxNode } from 'web-tree-sitter'
 
-export type TextDocumentValidator = (textDocument: TextDocument) => Promise<void>
-
 function* nodesGen(node: SyntaxNode) {
   const queue: SyntaxNode[] = [node]
 
@@ -35,10 +33,7 @@ function getRange(node: SyntaxNode): Range {
   )
 }
 
-export async function validateTextDocument(
-  context: Context,
-  textDocument: TextDocument,
-): Promise<void> {
+export function validateTextDocument(context: Context, textDocument: TextDocument): void {
   const text = textDocument.getText()
   const tree = context.parser.parse(text)
   const diagnostics: Diagnostic[] = []

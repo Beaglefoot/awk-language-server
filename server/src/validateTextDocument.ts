@@ -48,8 +48,18 @@ export async function validateTextDocument(
       diagnostics.push(
         Diagnostic.create(getRange(node), 'Syntax error', DiagnosticSeverity.Error),
       )
+      continue
+    }
 
-      break
+    if (node.isMissing()) {
+      diagnostics.push(
+        Diagnostic.create(
+          getRange(node),
+          `Syntax error: missing ${node.type}`,
+          DiagnosticSeverity.Warning,
+        ),
+      )
+      continue
     }
   }
 

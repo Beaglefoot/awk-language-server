@@ -9,23 +9,32 @@ import {
   TextDocumentSyncKind,
   InitializeResult,
   TextDocumentChangeEvent,
+  DefinitionParams,
+  Location,
+  Range,
 } from 'vscode-languageserver/node'
 
 import { TextDocument } from 'vscode-languageserver-textdocument'
 import { Context } from './context'
 import { initializeParser } from './parser'
-import { validateTextDocument } from './validateTextDocument'
+import { validate } from './validate'
+import { analyze, Symbols } from './analyze'
+import { Tree } from 'web-tree-sitter'
+import { getNodeAt, getWordAt } from './utils'
 
 let context: Context
 
 const connection = createConnection(ProposedFeatures.all)
 const documents: TextDocuments<TextDocument> = new TextDocuments(TextDocument)
+const trees: { [uri: string]: Tree } = {}
+const symbols: { [uri: string]: Symbols } = {}
 
 function registerHandlers() {
   connection.onInitialize(handleInitialize)
   documents.onDidChangeContent(handleDidChangeContent)
   connection.onCompletion(handleCompletion)
   connection.onCompletionResolve(handleCompletionResolve)
+  connection.onDefinition(handleDefinition)
 }
 
 async function handleInitialize(params: InitializeParams): Promise<InitializeResult> {
@@ -39,6 +48,7 @@ async function handleInitialize(params: InitializeParams): Promise<InitializeRes
       completionProvider: {
         resolveProvider: true,
       },
+      definitionProvider: true,
     },
   }
 
@@ -46,7 +56,13 @@ async function handleInitialize(params: InitializeParams): Promise<InitializeRes
 }
 
 function handleDidChangeContent(change: TextDocumentChangeEvent<TextDocument>) {
-  validateTextDocument(context, change.document)
+  const { tree, symbols: documentSymbols } = analyze(context, change.document)
+  const diagnostics = validate(tree)
+
+  trees[change.document.uri] = tree
+  symbols[change.document.uri] = documentSymbols
+
+  context.connection.sendDiagnostics({ uri: change.document.uri, diagnostics })
 }
 
 function handleCompletion(
@@ -77,6 +93,21 @@ function handleCompletionResolve(item: CompletionItem): CompletionItem {
       'END is a special kind of pattern which is executed after all the input is exhausted (or on  exit  statement).'
   }
   return item
+}
+
+function handleDefinition(params: DefinitionParams): Location[] {
+  const { textDocument, position } = params
+  const node = getNodeAt(trees[textDocument.uri], position.line, position.character)
+
+  if (!node) return []
+
+  const name = getWordAt(node)
+
+  if (!name) return []
+
+  return Object.keys(symbols)
+    .filter((uri) => symbols[uri][name])
+    .flatMap((uri) => symbols[uri][name].map((s) => s.location))
 }
 
 function main() {

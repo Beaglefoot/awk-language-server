@@ -4,7 +4,7 @@
     "outDir": "out",
     "rootDir": "src",
     "lib": [
-      "es2016"
+      "es2019"
     ],
   },
   "include": ["src"],

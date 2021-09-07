@@ -11,6 +11,8 @@ import {
   TextDocumentChangeEvent,
   DefinitionParams,
   Location,
+  DocumentHighlightParams,
+  DocumentHighlight,
 } from 'vscode-languageserver/node'
 
 import { TextDocument } from 'vscode-languageserver-textdocument'
@@ -19,7 +21,14 @@ import { initializeParser } from './parser'
 import { validate } from './validate'
 import { analyze, Symbols } from './analyze'
 import { Tree } from 'web-tree-sitter'
-import { getNodeAt, getWordAt } from './utils'
+import {
+  getNodeAt,
+  getRange,
+  getWordAt,
+  isDefinition,
+  isReference,
+  nodesGen,
+} from './utils'
 
 let context: Context
 
@@ -34,6 +43,7 @@ function registerHandlers() {
   connection.onCompletion(handleCompletion)
   connection.onCompletionResolve(handleCompletionResolve)
   connection.onDefinition(handleDefinition)
+  connection.onDocumentHighlight(handleDocumentHighlight)
 }
 
 async function handleInitialize(params: InitializeParams): Promise<InitializeResult> {
@@ -48,6 +58,7 @@ async function handleInitialize(params: InitializeParams): Promise<InitializeRes
         resolveProvider: true,
       },
       definitionProvider: true,
+      documentHighlightProvider: true,
     },
   }
 
@@ -107,6 +118,34 @@ function handleDefinition(params: DefinitionParams): Location[] {
   return Object.keys(symbols)
     .filter((uri) => symbols[uri][name])
     .flatMap((uri) => symbols[uri][name].map((s) => s.location))
+}
+
+function handleDocumentHighlight(params: DocumentHighlightParams): DocumentHighlight[] {
+  const { textDocument, position } = params
+  let node = getNodeAt(trees[textDocument.uri], position.line, position.character)
+
+  if (!node) return []
+  if (node.type === 'number' && node.parent?.type === 'field_ref') {
+    node = node.parent
+  }
+
+  const queriedName = getWordAt(node)
+
+  if (!queriedName) return []
+
+  const tree = trees[textDocument.uri]
+  const highlights: DocumentHighlight[] = []
+
+  for (const node of nodesGen(tree.rootNode)) {
+    if (!isReference(node) && !isDefinition(node)) continue
+
+    const name = getWordAt(node)
+    const range = getRange(node)
+
+    if (name === queriedName) highlights.push(DocumentHighlight.create(range))
+  }
+
+  return highlights
 }
 
 function main() {

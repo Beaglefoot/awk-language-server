@@ -17,7 +17,8 @@
     "Other"
   ],
   "keywords": [
-    "awk"
+    "awk",
+    "gawk"
   ],
   "activationEvents": [
     "onLanguage:awk"
@@ -28,7 +29,24 @@
       "type": "object",
       "title": "AWK IDE",
       "properties": {}
-    }
+    },
+    "languages": [
+      {
+        "id": "awk",
+        "extensions": [
+          ".awk",
+          ".gawk"
+        ],
+        "aliases": [
+          "AWK",
+          "awk",
+          "GAWK",
+          "gawk"
+        ],
+        "firstLine": "^#!/.*\\bawk*\\b",
+        "configuration": "./language-configuration.json"
+      }
+    ]
   },
   "scripts": {
     "vscode:prepublish": "cd .. && yarn compile"

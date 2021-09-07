@@ -11,7 +11,6 @@ import {
   TextDocumentChangeEvent,
   DefinitionParams,
   Location,
-  Range,
 } from 'vscode-languageserver/node'
 
 import { TextDocument } from 'vscode-languageserver-textdocument'

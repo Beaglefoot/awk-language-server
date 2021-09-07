@@ -47,7 +47,8 @@ export function getNodeAt(tree: Tree, line: number, column: number): SyntaxNode 
   return tree.rootNode.descendantForPosition({ row: line, column })
 }
 
-export function getWordAt(node: SyntaxNode): string | null {
+/** Get textual representation of the node (function name, variable name, etc.) */
+export function getName(node: SyntaxNode): string | null {
   if (!node || (node.childCount && node.type !== 'field_ref')) return null
 
   return node.text.trim() || null

@@ -26,7 +26,7 @@ import { Tree } from 'web-tree-sitter'
 import {
   getNodeAt,
   getRange,
-  getWordAt,
+  getName,
   isDefinition,
   isReference,
   nodesGen,
@@ -115,7 +115,7 @@ function handleDefinition(params: DefinitionParams): Location[] {
 
   if (!node) return []
 
-  const name = getWordAt(node)
+  const name = getName(node)
 
   if (!name) return []
 
@@ -133,7 +133,7 @@ function handleDocumentHighlight(params: DocumentHighlightParams): DocumentHighl
     node = node.parent
   }
 
-  const queriedName = getWordAt(node)
+  const queriedName = getName(node)
 
   if (!queriedName) return []
 
@@ -143,7 +143,7 @@ function handleDocumentHighlight(params: DocumentHighlightParams): DocumentHighl
   for (const node of nodesGen(tree.rootNode)) {
     if (!isReference(node) && !isDefinition(node)) continue
 
-    const name = getWordAt(node)
+    const name = getName(node)
     const range = getRange(node)
 
     if (name === queriedName) highlights.push(DocumentHighlight.create(range))

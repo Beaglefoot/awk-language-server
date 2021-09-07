@@ -13,6 +13,8 @@ import {
   Location,
   DocumentHighlightParams,
   DocumentHighlight,
+  DocumentSymbolParams,
+  SymbolInformation,
 } from 'vscode-languageserver/node'
 
 import { TextDocument } from 'vscode-languageserver-textdocument'
@@ -44,6 +46,7 @@ function registerHandlers() {
   connection.onCompletionResolve(handleCompletionResolve)
   connection.onDefinition(handleDefinition)
   connection.onDocumentHighlight(handleDocumentHighlight)
+  connection.onDocumentSymbol(handleDocumentSymbol)
 }
 
 async function handleInitialize(params: InitializeParams): Promise<InitializeResult> {
@@ -59,6 +62,7 @@ async function handleInitialize(params: InitializeParams): Promise<InitializeRes
       },
       definitionProvider: true,
       documentHighlightProvider: true,
+      documentSymbolProvider: true,
     },
   }
 
@@ -146,6 +150,10 @@ function handleDocumentHighlight(params: DocumentHighlightParams): DocumentHighl
   }
 
   return highlights
+}
+
+function handleDocumentSymbol(params: DocumentSymbolParams): SymbolInformation[] {
+  return Object.values(symbols[params.textDocument.uri]).flat()
 }
 
 function main() {

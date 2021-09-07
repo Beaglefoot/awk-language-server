@@ -15,6 +15,7 @@ import {
   DocumentHighlight,
   DocumentSymbolParams,
   SymbolInformation,
+  WorkspaceSymbolParams,
 } from 'vscode-languageserver/node'
 
 import { TextDocument } from 'vscode-languageserver-textdocument'
@@ -47,6 +48,7 @@ function registerHandlers() {
   connection.onDefinition(handleDefinition)
   connection.onDocumentHighlight(handleDocumentHighlight)
   connection.onDocumentSymbol(handleDocumentSymbol)
+  connection.onWorkspaceSymbol(handleWorkspaceSymbol)
 }
 
 async function handleInitialize(params: InitializeParams): Promise<InitializeResult> {
@@ -63,6 +65,7 @@ async function handleInitialize(params: InitializeParams): Promise<InitializeRes
       definitionProvider: true,
       documentHighlightProvider: true,
       documentSymbolProvider: true,
+      workspaceSymbolProvider: true,
     },
   }
 
@@ -154,6 +157,18 @@ function handleDocumentHighlight(params: DocumentHighlightParams): DocumentHighl
 
 function handleDocumentSymbol(params: DocumentSymbolParams): SymbolInformation[] {
   return Object.values(symbols[params.textDocument.uri]).flat()
+}
+
+function handleWorkspaceSymbol(params: WorkspaceSymbolParams): SymbolInformation[] {
+  const result: SymbolInformation[] = []
+  const symbolBuckets = Object.values(symbols)
+
+  for (const sb of symbolBuckets) {
+    const matchedNames = Object.keys(sb).filter((name) => name.includes(params.query))
+    result.push(...matchedNames.flatMap((n) => sb[n]))
+  }
+
+  return result
 }
 
 function main() {

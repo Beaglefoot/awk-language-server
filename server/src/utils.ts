@@ -61,3 +61,15 @@ export function isDefinition(node: SyntaxNode): boolean {
 export function isReference(node: SyntaxNode): boolean {
   return ['array_ref', 'field_ref', 'identifier'].includes(node.type)
 }
+
+export function findReferences(tree: Tree, queriedName: string): Range[] {
+  const result: Range[] = []
+
+  for (const node of nodesGen(tree.rootNode)) {
+    if (!isReference(node) && !isDefinition(node)) continue
+
+    if (getName(node) === queriedName) result.push(getRange(node))
+  }
+
+  return result
+}

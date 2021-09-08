@@ -16,6 +16,7 @@ import {
   DocumentSymbolParams,
   SymbolInformation,
   WorkspaceSymbolParams,
+  ReferenceParams,
 } from 'vscode-languageserver/node'
 
 import { TextDocument } from 'vscode-languageserver-textdocument'
@@ -24,14 +25,7 @@ import { initializeParser } from './parser'
 import { validate } from './validate'
 import { analyze, Symbols } from './analyze'
 import { Tree } from 'web-tree-sitter'
-import {
-  getNodeAt,
-  getRange,
-  getName,
-  isDefinition,
-  isReference,
-  nodesGen,
-} from './utils'
+import { getNodeAt, getName, findReferences } from './utils'
 
 let context: Context
 
@@ -49,6 +43,7 @@ function registerHandlers() {
   connection.onDocumentHighlight(handleDocumentHighlight)
   connection.onDocumentSymbol(handleDocumentSymbol)
   connection.onWorkspaceSymbol(handleWorkspaceSymbol)
+  connection.onReferences(handleReferences)
 }
 
 async function handleInitialize(params: InitializeParams): Promise<InitializeResult> {
@@ -66,6 +61,7 @@ async function handleInitialize(params: InitializeParams): Promise<InitializeRes
       documentHighlightProvider: true,
       documentSymbolProvider: true,
       workspaceSymbolProvider: true,
+      referencesProvider: true,
     },
   }
 
@@ -141,18 +137,8 @@ function handleDocumentHighlight(params: DocumentHighlightParams): DocumentHighl
   if (!queriedName) return []
 
   const tree = trees[textDocument.uri]
-  const highlights: DocumentHighlight[] = []
 
-  for (const node of nodesGen(tree.rootNode)) {
-    if (!isReference(node) && !isDefinition(node)) continue
-
-    const name = getName(node)
-    const range = getRange(node)
-
-    if (name === queriedName) highlights.push(DocumentHighlight.create(range))
-  }
-
-  return highlights
+  return findReferences(tree, queriedName).map((range) => DocumentHighlight.create(range))
 }
 
 function handleDocumentSymbol(params: DocumentSymbolParams): SymbolInformation[] {
@@ -166,6 +152,27 @@ function handleWorkspaceSymbol(params: WorkspaceSymbolParams): SymbolInformation
   for (const sb of symbolBuckets) {
     const matchedNames = Object.keys(sb).filter((name) => name.includes(params.query))
     result.push(...matchedNames.flatMap((n) => sb[n]))
+  }
+
+  return result
+}
+
+function handleReferences(params: ReferenceParams): Location[] {
+  const { textDocument, position } = params
+  const node = getNodeAt(trees[textDocument.uri], position.line, position.character)
+
+  if (!node) return []
+
+  const name = getName(node)
+
+  if (!name) return []
+
+  const result: Location[] = []
+
+  for (const uri of Object.keys(trees)) {
+    result.push(
+      ...findReferences(trees[uri], name).map((range) => Location.create(uri, range)),
+    )
   }
 
   return result

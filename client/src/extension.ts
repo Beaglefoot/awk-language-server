@@ -1,5 +1,5 @@
 import * as path from 'path'
-import { workspace, ExtensionContext } from 'vscode'
+import { workspace, ExtensionContext, languages, SemanticTokensLegend } from 'vscode'
 
 import {
   LanguageClient,
@@ -7,6 +7,7 @@ import {
   ServerOptions,
   TransportKind,
 } from 'vscode-languageclient/node'
+import { SemanticTokensProvider, tokenTypesLegend } from './semanticTokens'
 
 let client: LanguageClient
 
@@ -41,6 +42,16 @@ export function activate(context: ExtensionContext) {
   }
 
   client = new LanguageClient('awk-ide-vscode', 'AWK IDE', serverOptions, clientOptions)
+
+  client.onReady().then(() => {
+    context.subscriptions.push(
+      languages.registerDocumentSemanticTokensProvider(
+        { language: 'awk' },
+        new SemanticTokensProvider(client),
+        new SemanticTokensLegend(tokenTypesLegend, []),
+      ),
+    )
+  })
 
   client.start()
 }

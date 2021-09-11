@@ -48,6 +48,11 @@
       }
     ]
   },
+  "configurationDefaults": {
+    "awk": {
+      "editor.semanticHighlighting.enabled": true
+    }
+  },
   "scripts": {
     "vscode:prepublish": "cd .. && yarn compile"
   },

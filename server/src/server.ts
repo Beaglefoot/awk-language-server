@@ -24,8 +24,9 @@ import { Context } from './context'
 import { initializeParser } from './parser'
 import { validate } from './validate'
 import { analyze, Symbols } from './analyze'
-import { Tree } from 'web-tree-sitter'
-import { getNodeAt, getName, findReferences } from './utils'
+import { QueryCapture, Tree } from 'web-tree-sitter'
+import { getNodeAt, getName, findReferences, getQueriesList } from './utils'
+import { readFileSync } from 'fs'
 
 let context: Context
 
@@ -44,6 +45,7 @@ function registerHandlers() {
   connection.onDocumentSymbol(handleDocumentSymbol)
   connection.onWorkspaceSymbol(handleWorkspaceSymbol)
   connection.onReferences(handleReferences)
+  connection.onRequest('getSemanticTokens', handleSemanticTokens)
 }
 
 async function handleInitialize(params: InitializeParams): Promise<InitializeResult> {
@@ -176,6 +178,46 @@ function handleReferences(params: ReferenceParams): Location[] {
   }
 
   return result
+}
+
+interface DecodedSemanticToken {
+  line: number
+  startChar: number
+  length: number
+  tokenType: string
+  tokenModifiers: string[]
+}
+
+function handleSemanticTokens(params: {
+  textDocument: TextDocument
+}): DecodedSemanticToken[] {
+  const { textDocument } = params
+  const tree = trees[textDocument.uri]
+  const lang = tree.getLanguage()
+
+  const queriesText = readFileSync(`${__dirname}/../highlights.scm`, 'utf8')
+  const queriesList = getQueriesList(queriesText)
+  const captures: QueryCapture[] = []
+
+  for (const queryString of queriesList) {
+    const query = lang.query(queryString)
+
+    if (query.captureNames.length > 1) {
+      connection.console.warn(
+        `Got more that 1 captureNames: ${query.captureNames.join(', ')}`,
+      )
+    }
+
+    captures.push(...query.captures(tree.rootNode))
+  }
+
+  return captures.map<DecodedSemanticToken>(({ name, node }) => ({
+    line: node.startPosition.row,
+    startChar: node.startPosition.column,
+    length: node.endIndex - node.startIndex,
+    tokenType: name,
+    tokenModifiers: [],
+  }))
 }
 
 function main() {

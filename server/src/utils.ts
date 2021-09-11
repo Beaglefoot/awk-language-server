@@ -73,3 +73,37 @@ export function findReferences(tree: Tree, queriedName: string): Range[] {
 
   return result
 }
+
+export function getQueriesList(queriesRawText: string): string[] {
+  const result: string[] = []
+
+  let openParenCount = 0
+  let openBracketCount = 0
+  let isQuoteCharMet = false
+  let isComment = false
+  let currentQuery = ''
+
+  for (const char of queriesRawText) {
+    if (char === '"') isQuoteCharMet = !isQuoteCharMet
+    else if (!isQuoteCharMet && char === ';') isComment = true
+    else if (isComment && char !== '\n') continue
+    else if (char === '(') openParenCount++
+    else if (char === ')') openParenCount--
+    else if (char === '[') openBracketCount++
+    else if (char === ']') openBracketCount--
+    else if (char === '\n') {
+      isComment = false
+
+      if (!openParenCount && !openBracketCount && currentQuery) {
+        result.push(currentQuery)
+        currentQuery = ''
+      }
+
+      continue
+    }
+
+    if (!isComment) currentQuery += char
+  }
+
+  return result
+}

@@ -1,6 +1,6 @@
 import { TextDocument } from 'vscode-languageserver-textdocument'
 import { SymbolInformation, SymbolKind } from 'vscode-languageserver/node'
-import { SyntaxNode, Tree } from 'web-tree-sitter'
+import { Tree } from 'web-tree-sitter'
 import { Context } from './context'
 import { findParent, getRange, isDefinition, nodesGen } from './utils'
 

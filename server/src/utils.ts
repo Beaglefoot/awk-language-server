@@ -85,7 +85,10 @@ export function getQueriesList(queriesRawText: string): string[] {
 
   for (const char of queriesRawText) {
     if (char === '"') isQuoteCharMet = !isQuoteCharMet
-    else if (!isQuoteCharMet && char === ';') isComment = true
+    if (isQuoteCharMet) {
+      currentQuery += char
+      continue
+    } else if (!isQuoteCharMet && char === ';') isComment = true
     else if (isComment && char !== '\n') continue
     else if (char === '(') openParenCount++
     else if (char === ')') openParenCount--
@@ -95,7 +98,7 @@ export function getQueriesList(queriesRawText: string): string[] {
       isComment = false
 
       if (!openParenCount && !openBracketCount && currentQuery) {
-        result.push(currentQuery)
+        result.push(currentQuery.trim())
         currentQuery = ''
       }
 

@@ -180,7 +180,7 @@ function handleReferences(params: ReferenceParams): Location[] {
   return result
 }
 
-interface DecodedSemanticToken {
+interface UnencodedSemanticToken {
   line: number
   startChar: number
   length: number
@@ -190,7 +190,7 @@ interface DecodedSemanticToken {
 
 function handleSemanticTokens(params: {
   textDocument: TextDocument
-}): DecodedSemanticToken[] {
+}): UnencodedSemanticToken[] {
   const { textDocument } = params
   const tree = trees[textDocument.uri]
   const lang = tree.getLanguage()
@@ -211,7 +211,7 @@ function handleSemanticTokens(params: {
     captures.push(...query.captures(tree.rootNode))
   }
 
-  return captures.map<DecodedSemanticToken>(({ name, node }) => ({
+  return captures.map<UnencodedSemanticToken>(({ name, node }) => ({
     line: node.startPosition.row,
     startChar: node.startPosition.column,
     length: node.endIndex - node.startIndex,

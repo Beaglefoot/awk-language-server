@@ -22,7 +22,7 @@ export const tokenTypesLegend = [
 
 tokenTypesLegend.forEach((tokenType, index) => tokenTypes.set(tokenType, index))
 
-interface DecodedSemanticToken {
+interface UnencodedSemanticToken {
   line: number
   startChar: number
   length: number
@@ -41,7 +41,7 @@ export class SemanticTokensProvider implements DocumentSemanticTokensProvider {
     textDocument: TextDocument,
     token: CancellationToken,
   ): Promise<SemanticTokens> {
-    const parsedTokens: DecodedSemanticToken[] = await this.client.sendRequest(
+    const parsedTokens: UnencodedSemanticToken[] = await this.client.sendRequest(
       'getSemanticTokens',
       {
         // uri is of different type for TextDocument in vscode and on server

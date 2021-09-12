@@ -196,7 +196,7 @@ function handleSemanticTokens(params: {
   const lang = tree.getLanguage()
 
   const queriesText = readFileSync(`${__dirname}/../highlights.scm`, 'utf8')
-  const queriesList = getQueriesList(queriesText)
+  const queriesList = getQueriesList(queriesText).reverse() // Reverse to prioritize in tree-sitter manner
   const captures: QueryCapture[] = []
 
   for (const queryString of queriesList) {

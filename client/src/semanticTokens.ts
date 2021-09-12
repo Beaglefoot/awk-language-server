@@ -18,6 +18,7 @@ export const tokenTypesLegend = [
   'regexp',
   'string',
   'variable',
+  'namespace',
 ]
 
 tokenTypesLegend.forEach((tokenType, index) => tokenTypes.set(tokenType, index))

@@ -3,14 +3,16 @@
 (func_def name: (identifier) @function)
 (func_call name: (identifier) @function)
 
-(field_ref) @variable
-(field_ref (number) @variable)
+[
+  (identifier)
+  (field_ref)
+] @variable
+(field_ref (_) @variable)
 
 (string) @string
 (number) @number
-(regex) @string.special
+(regex) @regexp
 (comment) @comment
-(identifier) @variable
 
 [
   "function"
@@ -31,41 +33,20 @@
 ] @keyword
 
 [
-  "BEGIN"
-  "BEGINFILE"
-  "END"
-  "ENDFILE"
   "@include"
   "@load"
   "@namespace"
-] @constant
+  (pattern)
+] @namespace
 
-[
-  ";"
-  ","
-] @punctuation.delimiter
-
-[
-  "("
-  ")"
-  "["
-  "]"
-  "{"
-  "}"
-]  @punctuation.bracket
-
-[
+(binary_exp [
   "^"
   "**"
   "*"
   "/"
   "%"
   "+"
-  "++"
   "-"
-  "--"
-  "|"
-  "|&"
   "<"
   ">"
   "<="
@@ -77,9 +58,15 @@
   "in"
   "&&"
   "||"
-  "?"
-  ":"
+] @operator)
+
+(unary_exp [
   "!"
+  "+"
+  "-"
+] @operator)
+
+(assignment_exp [
   "="
   "+="
   "-="
@@ -87,4 +74,35 @@
   "/="
   "%="
   "^="
-] @operator  
+] @operator)
+
+(ternary_exp [
+  "?"
+  ":"
+] @operator)
+
+(update_exp [
+  "++"
+  "--"
+] @operator)
+
+(redirected_io_statement [
+  ">"
+  ">>"
+] @operator)
+
+(piped_io_statement [
+  "|"
+  "|&"
+] @operator)
+
+[
+  ";"
+  ","
+  "("
+  ")"
+  "["
+  "]"
+  "{"
+  "}"
+] @operator

@@ -44,6 +44,12 @@
       "outFiles": [
         "${workspaceRoot}/client/out/test/**/*.js"
       ]
+    },
+    {
+      "name": "Current file",
+      "type": "node",
+      "request": "launch",
+      "program": "${file}"
     }
   ],
   "compounds": [

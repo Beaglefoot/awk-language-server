@@ -27,6 +27,11 @@ import { analyze, Symbols } from './analyze'
 import { QueryCapture, Tree } from 'web-tree-sitter'
 import { getNodeAt, getName, findReferences, getQueriesList } from './utils'
 import { readFileSync } from 'fs'
+import {
+  enrichCompletionItem,
+  getCompletionItems,
+  initCompletionList,
+} from './completion'
 
 let context: Context
 
@@ -83,30 +88,11 @@ function handleDidChangeContent(change: TextDocumentChangeEvent<TextDocument>) {
 function handleCompletion(
   _textDocumentPosition: TextDocumentPositionParams,
 ): CompletionItem[] {
-  return [
-    {
-      label: 'BEGIN',
-      kind: CompletionItemKind.Keyword,
-      data: 1,
-    },
-    {
-      label: 'END',
-      kind: CompletionItemKind.Keyword,
-      data: 2,
-    },
-  ]
+  return getCompletionItems()
 }
 
 function handleCompletionResolve(item: CompletionItem): CompletionItem {
-  if (item.data === 1) {
-    item.detail = 'BEGIN'
-    item.documentation =
-      'BEGIN is a special kind of pattern which is executed before any of the input is read.'
-  } else if (item.data === 2) {
-    item.detail = 'END'
-    item.documentation =
-      'END is a special kind of pattern which is executed after all the input is exhausted (or on  exit  statement).'
-  }
+  enrichCompletionItem(item)
   return item
 }
 

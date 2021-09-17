@@ -19,5 +19,11 @@
     "vscode-languageserver-textdocument": "^1.0.1",
     "web-tree-sitter": "0.19.4"
   },
-  "scripts": {}
+  "scripts": {
+    "build:completion": "man gawk | gawk -f scripts/build_completion_list.awk > completions.json"
+  },
+  "devDependencies": {
+    "axios": "0.21.4",
+    "jsdom": "17.0.0"
+  }
 }

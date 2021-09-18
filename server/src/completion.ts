@@ -1,28 +1,15 @@
-import { readFileSync } from 'fs'
 import { CompletionItem, CompletionItemKind } from 'vscode-languageserver-types'
-
-interface Completions {
-  builtins: { [key: string]: string }
-  functions: { [key: string]: string }
-  io_statements: { [key: string]: string }
-  patterns: { [key: string]: string }
-  version: string
-}
+import { Documentation } from './documentation'
 
 const completionListLight: CompletionItem[] = []
-let completions: Completions
 
 function dropParamList(fcall: string): string {
   return fcall.replace(/\(.*\)/, '')
 }
 
-export function initCompletionList(): void {
-  const json = readFileSync(`${__dirname}/../completions.json`, 'utf8')
-
-  completions = JSON.parse(json) as Completions
-
+export function initCompletionList(docs: Documentation): void {
   completionListLight.push(
-    ...Object.keys(completions.builtins).map((key, i) => ({
+    ...Object.keys(docs.builtins).map((key, i) => ({
       label: key,
       kind: CompletionItemKind.Variable,
       data: `builtins.${key}`,
@@ -30,7 +17,7 @@ export function initCompletionList(): void {
   )
 
   completionListLight.push(
-    ...Object.keys(completions.functions).map((key, i) => ({
+    ...Object.keys(docs.functions).map((key, i) => ({
       label: dropParamList(key),
       kind: CompletionItemKind.Function,
       data: `functions.${key}`,
@@ -38,7 +25,7 @@ export function initCompletionList(): void {
   )
 
   completionListLight.push(
-    ...Object.keys(completions.io_statements).map((key, i) => ({
+    ...Object.keys(docs.io_statements).map((key, i) => ({
       label: key,
       kind: CompletionItemKind.Snippet,
       data: `io_statements.${key}`,
@@ -46,7 +33,7 @@ export function initCompletionList(): void {
   )
 
   completionListLight.push(
-    ...Object.keys(completions.patterns).map((key, i) => ({
+    ...Object.keys(docs.patterns).map((key, i) => ({
       label: key,
       kind: CompletionItemKind.Keyword,
       data: `patterns.${key}`,
@@ -58,12 +45,10 @@ export function getCompletionItems(): CompletionItem[] {
   return completionListLight
 }
 
-export function enrichCompletionItem(item: CompletionItem): void {
-  const path = item.data.split('.') as [Exclude<keyof Completions, 'version'>, string]
-  const documentation = completions[path[0]][path[1]]
+export function enrichCompletionItem(item: CompletionItem, docs: Documentation): void {
+  const path = item.data.split('.') as [Exclude<keyof Documentation, 'version'>, string]
+  const documentation = docs[path[0]][path[1]]
 
   item.detail = path[1]
   item.documentation = documentation
 }
-
-initCompletionList()

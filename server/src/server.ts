@@ -4,7 +4,6 @@ import {
   ProposedFeatures,
   InitializeParams,
   CompletionItem,
-  CompletionItemKind,
   TextDocumentPositionParams,
   TextDocumentSyncKind,
   InitializeResult,
@@ -32,11 +31,13 @@ import {
   getCompletionItems,
   initCompletionList,
 } from './completion'
+import { getDocumentation } from './documentation'
 
 let context: Context
 
 const connection = createConnection(ProposedFeatures.all)
 const documents: TextDocuments<TextDocument> = new TextDocuments(TextDocument)
+const docs = getDocumentation()
 const trees: { [uri: string]: Tree } = {}
 const symbols: { [uri: string]: Symbols } = {}
 
@@ -55,6 +56,7 @@ function registerHandlers() {
 
 async function handleInitialize(params: InitializeParams): Promise<InitializeResult> {
   const parser = await initializeParser()
+  initCompletionList(docs)
 
   context = { connection, documents, capabilities: params.capabilities, parser }
 
@@ -92,7 +94,7 @@ function handleCompletion(
 }
 
 function handleCompletionResolve(item: CompletionItem): CompletionItem {
-  enrichCompletionItem(item)
+  enrichCompletionItem(item, docs)
   return item
 }
 

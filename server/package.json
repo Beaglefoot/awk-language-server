@@ -20,7 +20,7 @@
     "web-tree-sitter": "0.19.4"
   },
   "scripts": {
-    "build:completion": "man gawk | gawk -f scripts/build_completion_list.awk > completions.json"
+    "build:completion": "man gawk | gawk -f scripts/build_completion_list.awk > docs.json"
   },
   "devDependencies": {
     "axios": "0.21.4",

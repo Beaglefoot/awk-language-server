@@ -16,6 +16,8 @@ import {
   SymbolInformation,
   WorkspaceSymbolParams,
   ReferenceParams,
+  HoverParams,
+  Hover,
 } from 'vscode-languageserver/node'
 
 import { TextDocument } from 'vscode-languageserver-textdocument'
@@ -32,6 +34,7 @@ import {
   initCompletionList,
 } from './completion'
 import { getDocumentation } from './documentation'
+import { getBuiltinHints } from './hover'
 
 let context: Context
 
@@ -51,6 +54,7 @@ function registerHandlers() {
   connection.onDocumentSymbol(handleDocumentSymbol)
   connection.onWorkspaceSymbol(handleWorkspaceSymbol)
   connection.onReferences(handleReferences)
+  connection.onHover(handleHover)
   connection.onRequest('getSemanticTokens', handleSemanticTokens)
 }
 
@@ -71,6 +75,7 @@ async function handleInitialize(params: InitializeParams): Promise<InitializeRes
       documentSymbolProvider: true,
       workspaceSymbolProvider: true,
       referencesProvider: true,
+      hoverProvider: true,
     },
   }
 
@@ -206,6 +211,28 @@ function handleSemanticTokens(params: {
     tokenType: name,
     tokenModifiers: [],
   }))
+}
+
+function handleHover(params: HoverParams): Hover | null {
+  const tree = trees[params.textDocument.uri]
+  const { line, character } = params.position
+  let node = getNodeAt(tree, line, character)
+
+  if (!node) return null
+
+  if (node.type === 'string' && node.parent?.type === 'array_ref') {
+    node = node.parent
+  }
+
+  if (!node.text) return null
+
+  const builtins = getBuiltinHints(docs)
+
+  if (builtins[node.text]) {
+    return { contents: { kind: 'markdown', value: builtins[node.text] } }
+  }
+
+  return null
 }
 
 function main() {

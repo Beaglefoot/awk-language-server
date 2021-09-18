@@ -12,3 +12,7 @@ export function getDocumentation(): Documentation {
   const json = readFileSync(`${__dirname}/../docs.json`, 'utf8')
   return JSON.parse(json) as Documentation
 }
+
+export function dropParamList(fcall: string): string {
+  return fcall.replace(/\(.*\)/, '')
+}

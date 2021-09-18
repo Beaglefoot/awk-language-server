@@ -1,11 +1,7 @@
 import { CompletionItem, CompletionItemKind } from 'vscode-languageserver-types'
-import { Documentation } from './documentation'
+import { Documentation, dropParamList } from './documentation'
 
 const completionListLight: CompletionItem[] = []
-
-function dropParamList(fcall: string): string {
-  return fcall.replace(/\(.*\)/, '')
-}
 
 export function initCompletionList(docs: Documentation): void {
   completionListLight.push(

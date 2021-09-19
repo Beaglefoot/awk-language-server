@@ -4,7 +4,7 @@
   "description": "VSCode client for AWK Language Server",
   "author": "Stanislav Chernov <ch-e-st@yandex.ru>",
   "license": "MIT",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "publisher": "beaglefoot",
   "repository": {
     "type": "git",

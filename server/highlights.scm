@@ -1,3 +1,5 @@
+; tree-sitter-awk v0.3.3
+
 ; Order matters
 
 (func_def name: (identifier) @function)
@@ -29,7 +31,8 @@
   (continue_statement)
   (next_statement)
   (nextfile_statement)
-  (getline_statement)
+  (getline_input)
+  (getline_file)
 ] @keyword
 
 [

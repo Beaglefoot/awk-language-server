@@ -1,10 +1,17 @@
 {
-  "name": "awk-langage-server",
+  "name": "awk-language-server",
   "description": "AWK Language Server",
   "version": "0.1.0",
   "author": "Stanislav Chernov <ch-e-st@yandex.ru>",
   "publisher": "beaglefoot",
   "license": "MIT",
+  "keywords": [
+    "language-server",
+    "language-server-protocol",
+    "lsp",
+    "awk",
+    "gawk"
+  ],
   "engines": {
     "node": ">=16.0.0"
   },

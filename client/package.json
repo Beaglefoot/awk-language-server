@@ -10,6 +10,7 @@
     "type": "git",
     "url": "https://github.com/Beaglefoot/awk-language-server"
   },
+  "icon": "icon/awk_ide_logo.png",
   "engines": {
     "vscode": "^1.52.0"
   },

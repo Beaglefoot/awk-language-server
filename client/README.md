@@ -2,6 +2,17 @@
 
 VSCode client extension for AWK Language Server.
 
+## Notes
+
+Syntax highlighting should work out of the box, but if you have issues with it make sure
+that you have the following setting enabled either globally or specifically for AWK language.
+
+```json
+"[awk]": {
+  "editor.semanticHighlighting.enabled": true
+}
+```
+
 ## Features
 
 - [x] Syntax highlighting

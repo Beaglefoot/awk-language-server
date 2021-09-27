@@ -3,3 +3,5 @@ node_modules
 client/server
 .vscode-test
 temp
+*.vsix
+*.log

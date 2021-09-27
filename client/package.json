@@ -15,11 +15,12 @@
     "vscode": "^1.52.0"
   },
   "categories": [
-    "Other"
+    "Programming Languages"
   ],
   "keywords": [
     "awk",
-    "gawk"
+    "gawk",
+    "ide"
   ],
   "activationEvents": [
     "onLanguage:awk"
@@ -47,17 +48,18 @@
         "firstLine": "^#!/.*\\bawk*\\b",
         "configuration": "./language-configuration.json"
       }
-    ]
-  },
-  "configurationDefaults": {
-    "awk": {
-      "editor.semanticHighlighting.enabled": true
+    ],
+    "configurationDefaults": {
+      "[awk]": {
+        "editor.semanticHighlighting.enabled": true
+      }
     }
   },
   "scripts": {
     "vscode:prepublish": "cd .. && yarn compile"
   },
   "dependencies": {
+    "awk-language-server": "0.1.0",
     "vscode-languageclient": "^7.0.0"
   },
   "devDependencies": {

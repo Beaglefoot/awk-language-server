@@ -62,6 +62,10 @@ export function isReference(node: SyntaxNode): boolean {
   return ['array_ref', 'field_ref', 'identifier'].includes(node.type)
 }
 
+export function isInclude(node: SyntaxNode): boolean {
+  return node.type === 'directive' && node?.firstChild?.text === '@include'
+}
+
 export function findReferences(tree: Tree, queriedName: string): Range[] {
   const result: Range[] = []
 

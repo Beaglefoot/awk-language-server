@@ -83,11 +83,13 @@ async function handleInitialize(params: InitializeParams): Promise<InitializeRes
 }
 
 function handleDidChangeContent(change: TextDocumentChangeEvent<TextDocument>) {
-  const { tree, symbols: documentSymbols } = analyze(context, change.document)
-  const diagnostics = validate(tree)
+  const results = analyze(context, change.document)
+  const diagnostics = validate(results[0].tree)
 
-  trees[change.document.uri] = tree
-  symbols[change.document.uri] = documentSymbols
+  for (const { tree, symbols: documentSymbols, document } of results) {
+    trees[document.uri] = tree
+    symbols[document.uri] = documentSymbols
+  }
 
   context.connection.sendDiagnostics({ uri: change.document.uri, diagnostics })
 }

@@ -2,7 +2,8 @@ import { TextDocument } from 'vscode-languageserver-textdocument'
 import { SymbolInformation, SymbolKind } from 'vscode-languageserver/node'
 import { Tree } from 'web-tree-sitter'
 import { Context } from './context'
-import { findParent, getRange, isDefinition, nodesGen } from './utils'
+import { readFromNode } from './io'
+import { findParent, getRange, isDefinition, isInclude, nodesGen } from './utils'
 
 export type Symbols = { [name: string]: SymbolInformation[] }
 
@@ -14,11 +15,16 @@ const kinds: { [tree_sitter_type: string]: SymbolKind } = {
 export function analyze(
   context: Context,
   document: TextDocument,
-): { tree: Tree; symbols: Symbols } {
+): Array<{ tree: Tree; symbols: Symbols; document: TextDocument }> {
   const tree = context.parser.parse(document.getText())
   const symbols: { [name: string]: SymbolInformation[] } = {}
+  const includedDocuments: TextDocument[] = []
 
   for (const node of nodesGen(tree.rootNode)) {
+    if (isInclude(node) && node.childCount === 2) {
+      includedDocuments.push(readFromNode(node, document.uri))
+    }
+
     if (!isDefinition(node)) continue
 
     if (node.firstNamedChild === null) break
@@ -40,8 +46,11 @@ export function analyze(
     )
   }
 
-  return {
-    tree,
-    symbols,
-  }
+  return [
+    {
+      tree,
+      symbols,
+      document,
+    },
+  ].concat(includedDocuments.flatMap((d) => analyze(context, d)))
 }

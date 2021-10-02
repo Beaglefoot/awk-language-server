@@ -1,3 +1,4 @@
+import { URL } from 'url'
 import { Range } from 'vscode-languageserver/node'
 import { SyntaxNode, Tree } from 'web-tree-sitter'
 
@@ -113,4 +114,15 @@ export function getQueriesList(queriesRawText: string): string[] {
   }
 
   return result
+}
+
+export function getDependencyUrl(node: SyntaxNode, baseUri: string): URL {
+  let filename = node.children[1].text.replaceAll('"', '')
+
+  if (!filename.endsWith('.awk') && !filename.endsWith('.gawk')) {
+    // The way GAWK behaves
+    filename += '.awk'
+  }
+
+  return new URL(filename, baseUri)
 }

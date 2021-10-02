@@ -13,7 +13,8 @@ let client: LanguageClient
 
 export function activate(context: ExtensionContext) {
   const serverModule = context.asAbsolutePath(
-    path.join('node_modules', 'awk-language-server', 'out', 'server.js'),
+    // path.join('node_modules', 'awk-language-server', 'out', 'server.js'),
+    path.join('..', 'server', 'out', 'server.js'),
   )
 
   // The debug options for the server

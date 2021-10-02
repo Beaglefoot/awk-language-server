@@ -41,7 +41,7 @@ export function analyze(
       dependencyUris.push(url.href)
 
       if (deep) {
-        const text = readDocumentFromUrl(url)
+        const text = readDocumentFromUrl(context, url)
         if (text) dependencies.push(text)
       }
     }

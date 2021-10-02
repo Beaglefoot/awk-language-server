@@ -15,13 +15,14 @@ const kinds: { [tree_sitter_type: string]: SymbolKind } = {
 export function analyze(
   context: Context,
   document: TextDocument,
+  deep: boolean,
 ): Array<{ tree: Tree; symbols: Symbols; document: TextDocument }> {
   const tree = context.parser.parse(document.getText())
   const symbols: { [name: string]: SymbolInformation[] } = {}
   const includedDocuments: TextDocument[] = []
 
   for (const node of nodesGen(tree.rootNode)) {
-    if (isInclude(node) && node.childCount === 2) {
+    if (deep && isInclude(node) && node.childCount === 2) {
       includedDocuments.push(readFromNode(node, document.uri))
     }
 
@@ -52,5 +53,5 @@ export function analyze(
       symbols,
       document,
     },
-  ].concat(includedDocuments.flatMap((d) => analyze(context, d)))
+  ].concat(includedDocuments.flatMap((d) => analyze(context, d, true)))
 }

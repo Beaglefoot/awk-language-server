@@ -47,6 +47,7 @@ const symbols: { [uri: string]: Symbols } = {}
 function registerHandlers() {
   connection.onInitialize(handleInitialize)
   documents.onDidChangeContent(handleDidChangeContent)
+  documents.onDidOpen(handleDidOpen)
   connection.onCompletion(handleCompletion)
   connection.onCompletionResolve(handleCompletionResolve)
   connection.onDefinition(handleDefinition)
@@ -83,15 +84,22 @@ async function handleInitialize(params: InitializeParams): Promise<InitializeRes
 }
 
 function handleDidChangeContent(change: TextDocumentChangeEvent<TextDocument>) {
-  const results = analyze(context, change.document)
+  const results = analyze(context, change.document, false)
   const diagnostics = validate(results[0].tree)
+
+  trees[change.document.uri] = results[0].tree
+  symbols[change.document.uri] = results[0].symbols
+
+  context.connection.sendDiagnostics({ uri: change.document.uri, diagnostics })
+}
+
+function handleDidOpen(change: TextDocumentChangeEvent<TextDocument>) {
+  const results = analyze(context, change.document, true)
 
   for (const { tree, symbols: documentSymbols, document } of results) {
     trees[document.uri] = tree
     symbols[document.uri] = documentSymbols
   }
-
-  context.connection.sendDiagnostics({ uri: change.document.uri, diagnostics })
 }
 
 function handleCompletion(

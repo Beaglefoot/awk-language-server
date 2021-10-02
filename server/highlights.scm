@@ -1,4 +1,4 @@
-; tree-sitter-awk v0.3.3
+; tree-sitter-awk v0.3.4
 
 ; Order matters
 
@@ -27,6 +27,7 @@
   "for"
   "in"
   "delete"
+  "return"
   (break_statement)
   (continue_statement)
   (next_statement)

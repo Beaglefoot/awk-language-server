@@ -184,6 +184,13 @@ function handleReferences(params: ReferenceParams): Location[] {
   const result: Location[] = []
 
   for (const uri of Object.keys(trees)) {
+    if (
+      uri !== textDocument.uri &&
+      !dependencies.hasParent(textDocument.uri, uri) &&
+      !dependencies.hasParent(uri, textDocument.uri)
+    )
+      continue
+
     result.push(
       ...findReferences(trees[uri], name).map((range) => Location.create(uri, range)),
     )

@@ -2,7 +2,15 @@ import { TextDocument } from 'vscode-languageserver-textdocument'
 import { SymbolInformation, SymbolKind } from 'vscode-languageserver/node'
 import { Tree } from 'web-tree-sitter'
 import { Context } from './context'
-import { findParent, getRange, isDefinition, nodesGen } from './utils'
+import { readDocumentFromUrl } from './io'
+import {
+  findParent,
+  getDependencyUrl,
+  getRange,
+  isDefinition,
+  isInclude,
+  nodesGen,
+} from './utils'
 
 export type Symbols = { [name: string]: SymbolInformation[] }
 
@@ -14,11 +22,30 @@ const kinds: { [tree_sitter_type: string]: SymbolKind } = {
 export function analyze(
   context: Context,
   document: TextDocument,
-): { tree: Tree; symbols: Symbols } {
+  deep: boolean,
+): Array<{
+  tree: Tree
+  symbols: Symbols
+  document: TextDocument
+  dependencyUris: string[]
+}> {
   const tree = context.parser.parse(document.getText())
   const symbols: { [name: string]: SymbolInformation[] } = {}
+  const dependencies: TextDocument[] = []
+  const dependencyUris: string[] = []
 
   for (const node of nodesGen(tree.rootNode)) {
+    if (isInclude(node) && node.childCount === 2) {
+      const url = getDependencyUrl(node, document.uri)
+
+      dependencyUris.push(url.href)
+
+      if (deep) {
+        const text = readDocumentFromUrl(context, url)
+        if (text) dependencies.push(text)
+      }
+    }
+
     if (!isDefinition(node)) continue
 
     if (node.firstNamedChild === null) break
@@ -40,8 +67,12 @@ export function analyze(
     )
   }
 
-  return {
-    tree,
-    symbols,
-  }
+  return [
+    {
+      tree,
+      symbols,
+      document,
+      dependencyUris,
+    },
+  ].concat(dependencies.flatMap((d) => analyze(context, d, deep)))
 }

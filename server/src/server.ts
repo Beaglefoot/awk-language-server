@@ -35,6 +35,7 @@ import {
 } from './completion'
 import { getDocumentation } from './documentation'
 import { getBuiltinHints } from './hover'
+import { DependencyMap } from './dependencies'
 
 let context: Context
 
@@ -43,10 +44,12 @@ const documents: TextDocuments<TextDocument> = new TextDocuments(TextDocument)
 const docs = getDocumentation()
 const trees: { [uri: string]: Tree } = {}
 const symbols: { [uri: string]: Symbols } = {}
+const dependencies = new DependencyMap()
 
 function registerHandlers() {
   connection.onInitialize(handleInitialize)
   documents.onDidChangeContent(handleDidChangeContent)
+  documents.onDidOpen(handleDidOpen)
   connection.onCompletion(handleCompletion)
   connection.onCompletionResolve(handleCompletionResolve)
   connection.onDefinition(handleDefinition)
@@ -83,13 +86,25 @@ async function handleInitialize(params: InitializeParams): Promise<InitializeRes
 }
 
 function handleDidChangeContent(change: TextDocumentChangeEvent<TextDocument>) {
-  const { tree, symbols: documentSymbols } = analyze(context, change.document)
-  const diagnostics = validate(tree)
+  const results = analyze(context, change.document, false)
+  const diagnostics = validate(results[0].tree)
 
-  trees[change.document.uri] = tree
-  symbols[change.document.uri] = documentSymbols
+  trees[change.document.uri] = results[0].tree
+  symbols[change.document.uri] = results[0].symbols
+
+  dependencies.update(change.document.uri, new Set(results[0].dependencyUris))
 
   context.connection.sendDiagnostics({ uri: change.document.uri, diagnostics })
+}
+
+function handleDidOpen(change: TextDocumentChangeEvent<TextDocument>) {
+  const results = analyze(context, change.document, true)
+
+  for (const { tree, symbols: documentSymbols, document, dependencyUris } of results) {
+    trees[document.uri] = tree
+    symbols[document.uri] = documentSymbols
+    dependencies.update(document.uri, new Set(dependencyUris))
+  }
 }
 
 function handleCompletion(
@@ -114,7 +129,11 @@ function handleDefinition(params: DefinitionParams): Location[] {
   if (!name) return []
 
   return Object.keys(symbols)
-    .filter((uri) => symbols[uri][name])
+    .filter(
+      (uri) =>
+        symbols[uri][name] &&
+        (uri === textDocument.uri || dependencies.hasParent(uri, textDocument.uri)),
+    )
     .flatMap((uri) => symbols[uri][name].map((s) => s.location))
 }
 
@@ -165,6 +184,13 @@ function handleReferences(params: ReferenceParams): Location[] {
   const result: Location[] = []
 
   for (const uri of Object.keys(trees)) {
+    if (
+      uri !== textDocument.uri &&
+      !dependencies.hasParent(textDocument.uri, uri) &&
+      !dependencies.hasParent(uri, textDocument.uri)
+    )
+      continue
+
     result.push(
       ...findReferences(trees[uri], name).map((range) => Location.create(uri, range)),
     )

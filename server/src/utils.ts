@@ -1,3 +1,4 @@
+import { URL } from 'url'
 import { Range } from 'vscode-languageserver/node'
 import { SyntaxNode, Tree } from 'web-tree-sitter'
 
@@ -62,6 +63,10 @@ export function isReference(node: SyntaxNode): boolean {
   return ['array_ref', 'field_ref', 'identifier'].includes(node.type)
 }
 
+export function isInclude(node: SyntaxNode): boolean {
+  return node.type === 'directive' && node?.firstChild?.text === '@include'
+}
+
 export function findReferences(tree: Tree, queriedName: string): Range[] {
   const result: Range[] = []
 
@@ -109,4 +114,15 @@ export function getQueriesList(queriesRawText: string): string[] {
   }
 
   return result
+}
+
+export function getDependencyUrl(node: SyntaxNode, baseUri: string): URL {
+  let filename = node.children[1].text.replaceAll('"', '')
+
+  if (!filename.endsWith('.awk') && !filename.endsWith('.gawk')) {
+    // The way GAWK behaves
+    filename += '.awk'
+  }
+
+  return new URL(filename, baseUri)
 }

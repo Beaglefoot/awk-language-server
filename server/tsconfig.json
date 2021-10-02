@@ -3,9 +3,6 @@
   "compilerOptions": {
     "outDir": "out",
     "rootDir": "src",
-    "lib": [
-      "es2019"
-    ],
   },
   "include": ["src"],
   "exclude": ["node_modules", "src/__tests__"]

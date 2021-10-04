@@ -30,8 +30,9 @@ import { getNodeAt, getName, findReferences, getQueriesList } from './utils'
 import { readFileSync } from 'fs'
 import {
   enrichCompletionItem,
-  getCompletionItems,
+  getPredefinedCompletionItems,
   initCompletionList,
+  symbolInfoToCompletionItem,
 } from './completion'
 import { getDocumentation } from './documentation'
 import { getBuiltinHints } from './hover'
@@ -108,9 +109,14 @@ function handleDidOpen(change: TextDocumentChangeEvent<TextDocument>) {
 }
 
 function handleCompletion(
-  _textDocumentPosition: TextDocumentPositionParams,
+  textDocumentPosition: TextDocumentPositionParams,
 ): CompletionItem[] {
-  return getCompletionItems()
+  const allDeps = dependencies.getAll(textDocumentPosition.textDocument.uri)
+  const allSymbols = [...allDeps]
+    .filter((uri) => symbols[uri])
+    .flatMap((uri) => Object.values(symbols[uri]).flat())
+
+  return allSymbols.map(symbolInfoToCompletionItem).concat(getPredefinedCompletionItems())
 }
 
 function handleCompletionResolve(item: CompletionItem): CompletionItem {

@@ -45,4 +45,25 @@ export class DependencyMap extends Map<string, DependencyNode> {
 
     return false
   }
+
+  /**
+   * Get entire dependency tree flattened to a list of URIs
+   */
+  public getAll(uri: string): Set<string> {
+    const result = new Set<string>()
+    const queue = [uri]
+
+    result.add(uri)
+
+    while (queue.length) {
+      const uri = queue.shift() as string
+
+      this.get(uri).childrenUris.forEach((u) => {
+        result.add(u)
+        queue.push(u)
+      })
+    }
+
+    return result
+  }
 }

@@ -11,7 +11,8 @@
       "es2021",
     ],
     "rootDir": ".",
-    "sourceMap": true
+    "sourceMap": true,
+    "incremental": true
   },
   "include": [
     "testing"

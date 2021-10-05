@@ -114,7 +114,7 @@ function handleCompletion(
   const allDeps = dependencies.getAll(textDocumentPosition.textDocument.uri)
   const allSymbols = [...allDeps]
     .filter((uri) => symbols[uri])
-    .flatMap((uri) => Object.values(symbols[uri]).flat())
+    .flatMap((uri) => [...symbols[uri].values()].flat())
 
   return allSymbols.map(symbolInfoToCompletionItem).concat(getPredefinedCompletionItems())
 }
@@ -137,10 +137,10 @@ function handleDefinition(params: DefinitionParams): Location[] {
   return Object.keys(symbols)
     .filter(
       (uri) =>
-        symbols[uri][name] &&
+        symbols[uri].get(name) &&
         (uri === textDocument.uri || dependencies.hasParent(uri, textDocument.uri)),
     )
-    .flatMap((uri) => symbols[uri][name].map((s) => s.location))
+    .flatMap((uri) => (symbols[uri].get(name) || []).map((s) => s.location))
 }
 
 function handleDocumentHighlight(params: DocumentHighlightParams): DocumentHighlight[] {
@@ -171,7 +171,7 @@ function handleWorkspaceSymbol(params: WorkspaceSymbolParams): SymbolInformation
 
   for (const sb of symbolBuckets) {
     const matchedNames = Object.keys(sb).filter((name) => name.includes(params.query))
-    result.push(...matchedNames.flatMap((n) => sb[n]))
+    result.push(...matchedNames.flatMap((n) => sb.get(n) || []))
   }
 
   return result

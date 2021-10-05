@@ -12,7 +12,7 @@ import {
   nodesGen,
 } from './utils'
 
-export type Symbols = { [name: string]: SymbolInformation[] }
+export type Symbols = Map<string, SymbolInformation[]>
 
 const kinds: { [tree_sitter_type: string]: SymbolKind } = {
   func_def: SymbolKind.Function,
@@ -30,7 +30,7 @@ export function analyze(
   dependencyUris: string[]
 }> {
   const tree = context.parser.parse(document.getText())
-  const symbols: { [name: string]: SymbolInformation[] } = {}
+  const symbols: Map<string, SymbolInformation[]> = new Map()
   const dependencies: TextDocument[] = []
   const dependencyUris: string[] = []
 
@@ -52,11 +52,12 @@ export function analyze(
 
     const name = node.firstNamedChild.text
 
-    if (!symbols[name]) symbols[name] = []
+    if (!symbols.get(name)) symbols.set(name, [])
 
     const parentFunc = findParent(node, (p) => p.type === 'func_def')
+    const symbol = symbols.get(name) as SymbolInformation[]
 
-    symbols[name].push(
+    symbol.push(
       SymbolInformation.create(
         name,
         kinds[node.type],

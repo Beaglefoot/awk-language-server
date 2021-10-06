@@ -1,6 +1,7 @@
 import { URL } from 'url'
+import { Position } from 'vscode-languageserver-textdocument'
 import { Range } from 'vscode-languageserver/node'
-import { SyntaxNode, Tree } from 'web-tree-sitter'
+import { Point, SyntaxNode, Tree } from 'web-tree-sitter'
 
 export function* nodesGen(node: SyntaxNode) {
   const queue: SyntaxNode[] = [node]
@@ -48,6 +49,15 @@ export function getNodeAt(tree: Tree, line: number, column: number): SyntaxNode 
   return tree.rootNode.descendantForPosition({ row: line, column })
 }
 
+export function getNodeAtRange(tree: Tree, range: Range): SyntaxNode | null {
+  if (!tree.rootNode) return null
+
+  return tree.rootNode.descendantForPosition(
+    positionToPoint(range.start),
+    positionToPoint(range.end),
+  )
+}
+
 /** Get textual representation of the node (function name, variable name, etc.) */
 export function getName(node: SyntaxNode): string | null {
   if (!node || (node.childCount && node.type !== 'field_ref')) return null
@@ -65,6 +75,10 @@ export function isReference(node: SyntaxNode): boolean {
 
 export function isInclude(node: SyntaxNode): boolean {
   return node.type === 'directive' && node?.firstChild?.text === '@include'
+}
+
+export function isFunction(node: SyntaxNode): boolean {
+  return node.type === 'func_def'
 }
 
 export function findReferences(tree: Tree, queriedName: string): Range[] {
@@ -125,4 +139,24 @@ export function getDependencyUrl(node: SyntaxNode, baseUri: string): URL {
   }
 
   return new URL(filename, baseUri)
+}
+
+export function positionToPoint(pos: Position): Point {
+  return {
+    row: pos.line,
+    column: pos.character,
+  }
+}
+
+export function getFunctionSignature(node: SyntaxNode): string {
+  if (!isFunction(node)) {
+    throw new Error(`Node type ${node.type} is not a function`)
+  }
+
+  const params = node
+    .descendantsOfType('param_list')[0]
+    .text.replaceAll(/\s+/g, ' ')
+    .replaceAll(/#/g, '')
+
+  return `${(node.firstNamedChild as SyntaxNode).text} (${params})`
 }

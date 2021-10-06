@@ -4,9 +4,14 @@ import {
   SymbolInformation,
   SymbolKind,
 } from 'vscode-languageserver-types'
+import { SyntaxNode, Tree } from 'web-tree-sitter'
 import { Documentation, dropParamList } from './documentation'
+import { getFunctionSignature, getNodeAtRange, isFunction } from './utils'
 
-type UserDefined = 'user_defined'
+export interface UserDefinedDataEntry {
+  type: 'user_defined'
+  symbolInfo: SymbolInformation
+}
 
 const predefinedCompletionListLight: CompletionItem[] = []
 
@@ -48,23 +53,24 @@ export function getPredefinedCompletionItems(): CompletionItem[] {
   return predefinedCompletionListLight
 }
 
-export function enrichCompletionItem(item: CompletionItem, docs: Documentation): void {
-  const path = item.data.split('.') as [
-    Exclude<keyof Documentation | UserDefined, 'version'>,
-    string,
-  ]
-
-  if (path[0] === 'user_defined') {
-    if (item.kind === CompletionItemKind.Function) item.detail = `User defined function`
-    else if (item.kind === CompletionItemKind.Variable)
-      item.detail = `User defined variable`
-    return
-  }
+export function enrichWithDocumentation(item: CompletionItem, docs: Documentation): void {
+  const path = item.data.split('.') as [Exclude<keyof Documentation, 'version'>, string]
 
   const documentation = docs[path[0]][path[1]]
 
   item.detail = path[1]
   item.documentation = documentation
+}
+
+export function enrichWithSymbolInfo(item: CompletionItem, tree: Tree): void {
+  const { symbolInfo } = item.data as UserDefinedDataEntry
+
+  if (item.kind === CompletionItemKind.Function) {
+    const node = getNodeAtRange(tree, symbolInfo.location.range) as SyntaxNode
+    item.detail = getFunctionSignature(node)
+  } else if (item.kind === CompletionItemKind.Variable) {
+    item.detail = `User defined variable`
+  }
 }
 
 export function symbolInfoToCompletionItem(
@@ -80,7 +86,11 @@ export function symbolInfoToCompletionItem(
     compItem.kind = CompletionItemKind.Text
   }
 
-  compItem.data = `user_defined.${symbolInfo.name}`
+  // For now this interface differs from '.data' for builtins
+  compItem.data = {
+    type: 'user_defined',
+    symbolInfo,
+  } as UserDefinedDataEntry
 
   return compItem
 }

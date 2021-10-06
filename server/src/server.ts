@@ -29,10 +29,12 @@ import { QueryCapture, Tree } from 'web-tree-sitter'
 import { getNodeAt, getName, findReferences, getQueriesList } from './utils'
 import { readFileSync } from 'fs'
 import {
-  enrichCompletionItem,
+  enrichWithDocumentation,
+  enrichWithSymbolInfo,
   getPredefinedCompletionItems,
   initCompletionList,
   symbolInfoToCompletionItem,
+  UserDefinedDataEntry,
 } from './completion'
 import { getDocumentation } from './documentation'
 import { getBuiltinHints } from './hover'
@@ -120,7 +122,13 @@ function handleCompletion(
 }
 
 function handleCompletionResolve(item: CompletionItem): CompletionItem {
-  enrichCompletionItem(item, docs)
+  if (typeof item.data === 'string') {
+    enrichWithDocumentation(item, docs)
+  } else if (item.data?.type === 'user_defined') {
+    const { symbolInfo } = item.data as UserDefinedDataEntry
+    enrichWithSymbolInfo(item, trees[symbolInfo.location.uri])
+  }
+
   return item
 }
 

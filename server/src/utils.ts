@@ -155,8 +155,8 @@ export function getFunctionSignature(node: SyntaxNode): string {
 
   const params = node
     .descendantsOfType('param_list')[0]
-    .text.replaceAll(/\s+/g, ' ')
-    .replaceAll(/#/g, '')
+    .text.replaceAll(/#.*/g, '')
+    .replaceAll(/\s+/g, ' ')
 
-  return `${(node.firstNamedChild as SyntaxNode).text} (${params})`
+  return `${(node.firstNamedChild as SyntaxNode).text}(${params})`
 }

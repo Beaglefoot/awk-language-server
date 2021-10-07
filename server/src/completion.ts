@@ -6,7 +6,12 @@ import {
 } from 'vscode-languageserver-types'
 import { SyntaxNode, Tree } from 'web-tree-sitter'
 import { Documentation, dropParamList } from './documentation'
-import { getFunctionSignature, getNodeAtRange, isFunction } from './utils'
+import {
+  getFunctionSignature,
+  getNodeAtRange,
+  getPrecedingComments,
+  isFunction,
+} from './utils'
 
 export interface UserDefinedDataEntry {
   type: 'user_defined'
@@ -68,6 +73,7 @@ export function enrichWithSymbolInfo(item: CompletionItem, tree: Tree): void {
   if (item.kind === CompletionItemKind.Function) {
     const node = getNodeAtRange(tree, symbolInfo.location.range) as SyntaxNode
     item.detail = getFunctionSignature(node)
+    item.documentation = getPrecedingComments(node)
   } else if (item.kind === CompletionItemKind.Variable) {
     item.detail = `User defined variable`
   }

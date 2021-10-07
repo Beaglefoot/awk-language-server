@@ -160,3 +160,17 @@ export function getFunctionSignature(node: SyntaxNode): string {
 
   return `${(node.firstNamedChild as SyntaxNode).text}(${params})`
 }
+
+export function getPrecedingComments(node: SyntaxNode | null): string {
+  if (!node) return ''
+
+  let comment: string[] = []
+  let currentNode = node.previousNamedSibling
+
+  while (currentNode?.type === 'comment') {
+    comment.unshift(currentNode.text.replaceAll(/#+\s?/g, ''))
+    currentNode = currentNode.previousNamedSibling
+  }
+
+  return comment.join('\n')
+}

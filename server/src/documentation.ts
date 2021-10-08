@@ -1,10 +1,13 @@
 import { readFileSync } from 'fs'
 
+export type Title = string
+export type Description = string
+
 export interface Documentation {
-  builtins: { [key: string]: string }
-  functions: { [key: string]: string }
-  io_statements: { [key: string]: string }
-  patterns: { [key: string]: string }
+  builtins: Record<Title, Description>
+  functions: Record<Title, Description>
+  io_statements: Record<Title, Description>
+  patterns: Record<Title, Description>
   version: string
 }
 

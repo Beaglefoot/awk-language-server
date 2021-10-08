@@ -1,48 +1,48 @@
-import { Documentation, dropParamList } from './documentation'
+import { Description, Documentation, dropParamList, Title } from './documentation'
 
-let builtins: Record<string, string>
+let builtins: Record<Title, Description>
 
-function formatDocItem(docSection: Record<string, string>, key: string): string {
-  return `**${key}**\n\n${docSection[key].replace(/\\n/g, '\n\n')}`
+function formatDocItem(docSection: Record<Title, Description>, title: Title): string {
+  return `**${title}**\n\n${docSection[title].replace(/\\n/g, '\n\n')}`
 }
 
-export function getBuiltinHints(docs: Documentation): Record<string, string> {
+export function getBuiltinHints(docs: Documentation): Record<Title, Description> {
   if (builtins) return builtins
 
-  const builtins_section: Record<string, string> = {}
-  const functions: Record<string, string> = {}
-  const io_statements: Record<string, string> = {
+  const builtins_section: Record<Title, Description> = {}
+  const functions: Record<Title, Description> = {}
+  const io_statements: Record<Title, Description> = {
     // These have many special cases
     getline: '',
     print: '',
     printf: '',
   }
-  const patterns: Record<string, string> = {}
+  const patterns: Record<Title, Description> = {}
 
-  for (const key of Object.keys(docs.builtins)) {
-    builtins_section[key] = formatDocItem(docs.builtins, key)
+  for (const title of Object.keys(docs.builtins)) {
+    builtins_section[title] = formatDocItem(docs.builtins, title)
   }
 
-  for (const key of Object.keys(docs.functions)) {
-    functions[dropParamList(key)] = formatDocItem(docs.functions, key)
+  for (const title of Object.keys(docs.functions)) {
+    functions[dropParamList(title)] = formatDocItem(docs.functions, title)
   }
 
-  for (const key of Object.keys(docs.io_statements)) {
-    if (key.includes('(')) {
-      io_statements[dropParamList(key)] = `**${key}**\n\n${docs.io_statements[key]}`
-    } else if (key.includes('getline')) {
-      io_statements['getline'] += `**${key}**\n\n${docs.io_statements[key]}\n\n`
-    } else if (key.includes('printf')) {
-      io_statements['printf'] += `**${key}**\n\n${docs.io_statements[key]}\n\n`
-    } else if (key.includes('print')) {
-      io_statements['print'] += `**${key}**\n\n${docs.io_statements[key]}\n\n`
+  for (const title of Object.keys(docs.io_statements)) {
+    if (title.includes('(')) {
+      io_statements[dropParamList(title)] = `**${title}**\n\n${docs.io_statements[title]}`
+    } else if (title.includes('getline')) {
+      io_statements['getline'] += `**${title}**\n\n${docs.io_statements[title]}\n\n`
+    } else if (title.includes('printf')) {
+      io_statements['printf'] += `**${title}**\n\n${docs.io_statements[title]}\n\n`
+    } else if (title.includes('print')) {
+      io_statements['print'] += `**${title}**\n\n${docs.io_statements[title]}\n\n`
     } else {
-      io_statements[key] = docs.io_statements[key]
+      io_statements[title] = docs.io_statements[title]
     }
   }
 
-  for (const key of Object.keys(docs.patterns)) {
-    builtins_section[key] = formatDocItem(docs.patterns, key)
+  for (const title of Object.keys(docs.patterns)) {
+    builtins_section[title] = formatDocItem(docs.patterns, title)
   }
 
   builtins = {

@@ -1,4 +1,4 @@
-; tree-sitter-awk v0.3.4
+; tree-sitter-awk v0.3.5
 
 ; Order matters
 
@@ -18,6 +18,7 @@
 
 [
   "function"
+  "func"
   "print"
   "printf"
   "if"
@@ -28,6 +29,10 @@
   "in"
   "delete"
   "return"
+  "exit"
+  "switch"
+  "case"
+  "default"
   (break_statement)
   (continue_statement)
   (next_statement)

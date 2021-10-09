@@ -18,6 +18,7 @@ import {
   ReferenceParams,
   HoverParams,
   Hover,
+  SymbolKind,
 } from 'vscode-languageserver/node'
 
 import { TextDocument } from 'vscode-languageserver-textdocument'
@@ -26,7 +27,13 @@ import { initializeParser } from './parser'
 import { validate } from './validate'
 import { analyze, Symbols } from './analyze'
 import { QueryCapture, Tree } from 'web-tree-sitter'
-import { getNodeAt, getName, findReferences, getQueriesList } from './utils'
+import {
+  getNodeAt,
+  getName,
+  findReferences,
+  getQueriesList,
+  getNodeAtRange,
+} from './utils'
 import { readFileSync } from 'fs'
 import {
   enrichWithDocumentation,
@@ -37,7 +44,7 @@ import {
   UserDefinedDataEntry,
 } from './completion'
 import { getDocumentation } from './documentation'
-import { getBuiltinHints } from './hover'
+import { getBuiltinHints, getFunctionHint } from './hover'
 import { DependencyMap } from './dependencies'
 
 let context: Context
@@ -269,12 +276,44 @@ function handleHover(params: HoverParams): Hover | null {
     node = node.parent
   }
 
-  if (!node.text) return null
+  const name = getName(node)
+
+  if (!name) return null
 
   const builtins = getBuiltinHints(docs)
 
-  if (builtins[node.text]) {
-    return { contents: { kind: 'markdown', value: builtins[node.text] } }
+  if (builtins[name]) {
+    return { contents: { kind: 'markdown', value: builtins[name] } }
+  }
+
+  if (['func_call', 'func_def'].includes(node.parent?.type || '')) {
+    const allDeps = dependencies.getAll(params.textDocument.uri)
+
+    let funcDefinitionSymbol: SymbolInformation | undefined
+
+    for (const uri of allDeps) {
+      if (symbols[uri]?.has(name)) {
+        funcDefinitionSymbol = symbols[uri]
+          .get(name)!
+          .find((si) => si.kind === SymbolKind.Function)
+
+        if (funcDefinitionSymbol) break
+      }
+    }
+
+    if (!funcDefinitionSymbol) return null
+
+    const funcDefinitionNode = getNodeAtRange(
+      trees[funcDefinitionSymbol.location.uri],
+      funcDefinitionSymbol.location.range,
+    )!
+
+    return {
+      contents: {
+        kind: 'markdown',
+        value: getFunctionHint(funcDefinitionNode),
+      },
+    }
   }
 
   return null

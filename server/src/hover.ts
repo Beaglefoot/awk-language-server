@@ -1,9 +1,15 @@
+import { SyntaxNode } from 'web-tree-sitter'
 import { Description, Documentation, dropParamList, Title } from './documentation'
+import { getFunctionSignature, getPrecedingComments } from './utils'
 
 let builtins: Record<Title, Description>
 
+function formatHint(title: string, description: string): string {
+  return `**${title}**\n\n${description}`
+}
+
 function formatDocItem(docSection: Record<Title, Description>, title: Title): string {
-  return `**${title}**\n\n${docSection[title].replace(/\\n/g, '\n\n')}`
+  return formatHint(title, docSection[title].replace(/\\n/g, '\n\n'))
 }
 
 export function getBuiltinHints(docs: Documentation): Record<Title, Description> {
@@ -53,4 +59,11 @@ export function getBuiltinHints(docs: Documentation): Record<Title, Description>
   }
 
   return builtins
+}
+
+export function getFunctionHint(funcDefinitionNode: SyntaxNode): string {
+  const signature = getFunctionSignature(funcDefinitionNode)
+  const precedingComments = getPrecedingComments(funcDefinitionNode)
+
+  return formatHint(signature, precedingComments.replace(/\n/g, '\n\n'))
 }

@@ -47,7 +47,7 @@ export class DependencyMap extends Map<string, DependencyNode> {
   }
 
   /**
-   * Get entire dependency tree flattened to a list of URIs
+   * Get entire dependency tree flattened to a set of URIs
    */
   public getAll(uri: string): Set<string> {
     const result = new Set<string>()

@@ -60,13 +60,18 @@ export function getNodeAtRange(tree: Tree, range: Range): SyntaxNode | null {
 
 /** Get textual representation of the node (function name, variable name, etc.) */
 export function getName(node: SyntaxNode): string | null {
-  if (!node || (node.childCount && node.type !== 'field_ref')) return null
+  if (!node) return null
+  if (node.childCount) {
+    if (!['field_ref', 'array_ref'].includes(node.type)) return null
+  }
 
   return node.text.trim() || null
 }
 
 export function isDefinition(node: SyntaxNode): boolean {
-  return ['assignment_exp', 'func_def'].includes(node.type)
+  if (['assignment_exp', 'func_def', 'for_in_statement'].includes(node.type)) return true
+  if (node.type === 'getline_input' && node.firstNamedChild) return true
+  return false
 }
 
 export function isReference(node: SyntaxNode): boolean {

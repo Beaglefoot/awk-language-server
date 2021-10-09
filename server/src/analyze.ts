@@ -17,6 +17,8 @@ export type Symbols = Map<string, SymbolInformation[]>
 const kinds: { [tree_sitter_type: string]: SymbolKind } = {
   func_def: SymbolKind.Function,
   assignment_exp: SymbolKind.Variable,
+  for_in_statement: SymbolKind.Variable,
+  getline_input: SymbolKind.Variable,
 }
 
 export function analyze(
@@ -50,7 +52,10 @@ export function analyze(
 
     if (node.firstNamedChild === null) break
 
-    const name = node.firstNamedChild.text
+    const name =
+      node.firstNamedChild.type === 'array_ref'
+        ? node.firstNamedChild.firstNamedChild!.text
+        : node.firstNamedChild.text
 
     if (!symbols.get(name)) symbols.set(name, [])
 

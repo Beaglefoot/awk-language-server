@@ -170,7 +170,7 @@ function handleDocumentHighlight(params: DocumentHighlightParams): DocumentHighl
 }
 
 function handleDocumentSymbol(params: DocumentSymbolParams): SymbolInformation[] {
-  return Object.values(symbols[params.textDocument.uri]).flat()
+  return [...symbols[params.textDocument.uri].values()].flat()
 }
 
 function handleWorkspaceSymbol(params: WorkspaceSymbolParams): SymbolInformation[] {
@@ -178,7 +178,12 @@ function handleWorkspaceSymbol(params: WorkspaceSymbolParams): SymbolInformation
   const symbolBuckets = Object.values(symbols)
 
   for (const sb of symbolBuckets) {
-    const matchedNames = Object.keys(sb).filter((name) => name.includes(params.query))
+    const matchedNames: string[] = []
+
+    for (const name of sb.keys()) {
+      if (name.includes(params.query)) matchedNames.push(name)
+    }
+
     result.push(...matchedNames.flatMap((n) => sb.get(n) || []))
   }
 

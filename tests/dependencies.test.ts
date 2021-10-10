@@ -44,3 +44,45 @@ describe('DependencyMap.hasParent method', () => {
     expect(dmap.hasParent('b', 'root')).toBeTruthy()
   })
 })
+
+describe('DependencyMap.getAllBreadthFirst method', () => {
+  it('should return set of all dependencies in breadth first iteration order', () => {
+    const dmap = new DependencyMap()
+
+    dmap.update('root', new Set(['a', 'b']))
+    dmap.update('a', new Set(['a1', 'a2']))
+    dmap.update('b', new Set(['b1', 'b2']))
+
+    expect([...dmap.getAllBreadthFirst('root')]).toEqual([
+      'root',
+      'a',
+      'b',
+      'a1',
+      'a2',
+      'b1',
+      'b2',
+    ])
+  })
+})
+
+describe('DependencyMap.getAllDepthFirst method', () => {
+  it('should return set of all dependencies in depth first iteration order', () => {
+    const dmap = new DependencyMap()
+
+    dmap.update('root', new Set(['a', 'b']))
+    dmap.update('a', new Set(['a1', 'a2']))
+    dmap.update('b', new Set(['b1', 'b2']))
+    dmap.update('a1', new Set(['a1.1']))
+
+    expect([...dmap.getAllDepthFirst('root')]).toEqual([
+      'root',
+      'a',
+      'a1',
+      'a1.1',
+      'a2',
+      'b',
+      'b1',
+      'b2',
+    ])
+  })
+})

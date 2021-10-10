@@ -49,7 +49,7 @@ export class DependencyMap extends Map<string, DependencyNode> {
   /**
    * Get entire dependency tree flattened to a set of URIs
    */
-  public getAll(uri: string): Set<string> {
+  public getAllBreadthFirst(uri: string): Set<string> {
     const result = new Set<string>()
     const queue = [uri]
 
@@ -61,6 +61,26 @@ export class DependencyMap extends Map<string, DependencyNode> {
       this.get(uri).childrenUris.forEach((u) => {
         result.add(u)
         queue.push(u)
+      })
+    }
+
+    return result
+  }
+
+  /**
+   * Get entire dependency tree flattened to a set of URIs
+   */
+  public getAllDepthFirst(uri: string): Set<string> {
+    const result = new Set<string>()
+    const stack = [uri]
+
+    while (stack.length) {
+      const uri = stack.pop() as string
+
+      result.add(uri)
+
+      ;[...this.get(uri).childrenUris].reverse().forEach((u) => {
+        stack.push(u)
       })
     }
 

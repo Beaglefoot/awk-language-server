@@ -1,6 +1,7 @@
 import { SyntaxNode } from 'web-tree-sitter'
 import { Description, Documentation, dropParamList, Title } from './documentation'
 import { getFunctionSignature, getPrecedingComments } from './utils'
+import { basename } from 'path'
 
 let builtins: Record<Title, Description>
 
@@ -66,4 +67,15 @@ export function getFunctionHint(funcDefinitionNode: SyntaxNode): string {
   const precedingComments = getPrecedingComments(funcDefinitionNode)
 
   return formatHint(signature, precedingComments.replace(/\n/g, '\n\n'))
+}
+
+export function getVariableHint(definitionNode: SyntaxNode, uri: string): string {
+  const filename = basename(uri)
+
+  return (
+    `Variable defined at [${filename}](${uri})\n\n` +
+    '```awk\n' +
+    definitionNode.text +
+    '\n```'
+  )
 }

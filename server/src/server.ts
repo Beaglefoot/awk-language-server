@@ -44,8 +44,9 @@ import {
   UserDefinedDataEntry,
 } from './completion'
 import { getDocumentation } from './documentation'
-import { getBuiltinHints, getFunctionHint } from './hover'
+import { getBuiltinHints, getFunctionHint, getVariableHint } from './hover'
 import { DependencyMap } from './dependencies'
+import { getFinalSymbolByPosition, getNearestPrecedingSymbol } from './symbols'
 
 let context: Context
 
@@ -120,7 +121,7 @@ function handleDidOpen(change: TextDocumentChangeEvent<TextDocument>) {
 function handleCompletion(
   textDocumentPosition: TextDocumentPositionParams,
 ): CompletionItem[] {
-  const allDeps = dependencies.getAll(textDocumentPosition.textDocument.uri)
+  const allDeps = dependencies.getAllBreadthFirst(textDocumentPosition.textDocument.uri)
   const allSymbols = [...allDeps]
     .filter((uri) => symbols[uri])
     .flatMap((uri) => [...symbols[uri].values()].flat())
@@ -287,7 +288,7 @@ function handleHover(params: HoverParams): Hover | null {
   }
 
   if (['func_call', 'func_def'].includes(node.parent?.type || '')) {
-    const allDeps = dependencies.getAll(params.textDocument.uri)
+    const allDeps = dependencies.getAllBreadthFirst(params.textDocument.uri)
 
     let funcDefinitionSymbol: SymbolInformation | undefined
 
@@ -312,6 +313,43 @@ function handleHover(params: HoverParams): Hover | null {
       contents: {
         kind: 'markdown',
         value: getFunctionHint(funcDefinitionNode),
+      },
+    }
+  }
+
+  if (node.type === 'identifier') {
+    let nearestSymbol: SymbolInformation | null = null
+
+    if (symbols[params.textDocument.uri].has(name)) {
+      nearestSymbol = getNearestPrecedingSymbol(
+        params.position,
+        symbols[params.textDocument.uri].get(name)!,
+      )
+    }
+
+    if (!nearestSymbol) {
+      const uriWithFinalDefinition = [
+        ...dependencies.getAllDepthFirst(params.textDocument.uri),
+      ]
+        .reverse()
+        .find((u) => symbols[u]?.has(name))
+
+      if (!uriWithFinalDefinition) return null
+
+      nearestSymbol = getFinalSymbolByPosition(symbols[uriWithFinalDefinition].get(name)!)
+    }
+
+    if (!nearestSymbol) return null
+
+    const definitionNode = getNodeAtRange(
+      trees[nearestSymbol.location.uri],
+      nearestSymbol.location.range,
+    )!
+
+    return {
+      contents: {
+        kind: 'markdown',
+        value: getVariableHint(definitionNode, nearestSymbol.location.uri),
       },
     }
   }

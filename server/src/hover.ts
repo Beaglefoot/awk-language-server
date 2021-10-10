@@ -6,7 +6,7 @@ import { basename } from 'path'
 let builtins: Record<Title, Description>
 
 function formatHint(title: string, description: string): string {
-  return `**${title}**\n\n${description}`
+  return '```\n' + title + '\n```\n\n' + description + '\n\n'
 }
 
 function formatDocItem(docSection: Record<Title, Description>, title: Title): string {
@@ -36,13 +36,13 @@ export function getBuiltinHints(docs: Documentation): Record<Title, Description>
 
   for (const title of Object.keys(docs.io_statements)) {
     if (title.includes('(')) {
-      io_statements[dropParamList(title)] = `**${title}**\n\n${docs.io_statements[title]}`
+      io_statements[dropParamList(title)] = formatHint(title, docs.io_statements[title])
     } else if (title.includes('getline')) {
-      io_statements['getline'] += `**${title}**\n\n${docs.io_statements[title]}\n\n`
+      io_statements['getline'] += formatHint(title, docs.io_statements[title])
     } else if (title.includes('printf')) {
-      io_statements['printf'] += `**${title}**\n\n${docs.io_statements[title]}\n\n`
+      io_statements['printf'] += formatHint(title, docs.io_statements[title])
     } else if (title.includes('print')) {
-      io_statements['print'] += `**${title}**\n\n${docs.io_statements[title]}\n\n`
+      io_statements['print'] += formatHint(title, docs.io_statements[title])
     } else {
       io_statements[title] = docs.io_statements[title]
     }
@@ -73,9 +73,6 @@ export function getVariableHint(definitionNode: SyntaxNode, uri: string): string
   const filename = basename(uri)
 
   return (
-    `Variable defined at [${filename}](${uri})\n\n` +
-    '```awk\n' +
-    definitionNode.text +
-    '\n```'
+    `Variable defined at [${filename}](${uri})\n\n` + formatHint(definitionNode.text, '')
   )
 }

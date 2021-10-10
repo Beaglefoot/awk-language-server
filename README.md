@@ -13,7 +13,7 @@ Implementation of AWK Language Server based on [tree-sitter](https://github.com/
   - [x] User defined symbols
 - [x] Hints on hover
   - [x] Builtins
-  - [ ] User defined symbols
+  - [x] User defined symbols
 - [x] Go to definition
 - [x] Code outline & symbol references
 - [x] Document symbols

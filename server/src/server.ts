@@ -47,8 +47,10 @@ import { DependencyMap } from './dependencies'
 import { getFinalSymbolByPosition, getNearestPrecedingSymbol } from './symbols'
 import { getDocumentSymbolHandler } from './handlers/handleDocumentSymbol'
 import { Context, SymbolsByUri, TreesByUri } from './interfaces'
+import { getInitializeHandler } from './handlers/handleInitialize'
 
-let context: Context
+// Initialized later
+let context = {} as Context
 
 const connection = createConnection(ProposedFeatures.all)
 const documents: TextDocuments<TextDocument> = new TextDocuments(TextDocument)
@@ -58,7 +60,7 @@ const symbols: SymbolsByUri = {}
 const dependencies = new DependencyMap()
 
 function registerHandlers() {
-  connection.onInitialize(handleInitialize)
+  connection.onInitialize(getInitializeHandler(context, connection, documents, docs))
   documents.onDidChangeContent(handleDidChangeContent)
   documents.onDidOpen(handleDidOpen)
   connection.onCompletion(handleCompletion)
@@ -70,30 +72,6 @@ function registerHandlers() {
   connection.onReferences(handleReferences)
   connection.onHover(handleHover)
   connection.onRequest('getSemanticTokens', handleSemanticTokens)
-}
-
-async function handleInitialize(params: InitializeParams): Promise<InitializeResult> {
-  const parser = await initializeParser()
-  initCompletionList(docs)
-
-  context = { connection, documents, capabilities: params.capabilities, parser }
-
-  const result: InitializeResult = {
-    capabilities: {
-      textDocumentSync: TextDocumentSyncKind.Incremental,
-      completionProvider: {
-        resolveProvider: true,
-      },
-      definitionProvider: true,
-      documentHighlightProvider: true,
-      documentSymbolProvider: true,
-      workspaceSymbolProvider: true,
-      referencesProvider: true,
-      hoverProvider: true,
-    },
-  }
-
-  return result
 }
 
 function handleDidChangeContent(change: TextDocumentChangeEvent<TextDocument>) {

@@ -1,7 +1,7 @@
 import { readFileSync } from 'fs'
 import { URL } from 'url'
 import { TextDocument } from 'vscode-languageserver-textdocument'
-import { Context } from './context'
+import { Context } from './interfaces'
 
 export function readDocumentFromUrl(context: Context, url: URL): TextDocument | null {
   let content: string

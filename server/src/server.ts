@@ -12,7 +12,6 @@ import {
   Location,
   DocumentHighlightParams,
   DocumentHighlight,
-  DocumentSymbolParams,
   SymbolInformation,
   WorkspaceSymbolParams,
   ReferenceParams,
@@ -22,11 +21,10 @@ import {
 } from 'vscode-languageserver/node'
 
 import { TextDocument } from 'vscode-languageserver-textdocument'
-import { Context } from './context'
 import { initializeParser } from './parser'
 import { validate } from './validate'
-import { analyze, Symbols } from './analyze'
-import { QueryCapture, Tree } from 'web-tree-sitter'
+import { analyze } from './analyze'
+import { QueryCapture } from 'web-tree-sitter'
 import {
   getNodeAt,
   getName,
@@ -47,14 +45,16 @@ import { getDocumentation } from './documentation'
 import { getBuiltinHints, getFunctionHint, getVariableHint } from './hover'
 import { DependencyMap } from './dependencies'
 import { getFinalSymbolByPosition, getNearestPrecedingSymbol } from './symbols'
+import { getDocumentSymbolHandler } from './handlers/handleDocumentSymbol'
+import { Context, SymbolsByUri, TreesByUri } from './interfaces'
 
 let context: Context
 
 const connection = createConnection(ProposedFeatures.all)
 const documents: TextDocuments<TextDocument> = new TextDocuments(TextDocument)
 const docs = getDocumentation()
-const trees: { [uri: string]: Tree } = {}
-const symbols: { [uri: string]: Symbols } = {}
+const trees: TreesByUri = {}
+const symbols: SymbolsByUri = {}
 const dependencies = new DependencyMap()
 
 function registerHandlers() {
@@ -65,7 +65,7 @@ function registerHandlers() {
   connection.onCompletionResolve(handleCompletionResolve)
   connection.onDefinition(handleDefinition)
   connection.onDocumentHighlight(handleDocumentHighlight)
-  connection.onDocumentSymbol(handleDocumentSymbol)
+  connection.onDocumentSymbol(getDocumentSymbolHandler(symbols))
   connection.onWorkspaceSymbol(handleWorkspaceSymbol)
   connection.onReferences(handleReferences)
   connection.onHover(handleHover)
@@ -175,10 +175,6 @@ function handleDocumentHighlight(params: DocumentHighlightParams): DocumentHighl
   const tree = trees[textDocument.uri]
 
   return findReferences(tree, queriedName).map((range) => DocumentHighlight.create(range))
-}
-
-function handleDocumentSymbol(params: DocumentSymbolParams): SymbolInformation[] {
-  return [...symbols[params.textDocument.uri].values()].flat()
 }
 
 function handleWorkspaceSymbol(params: WorkspaceSymbolParams): SymbolInformation[] {

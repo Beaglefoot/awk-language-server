@@ -1,5 +1,5 @@
-import { getFunctionSignature, getQueriesList } from '../server/src/utils'
-import { initializeParser } from '../server/src/parser'
+import { getFunctionSignature, getQueriesList } from '../src/utils'
+import { initializeParser } from '../src/parser'
 import * as Parser from 'web-tree-sitter'
 
 function normalizeSpace(str: string): string {
@@ -79,7 +79,6 @@ describe('getFunctionSignature function', () => {
     ) {}
     `)
     const functionDefinitionNode = tree.rootNode.descendantsOfType('func_def')[0]
-    console.log(functionDefinitionNode.text)
 
     expect(getFunctionSignature(functionDefinitionNode)).toEqual('f(a, b)')
   })

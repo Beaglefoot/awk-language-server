@@ -3,8 +3,6 @@ import {
   TextDocuments,
   ProposedFeatures,
   Location,
-  DocumentHighlightParams,
-  DocumentHighlight,
   SymbolInformation,
   WorkspaceSymbolParams,
   ReferenceParams,
@@ -56,6 +54,7 @@ function registerHandlers() {
   const handleCompletionResolve = getCompletionResolveHandler(trees, docs)
   const handleDefinition = getDefinitionHandler(trees, symbols, dependencies)
   const handleDocumentHighlight = getDocumentHighlightHandler(trees)
+  const handleDocumentSymbol = getDocumentSymbolHandler(symbols)
 
   connection.onInitialize(handleInitialize)
   documents.onDidChangeContent(handleDidChangeContent)
@@ -64,7 +63,7 @@ function registerHandlers() {
   connection.onCompletionResolve(handleCompletionResolve)
   connection.onDefinition(handleDefinition)
   connection.onDocumentHighlight(handleDocumentHighlight)
-  connection.onDocumentSymbol(getDocumentSymbolHandler(symbols))
+  connection.onDocumentSymbol(handleDocumentSymbol)
   connection.onWorkspaceSymbol(handleWorkspaceSymbol)
   connection.onReferences(handleReferences)
   connection.onHover(handleHover)

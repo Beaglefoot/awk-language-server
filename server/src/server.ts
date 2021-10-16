@@ -4,7 +4,6 @@ import {
   ProposedFeatures,
   Location,
   SymbolInformation,
-  WorkspaceSymbolParams,
   ReferenceParams,
   HoverParams,
   Hover,
@@ -34,6 +33,7 @@ import { getCompletionHandler } from './handlers/handleCompletion'
 import { getCompletionResolveHandler } from './handlers/handleCompletionResolve'
 import { getDefinitionHandler } from './handlers/handleDefinition'
 import { getDocumentHighlightHandler } from './handlers/handleDocumentHighlight'
+import { getWorkspaceSymbolHandler } from './handlers/handleWorkspaceSymbol'
 
 // Initialized later
 let context = {} as Context
@@ -55,6 +55,7 @@ function registerHandlers() {
   const handleDefinition = getDefinitionHandler(trees, symbols, dependencies)
   const handleDocumentHighlight = getDocumentHighlightHandler(trees)
   const handleDocumentSymbol = getDocumentSymbolHandler(symbols)
+  const handleWorkspaceSymbol = getWorkspaceSymbolHandler(symbols)
 
   connection.onInitialize(handleInitialize)
   documents.onDidChangeContent(handleDidChangeContent)
@@ -68,23 +69,6 @@ function registerHandlers() {
   connection.onReferences(handleReferences)
   connection.onHover(handleHover)
   connection.onRequest('getSemanticTokens', handleSemanticTokens)
-}
-
-function handleWorkspaceSymbol(params: WorkspaceSymbolParams): SymbolInformation[] {
-  const result: SymbolInformation[] = []
-  const symbolBuckets = Object.values(symbols)
-
-  for (const sb of symbolBuckets) {
-    const matchedNames: string[] = []
-
-    for (const name of sb.keys()) {
-      if (name.includes(params.query)) matchedNames.push(name)
-    }
-
-    result.push(...matchedNames.flatMap((n) => sb.get(n) || []))
-  }
-
-  return result
 }
 
 function handleReferences(params: ReferenceParams): Location[] {

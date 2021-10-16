@@ -11,7 +11,7 @@ import { getConnections } from '../helpers'
 import { SymbolsByUri, SymbolsMap } from '../../src/interfaces'
 import { getDocumentSymbolHandler } from '../../src/handlers/handleDocumentSymbol'
 
-describe('DocumentSymbol request handler ', () => {
+describe('handleDocumentSymbol', () => {
   let server: MessageConnection
   let client: MessageConnection
 
@@ -21,7 +21,7 @@ describe('DocumentSymbol request handler ', () => {
     client = connections.client
   })
 
-  test('handleDocumentSymbol', async () => {
+  it('should provide list of symbols from current document', async () => {
     // Arrange
     const uri = 'file:///my_file.awk'
     const symbolsMap: SymbolsMap = new Map()

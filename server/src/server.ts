@@ -2,7 +2,6 @@ import {
   createConnection,
   TextDocuments,
   ProposedFeatures,
-  CompletionItem,
   DefinitionParams,
   Location,
   DocumentHighlightParams,
@@ -25,11 +24,6 @@ import {
   getNodeAtRange,
 } from './utils'
 import { readFileSync } from 'fs'
-import {
-  enrichWithDocumentation,
-  enrichWithSymbolInfo,
-  UserDefinedDataEntry,
-} from './completion'
 import { getDocumentation } from './documentation'
 import { getBuiltinHints, getFunctionHint, getVariableHint } from './hover'
 import { DependencyMap } from './dependencies'
@@ -40,6 +34,7 @@ import { getInitializeHandler } from './handlers/handleInitialize'
 import { getDidChangeContentHandler } from './handlers/handleDidChangeContent'
 import { getDidOpenHandler } from './handlers/handleDidOpen'
 import { getCompletionHandler } from './handlers/handleCompletion'
+import { getCompletionResolveHandler } from './handlers/handleCompletionResolve'
 
 // Initialized later
 let context = {} as Context
@@ -57,6 +52,7 @@ function registerHandlers() {
   const handleDidChangeContent = getDidChangeContentHandler(context, trees, symbols, dependencies)
   const handleDidOpen = getDidOpenHandler(context, trees, symbols, dependencies)
   const handleCompletion = getCompletionHandler(symbols, dependencies)
+  const handleCompletionResolve = getCompletionResolveHandler(trees, docs)
 
   connection.onInitialize(handleInitialize)
   documents.onDidChangeContent(handleDidChangeContent)
@@ -70,17 +66,6 @@ function registerHandlers() {
   connection.onReferences(handleReferences)
   connection.onHover(handleHover)
   connection.onRequest('getSemanticTokens', handleSemanticTokens)
-}
-
-function handleCompletionResolve(item: CompletionItem): CompletionItem {
-  if (typeof item.data === 'string') {
-    enrichWithDocumentation(item, docs)
-  } else if (item.data?.type === 'user_defined') {
-    const { symbolInfo } = item.data as UserDefinedDataEntry
-    enrichWithSymbolInfo(item, trees[symbolInfo.location.uri])
-  }
-
-  return item
 }
 
 function handleDefinition(params: DefinitionParams): Location[] {

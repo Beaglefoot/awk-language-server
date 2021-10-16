@@ -2,9 +2,7 @@ import {
   createConnection,
   TextDocuments,
   ProposedFeatures,
-  Location,
   SymbolInformation,
-  ReferenceParams,
   HoverParams,
   Hover,
   SymbolKind,
@@ -12,13 +10,7 @@ import {
 
 import { TextDocument } from 'vscode-languageserver-textdocument'
 import { QueryCapture } from 'web-tree-sitter'
-import {
-  getNodeAt,
-  getName,
-  findReferences,
-  getQueriesList,
-  getNodeAtRange,
-} from './utils'
+import { getNodeAt, getName, getQueriesList, getNodeAtRange } from './utils'
 import { readFileSync } from 'fs'
 import { getDocumentation } from './documentation'
 import { getBuiltinHints, getFunctionHint, getVariableHint } from './hover'
@@ -34,6 +26,7 @@ import { getCompletionResolveHandler } from './handlers/handleCompletionResolve'
 import { getDefinitionHandler } from './handlers/handleDefinition'
 import { getDocumentHighlightHandler } from './handlers/handleDocumentHighlight'
 import { getWorkspaceSymbolHandler } from './handlers/handleWorkspaceSymbol'
+import { getReferencesHandler } from './handlers/handleReferences'
 
 // Initialized later
 let context = {} as Context
@@ -56,6 +49,7 @@ function registerHandlers() {
   const handleDocumentHighlight = getDocumentHighlightHandler(trees)
   const handleDocumentSymbol = getDocumentSymbolHandler(symbols)
   const handleWorkspaceSymbol = getWorkspaceSymbolHandler(symbols)
+  const handleReferences = getReferencesHandler(trees, dependencies)
 
   connection.onInitialize(handleInitialize)
   documents.onDidChangeContent(handleDidChangeContent)
@@ -69,34 +63,6 @@ function registerHandlers() {
   connection.onReferences(handleReferences)
   connection.onHover(handleHover)
   connection.onRequest('getSemanticTokens', handleSemanticTokens)
-}
-
-function handleReferences(params: ReferenceParams): Location[] {
-  const { textDocument, position } = params
-  const node = getNodeAt(trees[textDocument.uri], position.line, position.character)
-
-  if (!node) return []
-
-  const name = getName(node)
-
-  if (!name) return []
-
-  const result: Location[] = []
-
-  for (const uri of Object.keys(trees)) {
-    if (
-      uri !== textDocument.uri &&
-      !dependencies.hasParent(textDocument.uri, uri) &&
-      !dependencies.hasParent(uri, textDocument.uri)
-    )
-      continue
-
-    result.push(
-      ...findReferences(trees[uri], name).map((range) => Location.create(uri, range)),
-    )
-  }
-
-  return result
 }
 
 interface UnencodedSemanticToken {

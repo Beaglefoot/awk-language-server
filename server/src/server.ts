@@ -2,7 +2,6 @@ import {
   createConnection,
   TextDocuments,
   ProposedFeatures,
-  DefinitionParams,
   Location,
   DocumentHighlightParams,
   DocumentHighlight,
@@ -35,6 +34,7 @@ import { getDidChangeContentHandler } from './handlers/handleDidChangeContent'
 import { getDidOpenHandler } from './handlers/handleDidOpen'
 import { getCompletionHandler } from './handlers/handleCompletion'
 import { getCompletionResolveHandler } from './handlers/handleCompletionResolve'
+import { getDefinitionHandler } from './handlers/handleDefinition'
 
 // Initialized later
 let context = {} as Context
@@ -53,6 +53,7 @@ function registerHandlers() {
   const handleDidOpen = getDidOpenHandler(context, trees, symbols, dependencies)
   const handleCompletion = getCompletionHandler(symbols, dependencies)
   const handleCompletionResolve = getCompletionResolveHandler(trees, docs)
+  const handleDefinition = getDefinitionHandler(trees, symbols, dependencies)
 
   connection.onInitialize(handleInitialize)
   documents.onDidChangeContent(handleDidChangeContent)
@@ -66,25 +67,6 @@ function registerHandlers() {
   connection.onReferences(handleReferences)
   connection.onHover(handleHover)
   connection.onRequest('getSemanticTokens', handleSemanticTokens)
-}
-
-function handleDefinition(params: DefinitionParams): Location[] {
-  const { textDocument, position } = params
-  const node = getNodeAt(trees[textDocument.uri], position.line, position.character)
-
-  if (!node) return []
-
-  const name = getName(node)
-
-  if (!name) return []
-
-  return Object.keys(symbols)
-    .filter(
-      (uri) =>
-        symbols[uri].get(name) &&
-        (uri === textDocument.uri || dependencies.hasParent(uri, textDocument.uri)),
-    )
-    .flatMap((uri) => (symbols[uri].get(name) || []).map((s) => s.location))
 }
 
 function handleDocumentHighlight(params: DocumentHighlightParams): DocumentHighlight[] {

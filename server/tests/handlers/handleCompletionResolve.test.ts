@@ -6,7 +6,7 @@ import {
   SymbolInformation,
   SymbolKind,
 } from 'vscode-languageserver-protocol'
-import { getConnections, getDummyContext, getRange } from '../helpers'
+import { getConnections, getRange } from '../helpers'
 import { TreesByUri } from '../../src/interfaces'
 import { getCompletionResolveHandler } from '../../src/handlers/handleCompletionResolve'
 import { Documentation, getDocumentation } from '../../src/documentation'

@@ -35,6 +35,7 @@ import { getDidOpenHandler } from './handlers/handleDidOpen'
 import { getCompletionHandler } from './handlers/handleCompletion'
 import { getCompletionResolveHandler } from './handlers/handleCompletionResolve'
 import { getDefinitionHandler } from './handlers/handleDefinition'
+import { getDocumentHighlightHandler } from './handlers/handleDocumentHighlight'
 
 // Initialized later
 let context = {} as Context
@@ -54,6 +55,7 @@ function registerHandlers() {
   const handleCompletion = getCompletionHandler(symbols, dependencies)
   const handleCompletionResolve = getCompletionResolveHandler(trees, docs)
   const handleDefinition = getDefinitionHandler(trees, symbols, dependencies)
+  const handleDocumentHighlight = getDocumentHighlightHandler(trees)
 
   connection.onInitialize(handleInitialize)
   documents.onDidChangeContent(handleDidChangeContent)
@@ -67,24 +69,6 @@ function registerHandlers() {
   connection.onReferences(handleReferences)
   connection.onHover(handleHover)
   connection.onRequest('getSemanticTokens', handleSemanticTokens)
-}
-
-function handleDocumentHighlight(params: DocumentHighlightParams): DocumentHighlight[] {
-  const { textDocument, position } = params
-  let node = getNodeAt(trees[textDocument.uri], position.line, position.character)
-
-  if (!node) return []
-  if (node.type === 'number' && node.parent?.type === 'field_ref') {
-    node = node.parent
-  }
-
-  const queriedName = getName(node)
-
-  if (!queriedName) return []
-
-  const tree = trees[textDocument.uri]
-
-  return findReferences(tree, queriedName).map((range) => DocumentHighlight.create(range))
 }
 
 function handleWorkspaceSymbol(params: WorkspaceSymbolParams): SymbolInformation[] {

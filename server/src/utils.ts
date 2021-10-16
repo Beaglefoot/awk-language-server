@@ -160,10 +160,10 @@ export function getFunctionSignature(node: SyntaxNode): string {
 
   const params = node
     .descendantsOfType('param_list')[0]
-    .text.replaceAll(/#.*/g, '')
-    .replaceAll(/\s+/g, ' ')
+    ?.text?.replaceAll(/#.*/g, '')
+    ?.replaceAll(/\s+/g, ' ')
 
-  return `${(node.firstNamedChild as SyntaxNode).text}(${params})`
+  return `${(node.firstNamedChild as SyntaxNode).text}(${params || ''})`
 }
 
 export function getPrecedingComments(node: SyntaxNode | null): string {

@@ -5,9 +5,6 @@ import {
 } from 'vscode-languageserver/node'
 
 import { TextDocument } from 'vscode-languageserver-textdocument'
-import { QueryCapture } from 'web-tree-sitter'
-import { getQueriesList } from './utils'
-import { readFileSync } from 'fs'
 import { getDocumentation } from './documentation'
 import { DependencyMap } from './dependencies'
 import { getDocumentSymbolHandler } from './handlers/handleDocumentSymbol'
@@ -22,6 +19,7 @@ import { getDocumentHighlightHandler } from './handlers/handleDocumentHighlight'
 import { getWorkspaceSymbolHandler } from './handlers/handleWorkspaceSymbol'
 import { getReferencesHandler } from './handlers/handleReferences'
 import { getHoverHandler } from './handlers/handleHover'
+import { getSemanticTokensHandler } from './handlers/handleSemanticTokens'
 
 // Initialized later
 let context = {} as Context
@@ -46,6 +44,7 @@ function registerHandlers() {
   const handleWorkspaceSymbol = getWorkspaceSymbolHandler(symbols)
   const handleReferences = getReferencesHandler(trees, dependencies)
   const handleHover = getHoverHandler(trees, symbols, dependencies, docs)
+  const handleSemanticTokens = getSemanticTokensHandler(trees, connection)
 
   connection.onInitialize(handleInitialize)
   documents.onDidChangeContent(handleDidChangeContent)
@@ -59,46 +58,6 @@ function registerHandlers() {
   connection.onReferences(handleReferences)
   connection.onHover(handleHover)
   connection.onRequest('getSemanticTokens', handleSemanticTokens)
-}
-
-interface UnencodedSemanticToken {
-  line: number
-  startChar: number
-  length: number
-  tokenType: string
-  tokenModifiers: string[]
-}
-
-function handleSemanticTokens(params: {
-  textDocument: TextDocument
-}): UnencodedSemanticToken[] {
-  const { textDocument } = params
-  const tree = trees[textDocument.uri]
-  const lang = tree.getLanguage()
-
-  const queriesText = readFileSync(`${__dirname}/../highlights.scm`, 'utf8')
-  const queriesList = getQueriesList(queriesText).reverse() // Reverse to prioritize in tree-sitter manner
-  const captures: QueryCapture[] = []
-
-  for (const queryString of queriesList) {
-    const query = lang.query(queryString)
-
-    if (query.captureNames.length > 1) {
-      connection.console.warn(
-        `Got more that 1 captureNames: ${query.captureNames.join(', ')}`,
-      )
-    }
-
-    captures.push(...query.captures(tree.rootNode))
-  }
-
-  return captures.map<UnencodedSemanticToken>(({ name, node }) => ({
-    line: node.startPosition.row,
-    startChar: node.startPosition.column,
-    length: node.endIndex - node.startIndex,
-    tokenType: name,
-    tokenModifiers: [],
-  }))
 }
 
 function main() {

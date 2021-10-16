@@ -3,7 +3,9 @@
   "scripts": {
     "compile": "tsc -b",
     "watch": "tsc -b -w",
-    "postinstall": "cd client && yarn && cd ../server && yarn && cd .."
+    "postinstall": "cd client && yarn && cd ../server && yarn && cd ..",
+    "test": "jest",
+    "test:server": "jest server/tests"
   },
   "devDependencies": {
     "@types/jest": "27.0.1",

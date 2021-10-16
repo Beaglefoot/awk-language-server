@@ -2,9 +2,14 @@ import { StreamMessageReader, StreamMessageWriter } from 'vscode-jsonrpc/node'
 import {
   createMessageConnection,
   MessageConnection,
+  Position,
 } from 'vscode-languageserver-protocol'
 import { Duplex } from 'stream'
-import { Logger } from 'vscode-languageserver/node'
+import { Logger, TextDocuments } from 'vscode-languageserver/node'
+import { Context } from '../src/interfaces'
+import { TextDocument } from 'vscode-languageserver-textdocument'
+import * as Parser from 'web-tree-sitter'
+import { Range } from 'vscode-languageserver/node'
 
 export class NullLogger implements Logger {
   error(_message: string): void {}
@@ -46,4 +51,31 @@ export function getConnections(): {
   server.listen()
 
   return { client, server }
+}
+
+export function getDummyContext(server: MessageConnection, parser: Parser): Context {
+  const missingConnectionProperties = {
+    console: { log: jest.fn() },
+    sendDiagnostics: jest.fn(),
+  }
+  const documents: TextDocuments<TextDocument> = new TextDocuments(TextDocument)
+
+  return {
+    connection: { ...server, ...missingConnectionProperties } as any,
+    documents,
+    capabilities: {},
+    parser,
+  }
+}
+
+export function getRange(
+  startLine: number,
+  startCharacter: number,
+  endLine: number,
+  endCharacter: number,
+): Range {
+  return Range.create(
+    Position.create(startLine, startCharacter),
+    Position.create(endLine, endCharacter),
+  )
 }

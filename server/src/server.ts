@@ -2,11 +2,8 @@ import {
   createConnection,
   TextDocuments,
   ProposedFeatures,
-  InitializeParams,
   CompletionItem,
   TextDocumentPositionParams,
-  TextDocumentSyncKind,
-  InitializeResult,
   TextDocumentChangeEvent,
   DefinitionParams,
   Location,
@@ -21,8 +18,6 @@ import {
 } from 'vscode-languageserver/node'
 
 import { TextDocument } from 'vscode-languageserver-textdocument'
-import { initializeParser } from './parser'
-import { validate } from './validate'
 import { analyze } from './analyze'
 import { QueryCapture } from 'web-tree-sitter'
 import {
@@ -37,7 +32,6 @@ import {
   enrichWithDocumentation,
   enrichWithSymbolInfo,
   getPredefinedCompletionItems,
-  initCompletionList,
   symbolInfoToCompletionItem,
   UserDefinedDataEntry,
 } from './completion'
@@ -48,6 +42,7 @@ import { getFinalSymbolByPosition, getNearestPrecedingSymbol } from './symbols'
 import { getDocumentSymbolHandler } from './handlers/handleDocumentSymbol'
 import { Context, SymbolsByUri, TreesByUri } from './interfaces'
 import { getInitializeHandler } from './handlers/handleInitialize'
+import { getDidChangeContentHandler } from './handlers/handleDidChangeContent'
 
 // Initialized later
 let context = {} as Context
@@ -61,7 +56,9 @@ const dependencies = new DependencyMap()
 
 function registerHandlers() {
   connection.onInitialize(getInitializeHandler(context, connection, documents, docs))
-  documents.onDidChangeContent(handleDidChangeContent)
+  documents.onDidChangeContent(
+    getDidChangeContentHandler(context, trees, symbols, dependencies),
+  )
   documents.onDidOpen(handleDidOpen)
   connection.onCompletion(handleCompletion)
   connection.onCompletionResolve(handleCompletionResolve)
@@ -72,18 +69,6 @@ function registerHandlers() {
   connection.onReferences(handleReferences)
   connection.onHover(handleHover)
   connection.onRequest('getSemanticTokens', handleSemanticTokens)
-}
-
-function handleDidChangeContent(change: TextDocumentChangeEvent<TextDocument>) {
-  const results = analyze(context, change.document, false)
-  const diagnostics = validate(results[0].tree)
-
-  trees[change.document.uri] = results[0].tree
-  symbols[change.document.uri] = results[0].symbols
-
-  dependencies.update(change.document.uri, new Set(results[0].dependencyUris))
-
-  context.connection.sendDiagnostics({ uri: change.document.uri, diagnostics })
 }
 
 function handleDidOpen(change: TextDocumentChangeEvent<TextDocument>) {

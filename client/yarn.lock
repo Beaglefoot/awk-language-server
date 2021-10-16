@@ -19,10 +19,10 @@ agent-base@6:
   dependencies:
     debug "4"
 
-awk-language-server@0.4.0:
-  version "0.4.0"
-  resolved "https://registry.yarnpkg.com/awk-language-server/-/awk-language-server-0.4.0.tgz#0361d98ff973ef4d9fbc632c527ea0514ac769fc"
-  integrity sha512-M+o+egX/v2Vw2GIbjWqE8xf2VMhVtSJZj/NKe439V5y6LlKzUfyWHo5PIlGCrEwM6Bq5f9Iy35gcX/ufRg2hQQ==
+awk-language-server@0.4.1:
+  version "0.4.1"
+  resolved "https://registry.yarnpkg.com/awk-language-server/-/awk-language-server-0.4.1.tgz#0fdf66ce91eb0bb0589253da5291c94e19c18e22"
+  integrity sha512-H0oUmQFx7bGNMDQTHU9Qn+c054/QnV8AUWeLrpu6HMnY/bgz/F6gFabwjRVzEARTn0sCdqEh2KLi7dOnrio64w==
   dependencies:
     vscode-languageserver "^7.0.0"
     vscode-languageserver-textdocument "^1.0.1"
@@ -320,9 +320,9 @@ vscode-languageserver-protocol@3.16.0:
     vscode-languageserver-types "3.16.0"
 
 vscode-languageserver-textdocument@^1.0.1:
-  version "1.0.1"
-  resolved "https://registry.yarnpkg.com/vscode-languageserver-textdocument/-/vscode-languageserver-textdocument-1.0.1.tgz#178168e87efad6171b372add1dea34f53e5d330f"
-  integrity sha512-UIcJDjX7IFkck7cSkNNyzIz5FyvpQfY7sdzVy+wkKN/BLaD4DQ0ppXQrKePomCxTS7RrolK1I0pey0bG9eh8dA==
+  version "1.0.2"
+  resolved "https://registry.yarnpkg.com/vscode-languageserver-textdocument/-/vscode-languageserver-textdocument-1.0.2.tgz#2f9f6bd5b5eb3d8e21424c0c367009216f016236"
+  integrity sha512-T7uPC18+f8mYE4lbVZwb3OSmvwTZm3cuFhrdx9Bn2l11lmp3SvSuSVjy2JtvrghzjAo4G6Trqny2m9XGnFnWVA==
 
 vscode-languageserver-types@3.16.0:
   version "3.16.0"

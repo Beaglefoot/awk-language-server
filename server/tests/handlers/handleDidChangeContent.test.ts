@@ -14,7 +14,7 @@ import { initializeParser } from '../../src/parser'
 import * as Parser from 'web-tree-sitter'
 import { Context, SymbolsByUri, TreesByUri } from '../../src/interfaces'
 
-describe('DidChangeContent request handler ', () => {
+describe('handleDidChangeContent', () => {
   let server: MessageConnection
   let parser: Parser
   let context: Context

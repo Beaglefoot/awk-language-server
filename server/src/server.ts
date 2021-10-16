@@ -4,7 +4,6 @@ import {
   ProposedFeatures,
   CompletionItem,
   TextDocumentPositionParams,
-  TextDocumentChangeEvent,
   DefinitionParams,
   Location,
   DocumentHighlightParams,
@@ -18,7 +17,6 @@ import {
 } from 'vscode-languageserver/node'
 
 import { TextDocument } from 'vscode-languageserver-textdocument'
-import { analyze } from './analyze'
 import { QueryCapture } from 'web-tree-sitter'
 import {
   getNodeAt,
@@ -43,6 +41,7 @@ import { getDocumentSymbolHandler } from './handlers/handleDocumentSymbol'
 import { Context, SymbolsByUri, TreesByUri } from './interfaces'
 import { getInitializeHandler } from './handlers/handleInitialize'
 import { getDidChangeContentHandler } from './handlers/handleDidChangeContent'
+import { getDidOpenHandler } from './handlers/handleDidOpen'
 
 // Initialized later
 let context = {} as Context
@@ -55,10 +54,13 @@ const symbols: SymbolsByUri = {}
 const dependencies = new DependencyMap()
 
 function registerHandlers() {
-  connection.onInitialize(getInitializeHandler(context, connection, documents, docs))
-  documents.onDidChangeContent(
-    getDidChangeContentHandler(context, trees, symbols, dependencies),
-  )
+  const handleInitialize = getInitializeHandler(context, connection, documents, docs)
+  // prettier-ignore
+  const handleDidChangeContent = getDidChangeContentHandler(context, trees, symbols, dependencies)
+  const handleDidOpen = getDidOpenHandler(context, trees, symbols, dependencies)
+
+  connection.onInitialize(handleInitialize)
+  documents.onDidChangeContent(handleDidChangeContent)
   documents.onDidOpen(handleDidOpen)
   connection.onCompletion(handleCompletion)
   connection.onCompletionResolve(handleCompletionResolve)
@@ -69,16 +71,6 @@ function registerHandlers() {
   connection.onReferences(handleReferences)
   connection.onHover(handleHover)
   connection.onRequest('getSemanticTokens', handleSemanticTokens)
-}
-
-function handleDidOpen(change: TextDocumentChangeEvent<TextDocument>) {
-  const results = analyze(context, change.document, true)
-
-  for (const { tree, symbols: documentSymbols, document, dependencyUris } of results) {
-    trees[document.uri] = tree
-    symbols[document.uri] = documentSymbols
-    dependencies.update(document.uri, new Set(dependencyUris))
-  }
 }
 
 function handleCompletion(

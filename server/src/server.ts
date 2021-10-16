@@ -3,7 +3,6 @@ import {
   TextDocuments,
   ProposedFeatures,
   CompletionItem,
-  TextDocumentPositionParams,
   DefinitionParams,
   Location,
   DocumentHighlightParams,
@@ -29,8 +28,6 @@ import { readFileSync } from 'fs'
 import {
   enrichWithDocumentation,
   enrichWithSymbolInfo,
-  getPredefinedCompletionItems,
-  symbolInfoToCompletionItem,
   UserDefinedDataEntry,
 } from './completion'
 import { getDocumentation } from './documentation'
@@ -42,6 +39,7 @@ import { Context, SymbolsByUri, TreesByUri } from './interfaces'
 import { getInitializeHandler } from './handlers/handleInitialize'
 import { getDidChangeContentHandler } from './handlers/handleDidChangeContent'
 import { getDidOpenHandler } from './handlers/handleDidOpen'
+import { getCompletionHandler } from './handlers/handleCompletion'
 
 // Initialized later
 let context = {} as Context
@@ -58,6 +56,7 @@ function registerHandlers() {
   // prettier-ignore
   const handleDidChangeContent = getDidChangeContentHandler(context, trees, symbols, dependencies)
   const handleDidOpen = getDidOpenHandler(context, trees, symbols, dependencies)
+  const handleCompletion = getCompletionHandler(symbols, dependencies)
 
   connection.onInitialize(handleInitialize)
   documents.onDidChangeContent(handleDidChangeContent)
@@ -71,17 +70,6 @@ function registerHandlers() {
   connection.onReferences(handleReferences)
   connection.onHover(handleHover)
   connection.onRequest('getSemanticTokens', handleSemanticTokens)
-}
-
-function handleCompletion(
-  textDocumentPosition: TextDocumentPositionParams,
-): CompletionItem[] {
-  const allDeps = dependencies.getAllBreadthFirst(textDocumentPosition.textDocument.uri)
-  const allSymbols = [...allDeps]
-    .filter((uri) => symbols[uri])
-    .flatMap((uri) => [...symbols[uri].values()].flat())
-
-  return allSymbols.map(symbolInfoToCompletionItem).concat(getPredefinedCompletionItems())
 }
 
 function handleCompletionResolve(item: CompletionItem): CompletionItem {

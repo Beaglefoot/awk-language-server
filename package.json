@@ -1,11 +1,14 @@
 {
   "private": true,
   "scripts": {
+    "clean": "rm -rfv client/out/* server/out/*",
     "compile": "tsc -b",
+    "compile:force": "yarn clean && yarn compile --verbose --force",
     "watch": "tsc -b -w",
     "postinstall": "cd client && yarn && cd ../server && yarn && cd ..",
     "test": "jest",
-    "test:server": "jest server/tests"
+    "test:server": "jest server/tests",
+    "test:ci": "jest --runInBand"
   },
   "devDependencies": {
     "@types/jest": "27.0.1",

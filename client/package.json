@@ -56,7 +56,7 @@
     }
   },
   "scripts": {
-    "vscode:prepublish": "cd .. && yarn compile"
+    "vscode:prepublish": "cd .. && yarn compile:force"
   },
   "dependencies": {
     "awk-language-server": "0.4.1",

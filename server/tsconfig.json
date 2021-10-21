@@ -3,7 +3,8 @@
   "compilerOptions": {
     "outDir": "out",
     "rootDir": "src",
+    "composite": true
   },
   "include": ["src"],
-  "exclude": ["node_modules", "src/__tests__"]
+  "exclude": ["node_modules"]
 }

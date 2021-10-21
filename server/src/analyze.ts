@@ -1,7 +1,7 @@
 import { TextDocument } from 'vscode-languageserver-textdocument'
 import { SymbolInformation, SymbolKind } from 'vscode-languageserver/node'
 import { Tree } from 'web-tree-sitter'
-import { Context } from './context'
+import { Context, SymbolsMap } from './interfaces'
 import { readDocumentFromUrl } from './io'
 import {
   findParent,
@@ -11,8 +11,6 @@ import {
   isInclude,
   nodesGen,
 } from './utils'
-
-export type Symbols = Map<string, SymbolInformation[]>
 
 const kinds: { [tree_sitter_type: string]: SymbolKind } = {
   func_def: SymbolKind.Function,
@@ -27,7 +25,7 @@ export function analyze(
   deep: boolean,
 ): Array<{
   tree: Tree
-  symbols: Symbols
+  symbols: SymbolsMap
   document: TextDocument
   dependencyUris: string[]
 }> {

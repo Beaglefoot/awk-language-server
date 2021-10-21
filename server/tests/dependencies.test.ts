@@ -1,4 +1,4 @@
-import { DependencyMap, DependencyNode, difference } from '../server/src/dependencies'
+import { DependencyMap, DependencyNode, difference } from '../src/dependencies'
 
 describe('difference function', () => {
   it('should return new Set containing all the elements of the first Set missing in the second Set', () => {

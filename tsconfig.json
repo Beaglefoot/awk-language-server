@@ -10,23 +10,18 @@
     "lib": [
       "es2021",
     ],
-    "rootDir": ".",
     "sourceMap": true,
     "incremental": true
   },
-  "include": [
-    "testing"
-  ],
+  "files": [],
   "exclude": [
     "node_modules",
-    "**/__tests__/*",
     "client/out",
-    "server/out",
-    "server/setupJest.ts",
-    "testing"
+    "server/out"
   ],
   "references": [
     { "path": "./client" },
-    { "path": "./server" }
+    { "path": "./server" },
+    { "path": "./tsconfig.jest.json" }
   ]
 }

@@ -6,12 +6,7 @@ import {
 } from 'vscode-languageserver-types'
 import { SyntaxNode, Tree } from 'web-tree-sitter'
 import { Documentation, dropParamList } from './documentation'
-import {
-  getFunctionSignature,
-  getNodeAtRange,
-  getPrecedingComments,
-  isFunction,
-} from './utils'
+import { getFunctionSignature, getNodeAtRange, getPrecedingComments } from './utils'
 
 export interface UserDefinedDataEntry {
   type: 'user_defined'

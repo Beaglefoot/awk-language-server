@@ -1,9 +1,8 @@
 module.exports = {
-  timers: 'fake',
   clearMocks: true,
   globals: {
     'ts-jest': {
-      tsConfigFile: 'tsconfig.json',
+      tsconfig: 'tsconfig.jest.json',
     },
   },
   moduleFileExtensions: ['ts', 'js', 'json', 'node'],
@@ -12,4 +11,7 @@ module.exports = {
     '\\.ts$': 'ts-jest',
   },
   testRegex: '\\.test\\.ts$',
+  preset: 'ts-jest',
+  testTimeout: 2000,
+  maxWorkers: '50%',
 }

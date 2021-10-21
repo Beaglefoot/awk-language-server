@@ -1,6 +1,6 @@
 import { TextDocument } from 'vscode-languageserver-textdocument'
 import { SymbolInformation, SymbolKind } from 'vscode-languageserver/node'
-import { Tree } from 'web-tree-sitter'
+import { SyntaxNode, Tree } from 'web-tree-sitter'
 import { Context, SymbolsMap } from './interfaces'
 import { readDocumentFromUrl } from './io'
 import {
@@ -9,6 +9,7 @@ import {
   getRange,
   isDefinition,
   isInclude,
+  isParamList,
   nodesGen,
 } from './utils'
 
@@ -17,6 +18,32 @@ const kinds: { [tree_sitter_type: string]: SymbolKind } = {
   assignment_exp: SymbolKind.Variable,
   for_in_statement: SymbolKind.Variable,
   getline_input: SymbolKind.Variable,
+  param_list: SymbolKind.Variable,
+}
+
+function getSymbolInfoFromDefinition(node: SyntaxNode, uri: string): SymbolInformation[] {
+  const name =
+    node.firstNamedChild!.type === 'array_ref'
+      ? node.firstNamedChild!.firstNamedChild!.text
+      : node.firstNamedChild!.text
+
+  return [SymbolInformation.create(name, kinds[node.type], getRange(node), uri)]
+}
+
+function getSymbolInfoFromParams(node: SyntaxNode, uri: string): SymbolInformation[] {
+  const parentFunc = findParent(node, (p) => p.type === 'func_def')!
+
+  return node.children
+    .filter((c) => c.type === 'identifier')
+    .map((c) =>
+      SymbolInformation.create(
+        c.text,
+        kinds[node.type],
+        getRange(c),
+        uri,
+        parentFunc.firstNamedChild!.text,
+      ),
+    )
 }
 
 export function analyze(
@@ -46,29 +73,19 @@ export function analyze(
       }
     }
 
-    if (!isDefinition(node)) continue
+    let symbolInfo: SymbolInformation[]
 
-    if (node.firstNamedChild === null) break
+    if (isDefinition(node)) {
+      symbolInfo = getSymbolInfoFromDefinition(node, document.uri)
+    } else if (isParamList(node)) {
+      symbolInfo = getSymbolInfoFromParams(node, document.uri)
+    } else continue
 
-    const name =
-      node.firstNamedChild.type === 'array_ref'
-        ? node.firstNamedChild.firstNamedChild!.text
-        : node.firstNamedChild.text
+    for (const si of symbolInfo) {
+      if (!symbols.get(si.name)) symbols.set(si.name, [])
 
-    if (!symbols.get(name)) symbols.set(name, [])
-
-    const parentFunc = findParent(node, (p) => p.type === 'func_def')
-    const symbol = symbols.get(name) as SymbolInformation[]
-
-    symbol.push(
-      SymbolInformation.create(
-        name,
-        kinds[node.type],
-        getRange(node),
-        document.uri,
-        parentFunc?.firstNamedChild?.text || '',
-      ),
-    )
+      symbols.get(si.name)!.push(si)
+    }
   }
 
   return [

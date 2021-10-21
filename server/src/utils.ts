@@ -74,6 +74,10 @@ export function isDefinition(node: SyntaxNode): boolean {
   return false
 }
 
+export function isParamList(node: SyntaxNode): boolean {
+  return node.type === 'param_list'
+}
+
 export function isReference(node: SyntaxNode): boolean {
   return ['array_ref', 'field_ref', 'identifier'].includes(node.type)
 }

@@ -8,7 +8,9 @@ import {
 import { Tree } from 'web-tree-sitter'
 import Parser = require('web-tree-sitter')
 
-export type SymbolsMap = Map<string, SymbolInformation[]>
+type SymbolName = string
+
+export type SymbolsMap = Map<SymbolName, SymbolInformation[]>
 
 export interface SymbolsByUri {
   [uri: string]: SymbolsMap

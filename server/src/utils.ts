@@ -188,22 +188,23 @@ export function getPrecedingComments(node: SyntaxNode | null): string {
   return comment.join('\n')
 }
 
-export function isAmongFunctionParams(node: SyntaxNode): boolean {
+/** Get function name if node is defined among its parameters */
+export function getParentFunctionName(node: SyntaxNode): string | null {
   const parentFunc = findParent(node, (p) => p.type === 'func_def')
 
-  if (!parentFunc) return false
+  if (!parentFunc) return null
 
   const paramList = parentFunc.descendantsOfType('param_list')[0]
 
-  if (!paramList) return false
+  if (!paramList) return null
 
   const name = getName(node)
 
-  if (!name) return false
+  if (!name) return null
 
   for (const param of paramList.children) {
-    if (name === getName(param)) return true
+    if (name === getName(param)) return getName(parentFunc.firstNamedChild!)
   }
 
-  return false
+  return null
 }

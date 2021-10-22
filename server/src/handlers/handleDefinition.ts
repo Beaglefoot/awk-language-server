@@ -1,7 +1,7 @@
 import { DefinitionParams, Location } from 'vscode-languageserver-protocol/node'
 import { DependencyMap } from '../dependencies'
 import { SymbolsByUri, TreesByUri } from '../interfaces'
-import { getName, getNodeAt } from '../utils'
+import { getName, getNodeAt, getParentFunctionName } from '../utils'
 
 export function getDefinitionHandler(
   trees: TreesByUri,
@@ -21,9 +21,13 @@ export function getDefinitionHandler(
     return Object.keys(symbols)
       .filter(
         (uri) =>
-          symbols[uri].get(name) &&
+          symbols[uri].has(name) &&
           (uri === textDocument.uri || dependencies.hasParent(uri, textDocument.uri)),
       )
-      .flatMap((uri) => (symbols[uri].get(name) || []).map((s) => s.location))
+      .flatMap((uri) =>
+        (symbols[uri].get(name) || [])
+          .filter((s) => s.containerName === (getParentFunctionName(node) ?? undefined))
+          .map((s) => s.location),
+      )
   }
 }

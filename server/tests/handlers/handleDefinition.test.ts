@@ -55,6 +55,18 @@ describe('handleDefinition', () => {
     symbols[uriA].set('f', [
       SymbolInformation.create('f', SymbolKind.Function, getRange(2, 0, 2, 16), uriA),
     ])
+    symbols[uriA].set('a', [
+      SymbolInformation.create('a', SymbolKind.Function, getRange(6, 0, 8, 1), uriA),
+    ])
+    symbols[uriA].set('x', [
+      SymbolInformation.create(
+        'x',
+        SymbolKind.Function,
+        getRange(6, 11, 6, 12),
+        uriA,
+        'a',
+      ),
+    ])
     symbols[uriB].set('sum', [
       SymbolInformation.create('sum', SymbolKind.Function, getRange(0, 0, 0, 21), uriB),
     ])
@@ -96,5 +108,24 @@ describe('handleDefinition', () => {
 
     // Assert
     expect(result).toEqual([Location.create(uriB, getRange(0, 0, 0, 21))])
+  })
+
+  it('should take into consideration function parameters', async () => {
+    // Arrange
+    const sentParams: DefinitionParams = {
+      textDocument: { uri: uriA },
+      position: Position.create(7, 4),
+    }
+
+    server.onRequest(
+      DefinitionRequest.type,
+      getDefinitionHandler(trees, symbols, dependencies),
+    )
+
+    // Act
+    const result = await client.sendRequest(DefinitionRequest.type, sentParams)
+
+    // Assert
+    expect(result).toEqual([Location.create(uriA, getRange(6, 11, 6, 12))])
   })
 })

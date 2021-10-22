@@ -9,7 +9,7 @@ import {
   getName,
   getRange,
   isDefinition,
-  isAmongFunctionParams,
+  getParentFunctionName,
   isIdentifier,
   isInclude,
   isParamList,
@@ -37,14 +37,12 @@ function getSymbolInfoFromDefinition(node: SyntaxNode, uri: string): SymbolInfor
 }
 
 function getSymbolInfoFromParam(node: SyntaxNode, uri: string): SymbolInformation {
-  const parentFunc = findParent(node, (p) => p.type === 'func_def')!
-
   return SymbolInformation.create(
     getName(node)!,
     kinds[node.type],
     getRange(node),
     uri,
-    getName(parentFunc.firstNamedChild!)!,
+    getParentFunctionName(node)!,
   )
 }
 
@@ -55,7 +53,7 @@ function getSymbolInfo(node: SyntaxNode, uri: string): SymbolInformation | null 
     return getSymbolInfoFromParam(node, uri)
   }
 
-  if (isAmongFunctionParams(node)) return null
+  if (getParentFunctionName(node)) return null
 
   if (isDefinition(node.parent)) {
     return getSymbolInfoFromDefinition(node.parent, uri)
@@ -109,7 +107,7 @@ export function analyze(
       }
     }
 
-    if (!isIdentifier(node) /* or not builtin */) continue
+    if (!isIdentifier(node)) continue
 
     const symbolInfo = getSymbolInfo(node, document.uri)
 

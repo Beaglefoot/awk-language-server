@@ -100,4 +100,24 @@ describe('handleReferences', () => {
     expect(result).toContainEqual(Location.create(uriA, getRange(4, 8, 4, 11)))
     expect(result).toContainEqual(Location.create(uriB, getRange(0, 9, 0, 12)))
   })
+
+  it('should provide referenced locations for symbols function parameters', async () => {
+    // Arrange
+    const sentParams: ReferenceParams = {
+      context: { includeDeclaration: true },
+      textDocument: { uri: uriA },
+      position: Position.create(2, 16),
+    }
+
+    server.onRequest(ReferencesRequest.type, getReferencesHandler(trees, dependencies))
+
+    // Act
+    const result = await client.sendRequest(ReferencesRequest.type, sentParams)
+
+    // Assert
+    expect(result).toHaveLength(2)
+    expect(result).toContainEqual(Location.create(uriA, getRange(2, 11, 2, 12)))
+    expect(result).toContainEqual(Location.create(uriA, getRange(2, 16, 2, 17)))
+    expect(result).not.toContainEqual(Location.create(uriA, getRange(4, 19, 4, 20)))
+  })
 })

@@ -1,7 +1,7 @@
 import { Location, ReferenceParams } from 'vscode-languageserver/node'
 import { DependencyMap } from '../dependencies'
 import { TreesByUri } from '../interfaces'
-import { findReferences, getName, getNodeAt } from '../utils'
+import { findReferences, getName, getNodeAt, getParentFunction } from '../utils'
 
 export function getReferencesHandler(trees: TreesByUri, dependencies: DependencyMap) {
   return function handleReferences(params: ReferenceParams): Location[] {
@@ -14,6 +14,14 @@ export function getReferencesHandler(trees: TreesByUri, dependencies: Dependency
 
     if (!name) return []
 
+    const parentFunc = getParentFunction(node)
+
+    if (parentFunc) {
+      return findReferences(trees[textDocument.uri], name, parentFunc).map((range) =>
+        Location.create(textDocument.uri, range),
+      )
+    }
+
     const result: Location[] = []
 
     for (const uri of Object.keys(trees)) {
@@ -25,7 +33,9 @@ export function getReferencesHandler(trees: TreesByUri, dependencies: Dependency
         continue
 
       result.push(
-        ...findReferences(trees[uri], name).map((range) => Location.create(uri, range)),
+        ...findReferences(trees[uri], name, parentFunc).map((range) =>
+          Location.create(uri, range),
+        ),
       )
     }
 

@@ -1,5 +1,5 @@
 @include "references_b.awk"
 
-function f(x) {}
+function f(x) { x = "f" }
 
-{ f(1); sum(1, 2) }
+{ f(1); sum(1, 2); x = "global" }

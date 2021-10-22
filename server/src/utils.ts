@@ -94,10 +94,15 @@ export function isIdentifier(node: SyntaxNode): boolean {
   return node.type === 'identifier'
 }
 
-export function findReferences(tree: Tree, queriedName: string): Range[] {
+export function findReferences(
+  tree: Tree,
+  queriedName: string,
+  parentFunc?: SyntaxNode | null,
+): Range[] {
   const result: Range[] = []
+  const startingNode = parentFunc || tree.rootNode
 
-  for (const node of nodesGen(tree.rootNode)) {
+  for (const node of nodesGen(startingNode)) {
     if (!isReference(node) && !isDefinition(node)) continue
 
     if (getName(node) === queriedName) result.push(getRange(node))
@@ -188,8 +193,8 @@ export function getPrecedingComments(node: SyntaxNode | null): string {
   return comment.join('\n')
 }
 
-/** Get function name if node is defined among its parameters */
-export function getParentFunctionName(node: SyntaxNode): string | null {
+/** Get function node if given node is defined among its parameters */
+export function getParentFunction(node: SyntaxNode): SyntaxNode | null {
   const parentFunc = findParent(node, (p) => p.type === 'func_def')
 
   if (!parentFunc) return null
@@ -203,8 +208,15 @@ export function getParentFunctionName(node: SyntaxNode): string | null {
   if (!name) return null
 
   for (const param of paramList.children) {
-    if (name === getName(param)) return getName(parentFunc.firstNamedChild!)
+    if (name === getName(param)) return parentFunc
   }
 
   return null
+}
+
+/** Get function name if node is defined among its parameters */
+export function getParentFunctionName(node: SyntaxNode): string | null {
+  const parentFunc = getParentFunction(node)
+
+  return parentFunc ? getName(parentFunc.firstNamedChild!) : null
 }

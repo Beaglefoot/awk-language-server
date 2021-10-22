@@ -4,7 +4,6 @@ import { SyntaxNode, Tree } from 'web-tree-sitter'
 import { Context, SymbolsMap } from './interfaces'
 import { readDocumentFromUrl } from './io'
 import {
-  findParent,
   getDependencyUrl,
   getName,
   getRange,

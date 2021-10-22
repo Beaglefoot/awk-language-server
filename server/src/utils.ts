@@ -58,7 +58,7 @@ export function getNodeAtRange(tree: Tree, range: Range): SyntaxNode | null {
   )
 }
 
-/** Get textual representation of the node (function name, variable name, etc.) */
+/** Get textual representation of the node (variable name, field & array reference, but not function name) */
 export function getName(node: SyntaxNode): string | null {
   if (!node) return null
   if (node.childCount) {
@@ -88,6 +88,10 @@ export function isInclude(node: SyntaxNode): boolean {
 
 export function isFunction(node: SyntaxNode): boolean {
   return node.type === 'func_def'
+}
+
+export function isIdentifier(node: SyntaxNode): boolean {
+  return node.type === 'identifier'
 }
 
 export function findReferences(tree: Tree, queriedName: string): Range[] {
@@ -182,4 +186,24 @@ export function getPrecedingComments(node: SyntaxNode | null): string {
   }
 
   return comment.join('\n')
+}
+
+export function isAmongFunctionParams(node: SyntaxNode): boolean {
+  const parentFunc = findParent(node, (p) => p.type === 'func_def')
+
+  if (!parentFunc) return false
+
+  const paramList = parentFunc.descendantsOfType('param_list')[0]
+
+  if (!paramList) return false
+
+  const name = getName(node)
+
+  if (!name) return false
+
+  for (const param of paramList.children) {
+    if (name === getName(param)) return true
+  }
+
+  return false
 }

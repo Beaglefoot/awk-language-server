@@ -6,8 +6,11 @@ import { readDocumentFromUrl } from './io'
 import {
   findParent,
   getDependencyUrl,
+  getName,
   getRange,
   isDefinition,
+  isAmongFunctionParams,
+  isIdentifier,
   isInclude,
   isParamList,
   nodesGen,
@@ -19,31 +22,64 @@ const kinds: { [tree_sitter_type: string]: SymbolKind } = {
   for_in_statement: SymbolKind.Variable,
   getline_input: SymbolKind.Variable,
   param_list: SymbolKind.Variable,
+  identifier: SymbolKind.Variable,
 }
 
-function getSymbolInfoFromDefinition(node: SyntaxNode, uri: string): SymbolInformation[] {
-  const name =
+function getSymbolInfoFromDefinition(node: SyntaxNode, uri: string): SymbolInformation {
+  const firstNamedNode =
     node.firstNamedChild!.type === 'array_ref'
-      ? node.firstNamedChild!.firstNamedChild!.text
-      : node.firstNamedChild!.text
+      ? node.firstNamedChild!.firstNamedChild!
+      : node.firstNamedChild!
 
-  return [SymbolInformation.create(name, kinds[node.type], getRange(node), uri)]
+  const name = firstNamedNode.text
+
+  return SymbolInformation.create(name, kinds[node.type], getRange(node), uri)
 }
 
-function getSymbolInfoFromParams(node: SyntaxNode, uri: string): SymbolInformation[] {
+function getSymbolInfoFromParam(node: SyntaxNode, uri: string): SymbolInformation {
   const parentFunc = findParent(node, (p) => p.type === 'func_def')!
 
-  return node.children
-    .filter((c) => c.type === 'identifier')
-    .map((c) =>
-      SymbolInformation.create(
-        c.text,
-        kinds[node.type],
-        getRange(c),
-        uri,
-        parentFunc.firstNamedChild!.text,
-      ),
+  return SymbolInformation.create(
+    getName(node)!,
+    kinds[node.type],
+    getRange(node),
+    uri,
+    getName(parentFunc.firstNamedChild!)!,
+  )
+}
+
+function getSymbolInfo(node: SyntaxNode, uri: string): SymbolInformation | null {
+  if (!node.parent) return null
+
+  if (isParamList(node.parent)) {
+    return getSymbolInfoFromParam(node, uri)
+  }
+
+  if (isAmongFunctionParams(node)) return null
+
+  if (isDefinition(node.parent)) {
+    return getSymbolInfoFromDefinition(node.parent, uri)
+  }
+
+  if (!['func_call'].includes(node.parent.type)) {
+    return SymbolInformation.create(getName(node)!, kinds[node.type], getRange(node), uri)
+  }
+
+  return null
+}
+
+function isKnownSymbol(
+  symbols: SymbolInformation[],
+  symbolInfo: SymbolInformation,
+): boolean {
+  for (const symbol of symbols) {
+    if (
+      symbol.name === symbolInfo.name &&
+      symbol.containerName === symbolInfo.containerName
     )
+      return true
+  }
+  return false
 }
 
 export function analyze(
@@ -73,19 +109,16 @@ export function analyze(
       }
     }
 
-    let symbolInfo: SymbolInformation[]
+    if (!isIdentifier(node) /* or not builtin */) continue
 
-    if (isDefinition(node)) {
-      symbolInfo = getSymbolInfoFromDefinition(node, document.uri)
-    } else if (isParamList(node)) {
-      symbolInfo = getSymbolInfoFromParams(node, document.uri)
-    } else continue
+    const symbolInfo = getSymbolInfo(node, document.uri)
 
-    for (const si of symbolInfo) {
-      if (!symbols.get(si.name)) symbols.set(si.name, [])
+    if (!symbolInfo) continue
+    if (isKnownSymbol(symbols.get(symbolInfo.name) || [], symbolInfo)) continue
 
-      symbols.get(si.name)!.push(si)
-    }
+    if (!symbols.get(symbolInfo.name)) symbols.set(symbolInfo.name, [])
+
+    symbols.get(symbolInfo.name)!.push(symbolInfo)
   }
 
   return [

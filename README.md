@@ -21,3 +21,30 @@ Implementation of AWK Language Server based on [tree-sitter](https://github.com/
 - [x] Workspace symbols
 - [ ] Rename symbols
 - [ ] Code formatting
+
+## How to use with editors
+
+### VSCode
+
+VSCode extension is developed as part of this project and can be downloaded from marketplace [here](https://marketplace.visualstudio.com/items?itemName=beaglefoot.awk-ide-vscode).
+
+### Vim
+
+- `npm install -g "awk-language-server@>=0.5.1"`
+- Choose and install plugin with support for LSP (some examples are below).
+- Configure plugin to use `awk-language-server`.
+
+#### [ALE](https://github.com/dense-analysis/ale)
+
+Add following to `.vimrc`:
+```vim
+call ale#linter#Define('awk', {
+\   'name': 'awk-language-server',
+\   'lsp': 'stdio',
+\   'executable': 'awk-language-server',
+\   'command': '%e',
+\   'project_root': { _ -> expand('%p:h') }
+\})
+```
+
+Note that with such configuration `project_root` will be set to directory containing opened awk file.

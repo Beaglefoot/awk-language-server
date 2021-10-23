@@ -28,6 +28,7 @@
   },
   "devDependencies": {},
   "scripts": {
-    "build:completion": "man gawk | gawk -f scripts/build_completion_list.awk > docs.json"
+    "build:completion": "man gawk | gawk -f scripts/build_completion_list.awk > docs.json",
+    "prepublishOnly": "cd .. && yarn compile:force"
   }
 }

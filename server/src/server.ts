@@ -24,7 +24,10 @@ import { getSemanticTokensHandler } from './handlers/handleSemanticTokens'
 // Initialized later
 let context = {} as Context
 
-const connection = createConnection(ProposedFeatures.all)
+const connection =
+  require.main === module
+    ? createConnection(ProposedFeatures.all)
+    : createConnection(process.stdin, process.stdout)
 const documents: TextDocuments<TextDocument> = new TextDocuments(TextDocument)
 const docs = getDocumentation()
 const trees: TreesByUri = {}

@@ -15,6 +15,7 @@
   "engines": {
     "node": ">=16.0.0"
   },
+  "bin": "./out/cli.js",
   "main": "./out/server.js",
   "typings": "./out/server.d.ts",
   "repository": {
@@ -22,11 +23,14 @@
     "url": "https://github.com/Beaglefoot/awk-language-server"
   },
   "dependencies": {
+    "minimist": "1.2.5",
     "vscode-languageserver": "^7.0.0",
     "vscode-languageserver-textdocument": "^1.0.1",
     "web-tree-sitter": "0.19.4"
   },
-  "devDependencies": {},
+  "devDependencies": {
+    "@types/minimist": "1.2.2"
+  },
   "scripts": {
     "build:completion": "man gawk | gawk -f scripts/build_completion_list.awk > docs.json",
     "prepublishOnly": "cd .. && yarn compile:force"

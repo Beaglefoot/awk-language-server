@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+
 import * as parseArgs from 'minimist'
 
 function usage(exitCode: number): never {

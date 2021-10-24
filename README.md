@@ -30,7 +30,7 @@ VSCode extension is developed as part of this project and can be downloaded from
 
 ### Vim
 
-- `npm install -g "awk-language-server@>=0.5.1"`
+- `npm install -g "awk-language-server@>=0.5.2"`
 - Choose and install plugin with support for LSP (some examples are below).
 - Configure plugin to use `awk-language-server`.
 
@@ -48,3 +48,18 @@ call ale#linter#Define('awk', {
 ```
 
 Note that with such configuration `project_root` will be set to directory containing opened awk file.
+
+#### [CoC](https://github.com/neoclide/coc.nvim)
+
+Edit config with `:CocConfig` command and add the following:
+```json
+{
+  "languageserver": {
+    "awk": {
+      "command": "awk-language-server",
+      "args": [],
+      "filetypes": ["awk"]
+    }
+  }
+}
+```

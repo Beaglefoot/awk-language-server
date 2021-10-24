@@ -48,4 +48,5 @@ if (args.version) printVersion()
 
 import './server'
 
-console.log('Language server is started')
+// Avoid writing to stdout at this point as it's reserved for client/server communication
+process.stderr.write('Language Server is started.')

@@ -63,3 +63,16 @@ Edit config with `:CocConfig` command and add the following:
   }
 }
 ```
+
+#### [vim-lsp](https://github.com/prabirshrestha/vim-lsp)
+
+Add to your `.vimrc`:
+```vim
+if executable('awk-language-server')
+    au User lsp_setup call lsp#register_server({
+        \ 'name': 'awk-language-server',
+        \ 'cmd': {server_info->['awk-language-server']},
+        \ 'allowlist': ['awk'],
+        \ })
+endif
+```

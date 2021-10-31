@@ -1,5 +1,5 @@
 import * as path from 'path'
-import { workspace, ExtensionContext, languages, SemanticTokensLegend } from 'vscode'
+import { ExtensionContext, languages, SemanticTokensLegend } from 'vscode'
 
 import {
   LanguageClient,
@@ -36,10 +36,6 @@ export function activate(context: ExtensionContext) {
 
   const clientOptions: LanguageClientOptions = {
     documentSelector: [{ scheme: 'file', language: 'awk' }],
-    synchronize: {
-      // Notify the server about file changes to '.clientrc files contained in the workspace
-      fileEvents: workspace.createFileSystemWatcher('**/.clientrc'),
-    },
   }
 
   client = new LanguageClient('awk-ide-vscode', 'AWK IDE', serverOptions, clientOptions)

@@ -3,7 +3,7 @@ import { Description, Documentation, dropParamList, Title } from './documentatio
 import { getFunctionSignature, getPrecedingComments } from './utils'
 import { basename } from 'path'
 
-let builtins: Record<Title, Description>
+let builtinHints: Record<Title, Description>
 
 function formatHint(title: string, description: string): string {
   return '```\n' + title + '\n```\n\n' + description + '\n\n'
@@ -14,7 +14,7 @@ function formatDocItem(docSection: Record<Title, Description>, title: Title): st
 }
 
 export function getBuiltinHints(docs: Documentation): Record<Title, Description> {
-  if (builtins) return builtins
+  if (builtinHints) return builtinHints
 
   const builtins_section: Record<Title, Description> = {}
   const functions: Record<Title, Description> = {}
@@ -52,14 +52,14 @@ export function getBuiltinHints(docs: Documentation): Record<Title, Description>
     builtins_section[title] = formatDocItem(docs.patterns, title)
   }
 
-  builtins = {
+  builtinHints = {
     ...builtins_section,
     ...functions,
     ...io_statements,
     ...patterns,
   }
 
-  return builtins
+  return builtinHints
 }
 
 export function getFunctionHint(funcDefinitionNode: SyntaxNode): string {

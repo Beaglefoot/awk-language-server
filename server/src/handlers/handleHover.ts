@@ -6,7 +6,7 @@ import {
 } from 'vscode-languageserver/node'
 import { DependencyMap } from '../dependencies'
 import { Documentation } from '../documentation'
-import { getBuiltinHints, getFunctionHint, getVariableHint } from '../hover'
+import { getBuiltinHints, getFunctionHint, getVariableHint } from '../hints'
 import { SymbolsByUri, TreesByUri } from '../interfaces'
 import { getFinalSymbolByPosition, getNearestPrecedingSymbol } from '../symbols'
 import { getName, getNodeAt, getNodeAtRange } from '../utils'

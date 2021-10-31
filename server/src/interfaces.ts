@@ -17,7 +17,7 @@ export interface SymbolsByUri {
 }
 
 export interface TreesByUri {
-  [uri: string]: Tree
+  [uri: string]: Tree // TODO: make it Tree | undefined
 }
 
 export interface Context {

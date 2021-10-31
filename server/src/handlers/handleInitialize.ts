@@ -40,6 +40,7 @@ export function getInitializeHandler(
         workspaceSymbolProvider: true,
         referencesProvider: true,
         hoverProvider: true,
+        renameProvider: { prepareProvider: true },
       },
     }
 

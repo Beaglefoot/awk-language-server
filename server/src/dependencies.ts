@@ -78,10 +78,28 @@ export class DependencyMap extends Map<string, DependencyNode> {
       const uri = stack.pop() as string
 
       result.add(uri)
-
       ;[...this.get(uri).childrenUris].reverse().forEach((u) => {
         stack.push(u)
       })
+    }
+
+    return result
+  }
+
+  /**
+   * Get document URIs which either include or included into the given document
+   */
+  public getLinkedUris(queriedUri: string): Set<string> {
+    const result = new Set<string>()
+
+    for (const uri of this.keys()) {
+      if (
+        uri === queriedUri ||
+        this.hasParent(queriedUri, uri) ||
+        this.hasParent(uri, queriedUri)
+      ) {
+        result.add(uri)
+      }
     }
 
     return result

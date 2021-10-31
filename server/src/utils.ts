@@ -87,7 +87,7 @@ export function isInclude(node: SyntaxNode): boolean {
 }
 
 export function isFunction(node: SyntaxNode): boolean {
-  return node.type === 'func_def'
+  return node.type === 'func_def' || node.type === 'func_call'
 }
 
 export function isIdentifier(node: SyntaxNode): boolean {
@@ -163,6 +163,13 @@ export function positionToPoint(pos: Position): Point {
   return {
     row: pos.line,
     column: pos.character,
+  }
+}
+
+export function pointToPosition(point: Point): Position {
+  return {
+    line: point.row,
+    character: point.column,
   }
 }
 

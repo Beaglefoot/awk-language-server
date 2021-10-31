@@ -20,6 +20,8 @@ import { getWorkspaceSymbolHandler } from './handlers/handleWorkspaceSymbol'
 import { getReferencesHandler } from './handlers/handleReferences'
 import { getHoverHandler } from './handlers/handleHover'
 import { getSemanticTokensHandler } from './handlers/handleSemanticTokens'
+import { getRenameRequestHandler } from './handlers/handleRenameRequest'
+import { getPrepareRenameHandler } from './handlers/handlePrepareRename'
 
 // Initialized later
 let context = {} as Context
@@ -48,6 +50,9 @@ function registerHandlers() {
   const handleReferences = getReferencesHandler(trees, dependencies)
   const handleHover = getHoverHandler(trees, symbols, dependencies, docs)
   const handleSemanticTokens = getSemanticTokensHandler(trees, connection)
+  const handlePrepareRename = getPrepareRenameHandler(trees, connection, docs)
+  // prettier-ignore
+  const handleRenameRequest = getRenameRequestHandler(context, trees)
 
   connection.onInitialize(handleInitialize)
   documents.onDidChangeContent(handleDidChangeContent)
@@ -61,6 +66,8 @@ function registerHandlers() {
   connection.onReferences(handleReferences)
   connection.onHover(handleHover)
   connection.onRequest('getSemanticTokens', handleSemanticTokens)
+  connection.onPrepareRename(handlePrepareRename)
+  connection.onRenameRequest(handleRenameRequest)
 }
 
 function main() {

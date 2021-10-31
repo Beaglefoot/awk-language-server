@@ -86,3 +86,16 @@ describe('DependencyMap.getAllDepthFirst method', () => {
     ])
   })
 })
+
+describe('DependencyMap.getLinkedUris method', () => {
+  it('should return set of all document uris which have access to the given document content', () => {
+    const dmap = new DependencyMap()
+
+    dmap.update('root', new Set(['a', 'b']))
+    dmap.update('a', new Set(['a1', 'a2']))
+    dmap.update('b', new Set(['b1', 'b2']))
+    dmap.update('a1', new Set(['a1.1']))
+
+    expect([...dmap.getLinkedUris('a1')]).toEqual(['root', 'a', 'a1', 'a1.1'])
+  })
+})

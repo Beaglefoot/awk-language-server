@@ -24,14 +24,8 @@ export function getReferencesHandler(trees: TreesByUri, dependencies: Dependency
 
     const result: Location[] = []
 
-    // TODO: Rewrite with getLinkedUris method
-    for (const uri of Object.keys(trees)) {
-      if (
-        uri !== textDocument.uri &&
-        !dependencies.hasParent(textDocument.uri, uri) &&
-        !dependencies.hasParent(uri, textDocument.uri)
-      )
-        continue
+    for (const uri of dependencies.getLinkedUris(textDocument.uri)) {
+      if (!trees[uri]) continue
 
       result.push(
         ...findReferences(trees[uri], name, parentFunc).map((range) =>

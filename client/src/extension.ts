@@ -36,6 +36,7 @@ export function activate(context: ExtensionContext) {
 
   const clientOptions: LanguageClientOptions = {
     documentSelector: [{ scheme: 'file', language: 'awk' }],
+    progressOnInitialization: true,
   }
 
   client = new LanguageClient('awk-ide-vscode', 'AWK IDE', serverOptions, clientOptions)

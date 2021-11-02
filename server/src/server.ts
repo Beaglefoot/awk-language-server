@@ -22,6 +22,7 @@ import { getHoverHandler } from './handlers/handleHover'
 import { getSemanticTokensHandler } from './handlers/handleSemanticTokens'
 import { getRenameRequestHandler } from './handlers/handleRenameRequest'
 import { getPrepareRenameHandler } from './handlers/handlePrepareRename'
+import { getInitializedHandler } from './handlers/handleInitialized'
 
 // Initialized later
 let context = {} as Context
@@ -38,6 +39,7 @@ const dependencies = new DependencyMap()
 
 function registerHandlers() {
   const handleInitialize = getInitializeHandler(context, connection, documents, docs)
+  const handleInitialized = getInitializedHandler(context, trees, symbols, dependencies)
   // prettier-ignore
   const handleDidChangeContent = getDidChangeContentHandler(context, trees, symbols, dependencies)
   const handleDidOpen = getDidOpenHandler(context, trees, symbols, dependencies)
@@ -55,6 +57,7 @@ function registerHandlers() {
   const handleRenameRequest = getRenameRequestHandler(context, trees)
 
   connection.onInitialize(handleInitialize)
+  connection.onInitialized(handleInitialized)
   documents.onDidChangeContent(handleDidChangeContent)
   documents.onDidOpen(handleDidOpen)
   connection.onCompletion(handleCompletion)

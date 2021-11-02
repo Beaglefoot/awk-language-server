@@ -1,5 +1,7 @@
 import { TextDocument } from 'vscode-languageserver-textdocument'
+import { WorkDoneProgressReporter } from 'vscode-languageserver/lib/common/progress'
 import {
+  CancellationToken,
   Connection,
   InitializeParams,
   InitializeResult,
@@ -19,7 +21,11 @@ export function getInitializeHandler(
 ) {
   return async function handleInitialize(
     params: InitializeParams,
+    _cancel: CancellationToken,
+    progressReporter: WorkDoneProgressReporter,
   ): Promise<InitializeResult> {
+    progressReporter.begin('Initializing')
+
     const parser = await initializeParser()
     initCompletionList(docs)
 
@@ -43,6 +49,8 @@ export function getInitializeHandler(
         renameProvider: { prepareProvider: true },
       },
     }
+
+    progressReporter.done()
 
     return result
   }

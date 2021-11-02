@@ -8,7 +8,8 @@
     "postinstall": "cd client && yarn && cd ../server && yarn && cd ..",
     "test": "jest",
     "test:server": "jest server/tests",
-    "test:ci": "jest --runInBand"
+    "test:ci": "jest --runInBand",
+    "check:types": "tsc --noEmit -p server/tsconfig.json"
   },
   "devDependencies": {
     "@types/jest": "27.0.1",

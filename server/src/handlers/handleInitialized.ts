@@ -26,11 +26,7 @@ export function getInitializedHandler(
 
       if (!document) continue
 
-      const {
-        tree,
-        symbols: s,
-        dependencyUris,
-      } = analyze(context, document, false).pop()!
+      const { tree, symbols: s, dependencyUris } = analyze(context, document)
 
       trees[url.href] = tree
       symbols[url.href] = s

@@ -39,7 +39,7 @@ export function getRenameRequestHandler(context: Context, trees: TreesByUri) {
 
         if (!document) continue
 
-        const { tree, symbols, dependencyUris } = analyze(context, document, false).pop()!
+        const { tree, symbols, dependencyUris } = analyze(context, document)
 
         allTrees[url.href] = tree
         allSymbols[url.href] = symbols

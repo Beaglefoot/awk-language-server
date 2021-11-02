@@ -2,7 +2,6 @@ import { TextDocument } from 'vscode-languageserver-textdocument'
 import { SymbolInformation, SymbolKind } from 'vscode-languageserver/node'
 import { SyntaxNode, Tree } from 'web-tree-sitter'
 import { Context, SymbolsMap } from './interfaces'
-import { readDocumentFromUrl } from './io'
 import {
   getDependencyUrl,
   getName,
@@ -82,16 +81,14 @@ function isKnownSymbol(
 export function analyze(
   context: Context,
   document: TextDocument,
-  deep: boolean,
-): Array<{
+): {
   tree: Tree
   symbols: SymbolsMap
   document: TextDocument
   dependencyUris: string[]
-}> {
+} {
   const tree = context.parser.parse(document.getText())
   const symbols: Map<string, SymbolInformation[]> = new Map()
-  const dependencies: TextDocument[] = []
   const dependencyUris: string[] = []
 
   for (const node of nodesGen(tree.rootNode)) {
@@ -99,11 +96,6 @@ export function analyze(
       const url = getDependencyUrl(node, document.uri)
 
       dependencyUris.push(url.href)
-
-      if (deep) {
-        const text = readDocumentFromUrl(context, url)
-        if (text) dependencies.push(text)
-      }
     }
 
     if (!isIdentifier(node)) continue
@@ -118,12 +110,10 @@ export function analyze(
     symbols.get(symbolInfo.name)!.push(symbolInfo)
   }
 
-  return [
-    {
-      tree,
-      symbols,
-      document,
-      dependencyUris,
-    },
-  ].concat(dependencies.flatMap((d) => analyze(context, d, deep)))
+  return {
+    tree,
+    symbols,
+    document,
+    dependencyUris,
+  }
 }

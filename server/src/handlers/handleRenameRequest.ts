@@ -5,7 +5,13 @@ import {
 } from 'vscode-languageserver-protocol/node'
 import { DependencyMap } from '../dependencies'
 import { TreesByUri } from '../interfaces'
-import { findReferences, getName, getNodeAt, isFunction } from '../utils'
+import {
+  findReferences,
+  getName,
+  getNodeAt,
+  getParentFunction,
+  isFunction,
+} from '../utils'
 
 export function getRenameRequestHandler(trees: TreesByUri, dependencies: DependencyMap) {
   return async function handleRenameRequest(
@@ -33,6 +39,24 @@ export function getRenameRequestHandler(trees: TreesByUri, dependencies: Depende
           TextEdit.replace(r, newName),
         )
       }
+
+      return edits
+    }
+
+    const parentFunction = getParentFunction(node)
+
+    if (parentFunction) {
+      const edits: WorkspaceEdit = {
+        changes: {
+          [textDocument.uri]: [],
+        },
+      }
+
+      edits.changes![textDocument.uri] = findReferences(
+        trees[textDocument.uri],
+        oldName,
+        parentFunction,
+      ).map((r) => TextEdit.replace(r, newName))
 
       return edits
     }

@@ -10,7 +10,7 @@ import {
   getName,
   getNodeAt,
   getParentFunction,
-  isFunction,
+  isIdentifier,
 } from '../utils'
 
 export function getRenameRequestHandler(trees: TreesByUri, dependencies: DependencyMap) {
@@ -20,31 +20,15 @@ export function getRenameRequestHandler(trees: TreesByUri, dependencies: Depende
     const { position, textDocument, newName } = params
     const node = getNodeAt(trees[textDocument.uri], position.line, position.character)
 
-    if (!node) return null
+    if (!node || !isIdentifier(node)) return null
 
     const oldName = getName(node)
 
     if (!oldName) return null
 
-    if (node.parent && isFunction(node.parent)) {
-      const linkedUris = dependencies.getLinkedUris(textDocument.uri)
-      const edits: WorkspaceEdit = {}
-
-      for (const uri of linkedUris) {
-        if (!trees[uri]) continue
-        if (!edits.changes) edits.changes = {}
-        if (!edits.changes[uri]) edits.changes[uri] = []
-
-        edits.changes[uri] = findReferences(trees[uri], oldName).map((r) =>
-          TextEdit.replace(r, newName),
-        )
-      }
-
-      return edits
-    }
-
     const parentFunction = getParentFunction(node)
 
+    // Parameter rename
     if (parentFunction) {
       const edits: WorkspaceEdit = {
         changes: {
@@ -61,6 +45,20 @@ export function getRenameRequestHandler(trees: TreesByUri, dependencies: Depende
       return edits
     }
 
-    return null
+    // Function and variable rename
+    const linkedUris = dependencies.getLinkedUris(textDocument.uri)
+    const edits: WorkspaceEdit = {}
+
+    for (const uri of linkedUris) {
+      if (!trees[uri]) continue
+      if (!edits.changes) edits.changes = {}
+      if (!edits.changes[uri]) edits.changes[uri] = []
+
+      edits.changes[uri] = findReferences(trees[uri], oldName).map((r) =>
+        TextEdit.replace(r, newName),
+      )
+    }
+
+    return edits
   }
 }

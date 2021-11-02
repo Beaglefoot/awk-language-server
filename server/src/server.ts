@@ -11,7 +11,6 @@ import { getDocumentSymbolHandler } from './handlers/handleDocumentSymbol'
 import { Context, SymbolsByUri, TreesByUri } from './interfaces'
 import { getInitializeHandler } from './handlers/handleInitialize'
 import { getDidChangeContentHandler } from './handlers/handleDidChangeContent'
-import { getDidOpenHandler } from './handlers/handleDidOpen'
 import { getCompletionHandler } from './handlers/handleCompletion'
 import { getCompletionResolveHandler } from './handlers/handleCompletionResolve'
 import { getDefinitionHandler } from './handlers/handleDefinition'
@@ -42,7 +41,6 @@ function registerHandlers() {
   const handleInitialized = getInitializedHandler(context, trees, symbols, dependencies)
   // prettier-ignore
   const handleDidChangeContent = getDidChangeContentHandler(context, trees, symbols, dependencies)
-  const handleDidOpen = getDidOpenHandler(context, trees, symbols, dependencies)
   const handleCompletion = getCompletionHandler(symbols, dependencies)
   const handleCompletionResolve = getCompletionResolveHandler(trees, docs)
   const handleDefinition = getDefinitionHandler(trees, symbols, dependencies)
@@ -59,7 +57,6 @@ function registerHandlers() {
   connection.onInitialize(handleInitialize)
   connection.onInitialized(handleInitialized)
   documents.onDidChangeContent(handleDidChangeContent)
-  documents.onDidOpen(handleDidOpen)
   connection.onCompletion(handleCompletion)
   connection.onCompletionResolve(handleCompletionResolve)
   connection.onDefinition(handleDefinition)

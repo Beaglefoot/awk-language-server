@@ -51,8 +51,7 @@ function registerHandlers() {
   const handleHover = getHoverHandler(trees, symbols, dependencies, docs)
   const handleSemanticTokens = getSemanticTokensHandler(trees, connection)
   const handlePrepareRename = getPrepareRenameHandler(trees, connection, docs)
-  // prettier-ignore
-  const handleRenameRequest = getRenameRequestHandler(context, trees)
+  const handleRenameRequest = getRenameRequestHandler(trees, dependencies)
 
   connection.onInitialize(handleInitialize)
   connection.onInitialized(handleInitialized)

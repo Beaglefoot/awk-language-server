@@ -87,19 +87,21 @@ export class DependencyMap extends Map<string, DependencyNode> {
   }
 
   /**
-   * Get document URIs which either include or included into the given document
+   * Get document URIs which have access to the given document scope
    */
   public getLinkedUris(queriedUri: string): Set<string> {
     const result = new Set<string>()
+    const queue = [queriedUri]
 
-    for (const uri of this.keys()) {
-      if (
-        uri === queriedUri ||
-        this.hasParent(queriedUri, uri) ||
-        this.hasParent(uri, queriedUri)
-      ) {
-        result.add(uri)
-      }
+    while (queue.length) {
+      const uri = queue.shift()!
+
+      if (result.has(uri)) continue
+
+      queue.push(...this.get(uri).childrenUris)
+      queue.push(...this.get(uri).parentUris)
+
+      result.add(uri)
     }
 
     return result

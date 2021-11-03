@@ -1,7 +1,7 @@
 import { DependencyMap, DependencyNode, difference } from '../src/dependencies'
 
 describe('difference function', () => {
-  it('should return new Set containing all the elements of the first Set missing in the second Set', () => {
+  it('should return new Set containing all elements of the first Set missing in the second Set', () => {
     const result = difference(new Set([1, 2, 3]), new Set([3, 4, 5]))
     expect(result).toEqual(new Set([1, 2]))
   })
@@ -91,11 +91,21 @@ describe('DependencyMap.getLinkedUris method', () => {
   it('should return set of all document uris which have access to the given document content', () => {
     const dmap = new DependencyMap()
 
-    dmap.update('root', new Set(['a', 'b']))
+    dmap.update('root1', new Set(['a', 'b']))
     dmap.update('a', new Set(['a1', 'a2']))
     dmap.update('b', new Set(['b1', 'b2']))
-    dmap.update('a1', new Set(['a1.1']))
+    dmap.update('root2', new Set(['c']))
+    dmap.update('root3', new Set(['b']))
 
-    expect([...dmap.getLinkedUris('a1')]).toEqual(['root', 'a', 'a1', 'a1.1'])
+    expect([...dmap.getLinkedUris('a')]).toEqual([
+      'a',
+      'a1',
+      'a2',
+      'root1',
+      'b',
+      'b1',
+      'b2',
+      'root3',
+    ])
   })
 })

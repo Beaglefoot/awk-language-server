@@ -19,7 +19,7 @@ Implementation of AWK Language Server based on [tree-sitter](https://github.com/
 - [x] Code outline & symbol references
 - [x] Document symbols
 - [x] Workspace symbols
-- [ ] Rename symbols
+- [x] Rename symbols
 - [ ] Code formatting
 
 ## How to use with editors

@@ -19,11 +19,12 @@ agent-base@6:
   dependencies:
     debug "4"
 
-awk-language-server@0.4.2:
-  version "0.4.2"
-  resolved "https://registry.yarnpkg.com/awk-language-server/-/awk-language-server-0.4.2.tgz#ba53f95f061afc103c603db70ac05858edd6f956"
-  integrity sha512-ch38XO1uCCgxkK+AFsPNLrEPR3VghyMlduaJlbbVUBRHliy/Rwr2TL6h+v9zWuxDjwLQkLG1hR3G2TYh3khcYQ==
+awk-language-server@0.6.0:
+  version "0.6.0"
+  resolved "https://registry.yarnpkg.com/awk-language-server/-/awk-language-server-0.6.0.tgz#8e4793ee161b1e81e1ba95efee20ab62cb6c4c59"
+  integrity sha512-qjRnwkLWx24j8iJ9SvPnsFWbjDRyiM4rV6TD075rOz2e58PTOURpO21EMJ9DsGJdxVzV8xZh4vkqW56TBW620w==
   dependencies:
+    minimist "1.2.5"
     vscode-languageserver "^7.0.0"
     vscode-languageserver-textdocument "^1.0.1"
     web-tree-sitter "0.19.4"
@@ -186,7 +187,7 @@ minimatch@^3.0.4:
   dependencies:
     brace-expansion "^1.1.7"
 
-minimist@^1.2.5:
+minimist@1.2.5, minimist@^1.2.5:
   version "1.2.5"
   resolved "https://registry.yarnpkg.com/minimist/-/minimist-1.2.5.tgz#67d66014b66a6a8aaa0c083c5fd58df4e4e97602"
   integrity sha512-FM9nNUYrRBAELZQT3xeZQ7fmMOBg6nWNmJKTcgsJeaLstP/UODVpGsr5OhXhhXg6f+qtJ8uiZ+PUxkDWcgIXLw==

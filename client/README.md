@@ -27,5 +27,5 @@ that you have the following setting enabled either globally or specifically for 
 - [x] Code outline & symbol references
 - [x] Document symbols
 - [x] Workspace symbols
-- [ ] Rename symbols
+- [x] Rename symbols
 - [ ] Code formatting

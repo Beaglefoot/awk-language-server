@@ -1,4 +1,5 @@
 @include "definition_b.awk"
+@include "definition_c.awk"
 
 function f(x) {}
 

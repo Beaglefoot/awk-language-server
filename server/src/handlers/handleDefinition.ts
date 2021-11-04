@@ -18,12 +18,8 @@ export function getDefinitionHandler(
 
     if (!name) return []
 
-    return Object.keys(symbols)
-      .filter(
-        (uri) =>
-          symbols[uri].has(name) &&
-          (uri === textDocument.uri || dependencies.hasParent(uri, textDocument.uri)),
-      )
+    return [...dependencies.getLinkedUris(textDocument.uri)]
+      .filter((uri) => symbols[uri].has(name))
       .flatMap((uri) =>
         (symbols[uri].get(name) || [])
           .filter((s) => s.containerName === (getParentFunctionName(node) ?? undefined))

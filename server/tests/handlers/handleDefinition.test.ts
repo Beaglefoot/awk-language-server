@@ -25,6 +25,7 @@ describe('handleDefinition', () => {
   const dependencies = new DependencyMap()
   let uriA: string
   let uriB: string
+  let uriC: string
 
   beforeAll(async () => {
     parser = await initializeParser()
@@ -41,28 +42,35 @@ describe('handleDefinition', () => {
       join('server', 'tests', 'handlers', 'fixtures', 'definition_b.awk'),
       'utf8',
     )
+    const contentC = readFileSync(
+      join('server', 'tests', 'handlers', 'fixtures', 'definition_c.awk'),
+      'utf8',
+    )
     uriA = 'file:///a.awk'
     uriB = 'file:///b.awk'
+    uriC = 'file:///c.awk'
 
     trees[uriA] = parser.parse(contentA)
     trees[uriB] = parser.parse(contentB)
+    trees[uriC] = parser.parse(contentC)
 
-    dependencies.update(uriA, new Set([uriB]))
+    dependencies.update(uriA, new Set([uriB, uriC]))
 
     symbols[uriA] = new Map()
     symbols[uriB] = new Map()
+    symbols[uriC] = new Map()
 
     symbols[uriA].set('f', [
-      SymbolInformation.create('f', SymbolKind.Function, getRange(2, 0, 2, 16), uriA),
+      SymbolInformation.create('f', SymbolKind.Function, getRange(3, 0, 3, 16), uriA),
     ])
     symbols[uriA].set('a', [
-      SymbolInformation.create('a', SymbolKind.Function, getRange(6, 0, 8, 1), uriA),
+      SymbolInformation.create('a', SymbolKind.Function, getRange(7, 0, 9, 1), uriA),
     ])
     symbols[uriA].set('x', [
       SymbolInformation.create(
         'x',
         SymbolKind.Function,
-        getRange(6, 11, 6, 12),
+        getRange(7, 11, 7, 12),
         uriA,
         'a',
       ),
@@ -76,7 +84,7 @@ describe('handleDefinition', () => {
     // Arrange
     const sentParams: DefinitionParams = {
       textDocument: { uri: uriA },
-      position: Position.create(4, 2),
+      position: Position.create(5, 2),
     }
 
     server.onRequest(
@@ -88,14 +96,14 @@ describe('handleDefinition', () => {
     const result = await client.sendRequest(DefinitionRequest.type, sentParams)
 
     // Assert
-    expect(result).toEqual([Location.create(uriA, getRange(2, 0, 2, 16))])
+    expect(result).toEqual([Location.create(uriA, getRange(3, 0, 3, 16))])
   })
 
   it('should provide locations for included symbols', async () => {
     // Arrange
     const sentParams: DefinitionParams = {
       textDocument: { uri: uriA },
-      position: Position.create(4, 8),
+      position: Position.create(5, 8),
     }
 
     server.onRequest(
@@ -110,11 +118,11 @@ describe('handleDefinition', () => {
     expect(result).toEqual([Location.create(uriB, getRange(0, 0, 0, 21))])
   })
 
-  it('should take into consideration function parameters', async () => {
+  it('should handle function parameters', async () => {
     // Arrange
     const sentParams: DefinitionParams = {
       textDocument: { uri: uriA },
-      position: Position.create(7, 4),
+      position: Position.create(8, 4),
     }
 
     server.onRequest(
@@ -126,6 +134,25 @@ describe('handleDefinition', () => {
     const result = await client.sendRequest(DefinitionRequest.type, sentParams)
 
     // Assert
-    expect(result).toEqual([Location.create(uriA, getRange(6, 11, 6, 12))])
+    expect(result).toEqual([Location.create(uriA, getRange(7, 11, 7, 12))])
+  })
+
+  it('should handle definitions from documents included somewhere above on parent chain', async () => {
+    // Arrange
+    const sentParams: DefinitionParams = {
+      textDocument: { uri: uriC },
+      position: Position.create(0, 8),
+    }
+
+    server.onRequest(
+      DefinitionRequest.type,
+      getDefinitionHandler(trees, symbols, dependencies),
+    )
+
+    // Act
+    const result = await client.sendRequest(DefinitionRequest.type, sentParams)
+
+    // Assert
+    expect(result).toEqual([Location.create(uriB, getRange(0, 0, 0, 21))])
   })
 })

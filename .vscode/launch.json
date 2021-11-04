@@ -10,8 +10,11 @@
       "request": "launch",
       "runtimeExecutable": "${execPath}",
       "args": [
-        "--extensionDevelopmentPath=${workspaceRoot}/client"
+        "--extensionDevelopmentPath=${workspaceRoot}/client",
       ],
+      "env": {
+        "AWK_SERVER_PATH": "../server/out/server.js"
+      },
       "outFiles": [
         "${workspaceRoot}/client/out/**/*.js"
       ],

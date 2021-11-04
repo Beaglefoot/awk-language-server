@@ -24,12 +24,8 @@ const kinds: { [tree_sitter_type: string]: SymbolKind } = {
 }
 
 function getSymbolInfoFromDefinition(node: SyntaxNode, uri: string): SymbolInformation {
-  const firstNamedNode =
-    node.firstNamedChild!.type === 'array_ref'
-      ? node.firstNamedChild!.firstNamedChild!
-      : node.firstNamedChild!
-
-  const name = firstNamedNode.text
+  const identifier = node.descendantsOfType('identifier')[0]
+  const name = identifier.text
 
   return SymbolInformation.create(name, kinds[node.type], getRange(node), uri)
 }
@@ -94,7 +90,6 @@ export function analyze(
   for (const node of nodesGen(tree.rootNode)) {
     if (isInclude(node) && node.childCount === 2) {
       const url = getDependencyUrl(node, document.uri)
-
       dependencyUris.push(url.href)
     }
 

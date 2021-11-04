@@ -1,6 +1,7 @@
 import { URL } from 'url'
 import { analyze } from '../analyze'
 import { DependencyMap } from '../dependencies'
+import { Documentation } from '../documentation'
 import { Context, SymbolsByUri, TreesByUri } from '../interfaces'
 import { getAwkFilesInDir, readDocumentFromUrl } from '../io'
 
@@ -9,6 +10,7 @@ export function getInitializedHandler(
   trees: TreesByUri,
   symbols: SymbolsByUri,
   dependencies: DependencyMap,
+  docs: Documentation,
 ) {
   return async function handleInitialized() {
     const progressReporter = await context.connection.window.createWorkDoneProgress()
@@ -26,7 +28,7 @@ export function getInitializedHandler(
 
       if (!document) continue
 
-      const { tree, symbols: s, dependencyUris } = analyze(context, document)
+      const { tree, symbols: s, dependencyUris } = analyze(context, document, docs)
 
       trees[url.href] = tree
       symbols[url.href] = s

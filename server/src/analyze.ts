@@ -1,6 +1,8 @@
 import { TextDocument } from 'vscode-languageserver-textdocument'
 import { SymbolInformation, SymbolKind } from 'vscode-languageserver/node'
 import { SyntaxNode, Tree } from 'web-tree-sitter'
+import { Documentation } from './documentation'
+import { getBuiltinHints } from './hints'
 import { Context, SymbolsMap } from './interfaces'
 import {
   getDependencyUrl,
@@ -77,6 +79,7 @@ function isKnownSymbol(
 export function analyze(
   context: Context,
   document: TextDocument,
+  docs: Documentation,
 ): {
   tree: Tree
   symbols: SymbolsMap
@@ -98,6 +101,7 @@ export function analyze(
     const symbolInfo = getSymbolInfo(node, document.uri)
 
     if (!symbolInfo) continue
+    if (getBuiltinHints(docs)[symbolInfo.name]) continue
     if (isKnownSymbol(symbols.get(symbolInfo.name) || [], symbolInfo)) continue
 
     if (!symbols.get(symbolInfo.name)) symbols.set(symbolInfo.name, [])

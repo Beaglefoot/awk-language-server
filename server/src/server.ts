@@ -38,9 +38,20 @@ const dependencies = new DependencyMap()
 
 function registerHandlers() {
   const handleInitialize = getInitializeHandler(context, connection, documents, docs)
-  const handleInitialized = getInitializedHandler(context, trees, symbols, dependencies)
-  // prettier-ignore
-  const handleDidChangeContent = getDidChangeContentHandler(context, trees, symbols, dependencies)
+  const handleInitialized = getInitializedHandler(
+    context,
+    trees,
+    symbols,
+    dependencies,
+    docs,
+  )
+  const handleDidChangeContent = getDidChangeContentHandler(
+    context,
+    trees,
+    symbols,
+    dependencies,
+    docs,
+  )
   const handleCompletion = getCompletionHandler(symbols, dependencies)
   const handleCompletionResolve = getCompletionResolveHandler(trees, docs)
   const handleDefinition = getDefinitionHandler(trees, symbols, dependencies)

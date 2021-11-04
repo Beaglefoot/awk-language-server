@@ -13,6 +13,7 @@ import { DependencyMap } from '../../src/dependencies'
 import { initializeParser } from '../../src/parser'
 import * as Parser from 'web-tree-sitter'
 import { Context, SymbolsByUri, TreesByUri } from '../../src/interfaces'
+import { Documentation, getDocumentation } from '../../src/documentation'
 
 describe('handleDidChangeContent', () => {
   let server: MessageConnection
@@ -21,8 +22,10 @@ describe('handleDidChangeContent', () => {
   let fileContent: string
   let uri: string
   let change: TextDocumentChangeEvent<TextDocument>
+  let docs: Documentation
 
   beforeAll(async () => {
+    docs = getDocumentation()
     const connections = getConnections()
 
     server = connections.server
@@ -48,6 +51,7 @@ describe('handleDidChangeContent', () => {
       {},
       {},
       new DependencyMap(),
+      docs,
     )
 
     // Act
@@ -70,6 +74,7 @@ describe('handleDidChangeContent', () => {
       trees,
       {},
       new DependencyMap(),
+      docs,
     )
 
     // Act
@@ -87,6 +92,7 @@ describe('handleDidChangeContent', () => {
       {},
       symbols,
       new DependencyMap(),
+      docs,
     )
 
     // Act
@@ -104,6 +110,7 @@ describe('handleDidChangeContent', () => {
       {},
       {},
       dependencies,
+      docs,
     )
 
     // Act

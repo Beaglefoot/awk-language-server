@@ -20,7 +20,7 @@
       ],
       "preLaunchTask": {
         "type": "npm",
-        "script": "compile"
+        "script": "build"
       }
     },
     {

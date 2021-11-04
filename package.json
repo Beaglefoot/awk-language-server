@@ -1,10 +1,12 @@
 {
   "private": true,
   "scripts": {
-    "clean": "rm -rfv client/out/* server/out/*",
-    "compile": "tsc -b",
-    "compile:force": "yarn clean && yarn compile --verbose --force",
-    "watch": "tsc -b -w",
+    "clean:client": "rm -rfv client/out/*",
+    "clean:server": "rm -rfv server/out/*",
+    "build": "yarn build:server && yarn build:client",
+    "build:client": "cd client && node esbuild.js && cd ..",
+    "build:server": "tsc -b server/tsconfig.json",
+    "build:server:force": "yarn clean:server && yarn build:server --verbose --force",
     "postinstall": "cd client && yarn && cd ../server && yarn && cd ..",
     "test": "jest",
     "test:server": "jest server/tests",

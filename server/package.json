@@ -33,6 +33,6 @@
   },
   "scripts": {
     "build:completion": "man gawk | gawk -f scripts/build_completion_list.awk > docs.json",
-    "prepublishOnly": "cd .. && yarn compile:force"
+    "prepublishOnly": "cd .. && yarn build:server:force"
   }
 }

@@ -68,6 +68,10 @@ export function getName(node: SyntaxNode): string | null {
   return node.text.trim() || null
 }
 
+export function getFunctionName(node: SyntaxNode): string {
+  return node.descendantsOfType('identifier')[0].text.trim()
+}
+
 export function isDefinition(node: SyntaxNode): boolean {
   if (['assignment_exp', 'func_def', 'for_in_statement'].includes(node.type)) return true
   if (node.type === 'getline_input' && node.firstNamedChild) return true

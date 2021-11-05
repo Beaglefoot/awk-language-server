@@ -17,12 +17,13 @@ export function getDidChangeContentHandler(
     change: TextDocumentChangeEvent<TextDocument>,
   ): void {
     const results = analyze(context, change.document, docs)
-    const diagnostics = validate(results.tree)
 
     trees[change.document.uri] = results.tree
     symbols[change.document.uri] = results.symbols
 
     dependencies.update(change.document.uri, new Set(results.dependencyUris))
+
+    const diagnostics = validate(results.tree, symbols, dependencies, change.document.uri)
 
     context.connection.sendDiagnostics({ uri: change.document.uri, diagnostics })
   }

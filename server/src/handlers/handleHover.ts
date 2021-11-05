@@ -39,7 +39,7 @@ export function getHoverHandler(
     }
 
     if (['func_call', 'func_def'].includes(node.parent?.type || '')) {
-      const allDeps = dependencies.getAllBreadthFirst(params.textDocument.uri)
+      const allDeps = dependencies.getLinkedUris(params.textDocument.uri)
 
       let funcDefinitionSymbol: SymbolInformation | undefined
 

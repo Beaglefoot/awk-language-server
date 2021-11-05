@@ -27,6 +27,7 @@ describe('handleHover', () => {
   const docs = getDocumentation()
   let uriA: string
   let uriB: string
+  let uriC: string
 
   beforeAll(async () => {
     parser = await initializeParser()
@@ -43,23 +44,29 @@ describe('handleHover', () => {
       join('server', 'tests', 'handlers', 'fixtures', 'hover_b.awk'),
       'utf8',
     )
+    const contentC = readFileSync(
+      join('server', 'tests', 'handlers', 'fixtures', 'hover_c.awk'),
+      'utf8',
+    )
     uriA = 'file:///a.awk'
     uriB = 'file:///b.awk'
+    uriC = 'file:///c.awk'
 
     trees[uriA] = parser.parse(contentA)
     trees[uriB] = parser.parse(contentB)
+    trees[uriC] = parser.parse(contentC)
 
-    dependencies.update(uriA, new Set([uriB]))
+    dependencies.update(uriA, new Set([uriB, uriC]))
 
     symbols[uriA] = new Map()
     symbols[uriB] = new Map()
 
     symbols[uriA].set('f', [
-      SymbolInformation.create('f', SymbolKind.Function, getRange(2, 0, 2, 16), uriA),
+      SymbolInformation.create('f', SymbolKind.Function, getRange(3, 0, 3, 16), uriA),
     ])
 
     symbols[uriA].set('str', [
-      SymbolInformation.create('str', SymbolKind.Variable, getRange(5, 4, 5, 26), uriA),
+      SymbolInformation.create('str', SymbolKind.Variable, getRange(6, 4, 6, 26), uriA),
     ])
 
     symbols[uriB].set('sum', [
@@ -75,7 +82,7 @@ describe('handleHover', () => {
     // Arrange
     const sentParams: HoverParams = {
       textDocument: { uri: uriA },
-      position: Position.create(5, 10),
+      position: Position.create(6, 10),
     }
 
     server.onRequest(
@@ -97,7 +104,7 @@ describe('handleHover', () => {
     // Arrange
     const sentParams: HoverParams = {
       textDocument: { uri: uriA },
-      position: Position.create(8, 14),
+      position: Position.create(9, 14),
     }
 
     server.onRequest(
@@ -119,7 +126,7 @@ describe('handleHover', () => {
     // Arrange
     const sentParams: HoverParams = {
       textDocument: { uri: uriA },
-      position: Position.create(6, 10),
+      position: Position.create(7, 10),
     }
 
     server.onRequest(
@@ -140,7 +147,7 @@ describe('handleHover', () => {
     // Arrange
     const sentParams: HoverParams = {
       textDocument: { uri: uriA },
-      position: Position.create(6, 15),
+      position: Position.create(7, 15),
     }
 
     server.onRequest(
@@ -161,7 +168,7 @@ describe('handleHover', () => {
     // Arrange
     const sentParams: HoverParams = {
       textDocument: { uri: uriA },
-      position: Position.create(6, 15),
+      position: Position.create(7, 15),
     }
 
     server.onRequest(
@@ -182,7 +189,7 @@ describe('handleHover', () => {
     // Arrange
     const sentParams: HoverParams = {
       textDocument: { uri: uriA },
-      position: Position.create(7, 10),
+      position: Position.create(8, 10),
     }
 
     server.onRequest(
@@ -203,7 +210,7 @@ describe('handleHover', () => {
     // Arrange
     const sentParams: HoverParams = {
       textDocument: { uri: uriA },
-      position: Position.create(7, 15),
+      position: Position.create(8, 15),
     }
 
     server.onRequest(
@@ -218,5 +225,26 @@ describe('handleHover', () => {
     const { value } = result?.contents as MarkupContent
 
     expect(value).toMatch('var_b = 42')
+  })
+
+  it('should provide hint for function in indirectly included document', async () => {
+    // Arrange
+    const sentParams: HoverParams = {
+      textDocument: { uri: uriC },
+      position: Position.create(0, 2),
+    }
+
+    server.onRequest(
+      HoverRequest.type,
+      getHoverHandler(trees, symbols, dependencies, docs),
+    )
+
+    // Act
+    const result = await client.sendRequest(HoverRequest.type, sentParams)
+
+    // Assert
+    const { value } = result?.contents as MarkupContent
+
+    expect(value).toMatch('sum(a, b)')
   })
 })

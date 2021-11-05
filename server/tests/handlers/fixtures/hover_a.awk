@@ -1,4 +1,5 @@
 @include "hover_b.awk"
+@include "hover_c.awk"
 
 function f(a) {}
 

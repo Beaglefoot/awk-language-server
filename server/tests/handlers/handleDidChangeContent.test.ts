@@ -61,6 +61,11 @@ describe('handleDidChangeContent', () => {
     expect(context.connection.sendDiagnostics).toBeCalledWith({
       uri,
       diagnostics: [
+        Diagnostic.create(
+          getRange(0, 0, 0, 22),
+          'File does not exist',
+          DiagnosticSeverity.Error,
+        ),
         Diagnostic.create(getRange(5, 4, 5, 7), 'Syntax error', DiagnosticSeverity.Error),
       ],
     })

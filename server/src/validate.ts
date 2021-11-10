@@ -1,10 +1,11 @@
+import { existsSync } from 'fs'
 import {
   Diagnostic,
   DiagnosticSeverity,
   Range,
   _Connection,
 } from 'vscode-languageserver/node'
-import { getFunctionName, getRange, nodesGen } from './utils'
+import { getDependencyUrl, getFunctionName, getRange, isInclude, nodesGen } from './utils'
 import { Tree } from 'web-tree-sitter'
 import { SymbolsByUri } from './interfaces'
 import { DependencyMap } from './dependencies'
@@ -66,6 +67,21 @@ export function validate(
           ),
         )
       }
+
+      continue
+    }
+
+    if (isInclude(node)) {
+      const range = getRange(node)
+      const url = getDependencyUrl(node, uri)
+
+      if (!existsSync(url)) {
+        diagnostics.push(
+          Diagnostic.create(range, 'File does not exist', DiagnosticSeverity.Error),
+        )
+      }
+
+      continue
     }
   }
 

@@ -19,10 +19,10 @@ agent-base@6:
   dependencies:
     debug "4"
 
-awk-language-server@0.6.1:
-  version "0.6.1"
-  resolved "https://registry.yarnpkg.com/awk-language-server/-/awk-language-server-0.6.1.tgz#bf594637cd7692d8908033134bd6c79bc4756495"
-  integrity sha512-mxjd6fG3YOlDAg5tj6de1pQHJwbK2K0EdrPvGmaU6wYfXjq6ThtxeOZzkYpLsm3sV4eyKgPgeyBSMA+4kxf6GQ==
+awk-language-server@0.6.2:
+  version "0.6.2"
+  resolved "https://registry.yarnpkg.com/awk-language-server/-/awk-language-server-0.6.2.tgz#58b57e0b8d3799d24652a78e3e95b6d9ba8abbda"
+  integrity sha512-VY9HYEaZgbj+GnusScCdTp703Inz8RxKXDg15fUQnow3b9dEukRu55Ay4b8KHXhRyRVZtHrarOrkxoO3u1kcOQ==
   dependencies:
     minimist "1.2.5"
     vscode-languageserver "^7.0.0"

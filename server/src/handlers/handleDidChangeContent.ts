@@ -23,7 +23,13 @@ export function getDidChangeContentHandler(
 
     dependencies.update(change.document.uri, new Set(results.dependencyUris))
 
-    const diagnostics = validate(results.tree, symbols, dependencies, change.document.uri)
+    const diagnostics = validate(
+      results.tree,
+      symbols,
+      dependencies,
+      change.document.uri,
+      docs,
+    )
 
     context.connection.sendDiagnostics({ uri: change.document.uri, diagnostics })
   }

@@ -9,6 +9,8 @@ import { getDependencyUrl, getFunctionName, getRange, isInclude, nodesGen } from
 import { Tree } from 'web-tree-sitter'
 import { SymbolsByUri } from './interfaces'
 import { DependencyMap } from './dependencies'
+import { getBuiltinHints } from './hints'
+import { Documentation } from './documentation'
 
 function isSameRange(range1: Range, range2: Range): boolean {
   return (
@@ -24,6 +26,7 @@ export function validate(
   symbols: SymbolsByUri,
   dependencies: DependencyMap,
   uri: string,
+  docs: Documentation,
 ): Diagnostic[] {
   const diagnostics: Diagnostic[] = []
 
@@ -49,8 +52,21 @@ export function validate(
     if (node.type === 'func_def') {
       const name = getFunctionName(node)
       const range = getRange(node)
-      const linkedUris = dependencies.getLinkedUris(uri)
+      const builtins = getBuiltinHints(docs)
 
+      if (name in builtins) {
+        diagnostics.push(
+          Diagnostic.create(
+            range,
+            `'${name}' is built-in function, function name must be unique`,
+            DiagnosticSeverity.Error,
+          ),
+        )
+
+        continue
+      }
+
+      const linkedUris = dependencies.getLinkedUris(uri)
       const existingDefinition = [...linkedUris]
         .map((u) => symbols[u])
         .find((sm) => sm.has(name))

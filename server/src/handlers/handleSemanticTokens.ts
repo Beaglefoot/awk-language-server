@@ -4,6 +4,7 @@ import { TextDocument } from 'vscode-languageserver-textdocument'
 import { QueryCapture } from 'web-tree-sitter'
 import { TreesByUri } from '../interfaces'
 import { getQueriesList } from '../utils'
+import * as path from 'path'
 
 interface UnencodedSemanticToken {
   line: number
@@ -21,7 +22,16 @@ export function getSemanticTokensHandler(trees: TreesByUri, connection: Connecti
     const tree = trees[textDocument.uri]
     const lang = tree.getLanguage()
 
-    const queriesText = readFileSync(`${__dirname}/../../highlights.scm`, 'utf8')
+    const highlightsPath = path.resolve(
+      require.resolve('tree-sitter-awk'),
+      '..',
+      '..',
+      '..',
+      'queries',
+      'highlights.scm',
+    )
+
+    const queriesText = readFileSync(highlightsPath, 'utf8')
     const queriesList = getQueriesList(queriesText).reverse() // Reverse to prioritize in tree-sitter manner
     const captures: QueryCapture[] = []
 

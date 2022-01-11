@@ -1,4 +1,4 @@
-import { execSync } from 'child_process'
+import { execSync, spawnSync } from 'child_process'
 
 interface PrettierSupportInfo {
   languages: {
@@ -30,4 +30,25 @@ export function isAwkPluginAvailable(): boolean {
   const supportInfo = JSON.parse(supportInfoRaw) as PrettierSupportInfo
 
   return !!supportInfo.languages.find((l) => l.name.toLocaleLowerCase() === 'awk')
+}
+
+export function formatDocument(text: string): string {
+  const { stdout, status, error } = spawnSync(
+    'prettier',
+    ['--parser', 'awk-parse', '--loglevel', 'silent'],
+    {
+      input: text,
+      encoding: 'utf8',
+    },
+  )
+
+  if (status !== 0) {
+    throw new Error('Cannot format document')
+  }
+
+  if (error) {
+    throw error
+  }
+
+  return stdout
 }

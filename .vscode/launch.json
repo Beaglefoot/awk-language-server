@@ -37,7 +37,11 @@
       "name": "Current file",
       "type": "node",
       "request": "launch",
-      "program": "${file}"
+      "program": "${file}",
+      "preLaunchTask": {
+        "type": "npm",
+        "script": "build"
+      }
     },
     {
       "type": "node",

@@ -4,7 +4,7 @@ import {
   ProposedFeatures,
 } from 'vscode-languageserver/node'
 
-import { TextDocument } from 'vscode-languageserver-textdocument'
+import { TextDocument, TextEdit } from 'vscode-languageserver-textdocument'
 import { getDocumentation } from './documentation'
 import { DependencyMap } from './dependencies'
 import { getDocumentSymbolHandler } from './handlers/handleDocumentSymbol'
@@ -22,6 +22,7 @@ import { getSemanticTokensHandler } from './handlers/handleSemanticTokens'
 import { getRenameRequestHandler } from './handlers/handleRenameRequest'
 import { getPrepareRenameHandler } from './handlers/handlePrepareRename'
 import { getInitializedHandler } from './handlers/handleInitialized'
+import { getDocumentFormattingHandler } from './handlers/handleDocumentFormatting'
 
 // Initialized later
 let context = {} as Context
@@ -63,6 +64,7 @@ function registerHandlers() {
   const handleSemanticTokens = getSemanticTokensHandler(trees, connection)
   const handlePrepareRename = getPrepareRenameHandler(trees, connection, docs)
   const handleRenameRequest = getRenameRequestHandler(trees, dependencies)
+  const handleDocumentFormatting = getDocumentFormattingHandler(documents)
 
   connection.onInitialize(handleInitialize)
   connection.onInitialized(handleInitialized)
@@ -78,6 +80,7 @@ function registerHandlers() {
   connection.onRequest('getSemanticTokens', handleSemanticTokens)
   connection.onPrepareRename(handlePrepareRename)
   connection.onRenameRequest(handleRenameRequest)
+  connection.onDocumentFormatting(handleDocumentFormatting)
 }
 
 function main() {

@@ -43,7 +43,7 @@ export function formatDocument(text: string): string {
   )
 
   if (status !== 0) {
-    throw new Error('Cannot format document')
+    throw new Error('Cannot format document. Make sure there is no syntax error')
   }
 
   if (error) {

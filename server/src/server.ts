@@ -64,7 +64,7 @@ function registerHandlers() {
   const handleSemanticTokens = getSemanticTokensHandler(trees, connection)
   const handlePrepareRename = getPrepareRenameHandler(trees, connection, docs)
   const handleRenameRequest = getRenameRequestHandler(trees, dependencies)
-  const handleDocumentFormatting = getDocumentFormattingHandler(documents)
+  const handleDocumentFormatting = getDocumentFormattingHandler(documents, connection)
 
   connection.onInitialize(handleInitialize)
   connection.onInitialized(handleInitialized)

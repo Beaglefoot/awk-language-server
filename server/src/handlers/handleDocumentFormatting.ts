@@ -1,4 +1,5 @@
 import {
+  Connection,
   DocumentFormattingParams,
   Position,
   Range,
@@ -9,7 +10,10 @@ import {
 import { TextDocument } from 'vscode-languageserver-textdocument'
 import { formatDocument } from '../format'
 
-export function getDocumentFormattingHandler(documents: TextDocuments<TextDocument>) {
+export function getDocumentFormattingHandler(
+  documents: TextDocuments<TextDocument>,
+  connection: Connection,
+) {
   return (params: DocumentFormattingParams): TextEdit[] => {
     const editedDocument = documents.get(params.textDocument.uri)
 
@@ -22,7 +26,14 @@ export function getDocumentFormattingHandler(documents: TextDocuments<TextDocume
     try {
       formattedText = formatDocument(text)
     } catch (err) {
-      // TODO: Handle error
+      if (err instanceof Error) {
+        connection.window.showErrorMessage(err.message)
+      }
+
+      if (typeof err === 'string') {
+        connection.window.showErrorMessage(err)
+      }
+
       return []
     }
 

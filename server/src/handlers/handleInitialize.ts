@@ -10,7 +10,6 @@ import {
 } from 'vscode-languageserver/node'
 import { initCompletionList } from '../completion'
 import { Documentation } from '../documentation'
-import { isAwkPluginAvailable } from '../format'
 import { Context } from '../interfaces'
 import { initializeParser } from '../parser'
 
@@ -48,7 +47,7 @@ export function getInitializeHandler(
         referencesProvider: true,
         hoverProvider: true,
         renameProvider: { prepareProvider: true },
-        documentFormattingProvider: isAwkPluginAvailable(),
+        documentFormattingProvider: true,
       },
     }
 

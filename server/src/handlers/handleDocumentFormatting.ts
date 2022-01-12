@@ -21,7 +21,7 @@ export function getDocumentFormattingHandler(
 
     const text = editedDocument.getText()
 
-    let formattedText: string
+    let formattedText: string | null = null
 
     try {
       formattedText = formatDocument(text)
@@ -36,6 +36,8 @@ export function getDocumentFormattingHandler(
 
       return []
     }
+
+    if (!formattedText) return []
 
     const editedRange = Range.create(
       Position.create(0, 0),

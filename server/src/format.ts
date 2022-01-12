@@ -1,4 +1,7 @@
 import { execSync, spawnSync } from 'child_process'
+import { WorkspaceFolder } from 'vscode-languageserver'
+import { fileURLToPath } from 'url'
+import { resolve } from 'path'
 
 interface PrettierSupportInfo {
   languages: {
@@ -8,23 +11,45 @@ interface PrettierSupportInfo {
   }[]
 }
 
-export function isAwkPluginAvailable(): boolean {
+let prettierCmd = ''
+
+export function initFormatter(workspaceFolders: WorkspaceFolder[]) {
+  for (const wsf of workspaceFolders) {
+    const prettierPath = resolve(
+      fileURLToPath(wsf.uri),
+      'node_modules',
+      '.bin',
+      'prettier',
+    )
+
+    if (isAwkPluginAvailable(prettierPath)) {
+      prettierCmd = prettierPath
+      return
+    }
+  }
+
+  if (isAwkPluginAvailable('prettier')) prettierCmd = 'prettier'
+}
+
+export function isAwkPluginAvailable(prettierCmd: string): boolean {
   let supportInfoRaw: string
 
   try {
-    supportInfoRaw = execSync('prettier --support-info', { encoding: 'utf8' })
+    supportInfoRaw = execSync(`${prettierCmd} --support-info`, { encoding: 'utf8' })
   } catch (_err) {
     return false
   }
 
   const supportInfo = JSON.parse(supportInfoRaw) as PrettierSupportInfo
 
-  return !!supportInfo.languages.find((l) => l.name.toLocaleLowerCase() === 'awk')
+  return supportInfo.languages.some((l) => l.name.toLocaleLowerCase() === 'awk')
 }
 
-export function formatDocument(text: string): string {
+export function formatDocument(text: string): string | null {
+  if (!prettierCmd) return null
+
   const { stdout, status, error } = spawnSync(
-    'prettier',
+    prettierCmd,
     ['--parser', 'awk-parse', '--loglevel', 'silent'],
     {
       input: text,

@@ -1,4 +1,8 @@
 import { URL } from 'url'
+import {
+  WorkDoneProgressServerReporter,
+  WorkspaceFolder,
+} from 'vscode-languageserver/node'
 import { analyze } from '../analyze'
 import { DependencyMap } from '../dependencies'
 import { Documentation } from '../documentation'
@@ -13,13 +17,7 @@ export function getInitializedHandler(
   dependencies: DependencyMap,
   docs: Documentation,
 ) {
-  return async function handleInitialized() {
-    const progressReporter = await context.connection.window.createWorkDoneProgress()
-
-    progressReporter.begin('Indexing')
-
-    const workspaceFolders =
-      (await context.connection.workspace.getWorkspaceFolders()) ?? []
+  function index(workspaceFolders: WorkspaceFolder[]) {
     const urls: URL[] = workspaceFolders.flatMap((folder) => getAwkFilesInDir(folder.uri))
 
     // Analyze every file in a workspace
@@ -34,7 +32,15 @@ export function getInitializedHandler(
       symbols[url.href] = s
       dependencies.update(url.href, new Set(dependencyUris))
     }
+  }
 
+  return async function handleInitialized() {
+    const progressReporter = await context.connection.window.createWorkDoneProgress()
+    const workspaceFolders =
+      (await context.connection.workspace.getWorkspaceFolders()) ?? []
+
+    progressReporter.begin('Indexing')
+    index(workspaceFolders)
     progressReporter.done()
 
     progressReporter.begin('Initializing formatter')

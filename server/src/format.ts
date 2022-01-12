@@ -8,16 +8,6 @@ interface PrettierSupportInfo {
   }[]
 }
 
-export function isPrettierInstalled(): boolean {
-  try {
-    execSync('prettier -v', { encoding: 'utf8' })
-  } catch (_err) {
-    return false
-  }
-
-  return true
-}
-
 export function isAwkPluginAvailable(): boolean {
   let supportInfoRaw: string
 

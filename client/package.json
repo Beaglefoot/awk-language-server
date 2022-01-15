@@ -65,7 +65,14 @@
       "[awk]": {
         "editor.semanticHighlighting.enabled": true
       }
-    }
+    },
+    "grammars": [
+      {
+        "language": "awk",
+        "scopeName": "source.awk",
+        "path": "./syntaxes/awk.tmGrammar.json"
+      }
+    ]
   },
   "scripts": {
     "vscode:prepublish": "cd .. && yarn build:client:force"

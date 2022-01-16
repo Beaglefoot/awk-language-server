@@ -4,7 +4,7 @@ import {
   ProposedFeatures,
 } from 'vscode-languageserver/node'
 
-import { TextDocument, TextEdit } from 'vscode-languageserver-textdocument'
+import { TextDocument } from 'vscode-languageserver-textdocument'
 import { getDocumentation } from './documentation'
 import { DependencyMap } from './dependencies'
 import { getDocumentSymbolHandler } from './handlers/handleDocumentSymbol'

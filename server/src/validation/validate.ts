@@ -10,6 +10,7 @@ import { validateMissingNode } from './missingNode'
 import { validateBuiltinName } from './builtinName'
 import { validateNameCollision } from './nameCollision'
 import { validateIncludeExists } from './includeExists'
+import { validateNextPlacement } from './nextPlacement'
 
 const validators: Validator[] = [
   validateSyntaxError,
@@ -17,6 +18,7 @@ const validators: Validator[] = [
   validateBuiltinName,
   validateNameCollision,
   validateIncludeExists,
+  validateNextPlacement,
 ]
 
 export function validate(

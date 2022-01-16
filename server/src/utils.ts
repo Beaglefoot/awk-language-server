@@ -231,3 +231,16 @@ export function getParentFunctionName(node: SyntaxNode): string | null {
 
   return parentFunc ? getName(parentFunc.firstNamedChild!) : null
 }
+
+export function isLoop(node: SyntaxNode): boolean {
+  return [
+    'for_statement',
+    'for_in_statement',
+    'while_statement',
+    'do_while_statement',
+  ].includes(node.type)
+}
+
+export function isSwitch(node: SyntaxNode): boolean {
+  return node.type === 'switch_statement'
+}

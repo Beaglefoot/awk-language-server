@@ -12,6 +12,7 @@ import { validateNameCollision } from './nameCollision'
 import { validateIncludeExists } from './includeExists'
 import { validateNextPlacement } from './nextPlacement'
 import { validateContinuePlacement } from './continuePlacement'
+import { validateBreakPlacement } from './breakPlacement'
 
 const validators: Validator[] = [
   validateSyntaxError,
@@ -21,6 +22,7 @@ const validators: Validator[] = [
   validateIncludeExists,
   validateNextPlacement,
   validateContinuePlacement,
+  validateBreakPlacement,
 ]
 
 export function validate(

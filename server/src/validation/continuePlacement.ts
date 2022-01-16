@@ -1,16 +1,6 @@
 import { Diagnostic, DiagnosticSeverity } from 'vscode-languageserver'
-import { SyntaxNode } from 'web-tree-sitter'
-import { findParent, getRange } from '../utils'
+import { findParent, getRange, isLoop } from '../utils'
 import { ValidationContext } from './validator'
-
-function isLoop(node: SyntaxNode) {
-  return [
-    'for_statement',
-    'for_in_statement',
-    'while_statement',
-    'do_while_statement',
-  ].includes(node.type)
-}
 
 export function validateContinuePlacement(context: ValidationContext): Diagnostic | null {
   const { node } = context

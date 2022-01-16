@@ -4,7 +4,7 @@ import { analyze } from '../analyze'
 import { DependencyMap } from '../dependencies'
 import { Documentation } from '../documentation'
 import { Context, SymbolsByUri, TreesByUri } from '../interfaces'
-import { validate } from '../validate'
+import { validate } from '../validation/validate'
 
 export function getDidChangeContentHandler(
   context: Context,

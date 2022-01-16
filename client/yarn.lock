@@ -19,12 +19,13 @@ agent-base@6:
   dependencies:
     debug "4"
 
-awk-language-server@0.6.2:
-  version "0.6.2"
-  resolved "https://registry.yarnpkg.com/awk-language-server/-/awk-language-server-0.6.2.tgz#58b57e0b8d3799d24652a78e3e95b6d9ba8abbda"
-  integrity sha512-VY9HYEaZgbj+GnusScCdTp703Inz8RxKXDg15fUQnow3b9dEukRu55Ay4b8KHXhRyRVZtHrarOrkxoO3u1kcOQ==
+awk-language-server@0.7.0:
+  version "0.7.0"
+  resolved "https://registry.yarnpkg.com/awk-language-server/-/awk-language-server-0.7.0.tgz#6f649951fe0ca8f56234416f3355b4a035ee71c3"
+  integrity sha512-dDC8CtgmK1yr32VK/WwUiyPQ6waNEbQYQPv8/DOusZ0Ojyd/gHEYTkZuXs8WHh/59wN1mTg4EbrA0TA5ta4hfA==
   dependencies:
     minimist "1.2.5"
+    tree-sitter-awk "0.4.1"
     vscode-languageserver "^7.0.0"
     vscode-languageserver-textdocument "^1.0.1"
     web-tree-sitter "0.19.4"
@@ -204,6 +205,11 @@ ms@2.1.2:
   resolved "https://registry.yarnpkg.com/ms/-/ms-2.1.2.tgz#d09d1f357b443f493382a8eb3ccd183872ae6009"
   integrity sha512-sGkPx+VjMtmA6MX27oA4FBFELFCZZ4S4XqeGOXCv68tT+jb3vk/RyaKWP0PTKyWtmLSM0b+adUTEvbs1PEaH2w==
 
+nan@2.14.2:
+  version "2.14.2"
+  resolved "https://registry.yarnpkg.com/nan/-/nan-2.14.2.tgz#f5376400695168f4cc694ac9393d0c9585eeea19"
+  integrity sha512-M2ufzIiINKCuDfBSAUr1vWQ+vuVcA9kqx8JJUsbQi6yf1uGRyb7HfpdfUr5qLXf3B/t8dPvcjhKMmlfnP47EzQ==
+
 once@^1.3.0:
   version "1.4.0"
   resolved "https://registry.yarnpkg.com/once/-/once-1.4.0.tgz#583b1aa775961d4b113ac17d9c50baef9dd76bd1"
@@ -276,6 +282,13 @@ string_decoder@~1.1.1:
   version "0.3.9"
   resolved "https://registry.yarnpkg.com/traverse/-/traverse-0.3.9.tgz#717b8f220cc0bb7b44e40514c22b2e8bbc70d8b9"
   integrity sha1-cXuPIgzAu3tE5AUUwisui7xw2Lk=
+
+tree-sitter-awk@0.4.1:
+  version "0.4.1"
+  resolved "https://registry.yarnpkg.com/tree-sitter-awk/-/tree-sitter-awk-0.4.1.tgz#fd401a8b671300a38972f681031a83e7b2a59979"
+  integrity sha512-AmS9cg8s6DQJvpK5qibWHI91K5b3g/NbU5jBsROmBOyusta0tcevlJP3wGY7VyJSlOypBynGDumsrTFMUI5xxw==
+  dependencies:
+    nan "2.14.2"
 
 unzipper@^0.10.11:
   version "0.10.11"

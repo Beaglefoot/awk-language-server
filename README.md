@@ -20,7 +20,7 @@ Implementation of AWK Language Server based on [tree-sitter](https://github.com/
 - [x] Document symbols
 - [x] Workspace symbols
 - [x] Rename symbols
-- [ ] Code formatting
+- [x] Code formatting (requires [prettier-plugin-awk](https://github.com/Beaglefoot/prettier-plugin-awk))
 
 ## How to use with editors
 
@@ -65,6 +65,9 @@ Edit config with `:CocConfig` command and add the following:
 ```
 
 #### [vim-lsp](https://github.com/prabirshrestha/vim-lsp)
+
+It works partially unless [support for multi-root workspaces](https://github.com/prabirshrestha/vim-lsp/issues/1069)
+is implemented by vim-lsp.
 
 Add to your `.vimrc`:
 ```vim

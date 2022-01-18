@@ -103,10 +103,10 @@ if not configs.awklsp then
       single_file_support = true,
       handlers = {
         ['workspace/workspaceFolders'] = function()
-        return {
-          result = nil,
-          error = nil,
-        }
+          return {{
+            uri = 'file://' .. vim.fn.getcwd(),
+            name = 'current_dir',
+          }}
         end
       }
     },

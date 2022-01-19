@@ -1,8 +1,5 @@
 import { URL } from 'url'
-import {
-  WorkDoneProgressServerReporter,
-  WorkspaceFolder,
-} from 'vscode-languageserver/node'
+import { WorkspaceFolder } from 'vscode-languageserver/node'
 import { analyze } from '../analyze'
 import { DependencyMap } from '../dependencies'
 import { Documentation } from '../documentation'

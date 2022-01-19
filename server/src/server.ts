@@ -23,6 +23,7 @@ import { getRenameRequestHandler } from './handlers/handleRenameRequest'
 import { getPrepareRenameHandler } from './handlers/handlePrepareRename'
 import { getInitializedHandler } from './handlers/handleInitialized'
 import { getDocumentFormattingHandler } from './handlers/handleDocumentFormatting'
+import { getDeleteFilesHandler } from './handlers/handleDeleteFiles'
 
 // Initialized later
 let context = {} as Context
@@ -65,6 +66,13 @@ function registerHandlers() {
   const handlePrepareRename = getPrepareRenameHandler(trees, connection, docs)
   const handleRenameRequest = getRenameRequestHandler(trees, dependencies)
   const handleDocumentFormatting = getDocumentFormattingHandler(documents, connection)
+  const handleDeleteFiles = getDeleteFilesHandler(
+    trees,
+    symbols,
+    dependencies,
+    connection,
+    docs,
+  )
 
   connection.onInitialize(handleInitialize)
   connection.onInitialized(handleInitialized)
@@ -81,6 +89,7 @@ function registerHandlers() {
   connection.onPrepareRename(handlePrepareRename)
   connection.onRenameRequest(handleRenameRequest)
   connection.onDocumentFormatting(handleDocumentFormatting)
+  connection.workspace.onDidDeleteFiles(handleDeleteFiles)
 }
 
 function main() {

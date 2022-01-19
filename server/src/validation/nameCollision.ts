@@ -20,7 +20,7 @@ export function validateNameCollision(context: ValidationContext): Diagnostic | 
     const linkedUris = dependencies.getLinkedUris(uri)
     const existingDefinition = [...linkedUris]
       .map((u) => symbols[u])
-      .find((sm) => sm.has(name))
+      .find((sm) => sm?.has(name))
       ?.get(name)![0]!
 
     const { uri: eduri, range: edrange } = existingDefinition.location

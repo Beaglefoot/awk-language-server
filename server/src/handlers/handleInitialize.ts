@@ -1,3 +1,4 @@
+import { FileOperationFilter } from 'vscode-languageserver-protocol/lib/common/protocol.fileOperations'
 import { TextDocument } from 'vscode-languageserver-textdocument'
 import { WorkDoneProgressReporter } from 'vscode-languageserver/lib/common/progress'
 import {
@@ -12,6 +13,13 @@ import { initCompletionList } from '../completion'
 import { Documentation } from '../documentation'
 import { Context } from '../interfaces'
 import { initializeParser } from '../parser'
+
+const fileOperationFilter: FileOperationFilter = {
+  pattern: {
+    glob: '**/*.{awk,gawk}',
+    options: { ignoreCase: true },
+  },
+}
 
 export function getInitializeHandler(
   context: Context,
@@ -48,6 +56,13 @@ export function getInitializeHandler(
         hoverProvider: true,
         renameProvider: { prepareProvider: true },
         documentFormattingProvider: true,
+        workspace: {
+          fileOperations: {
+            didDelete: {
+              filters: [fileOperationFilter],
+            },
+          },
+        },
       },
     }
 

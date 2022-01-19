@@ -61,6 +61,9 @@ export function getInitializeHandler(
             didDelete: {
               filters: [fileOperationFilter],
             },
+            didCreate: {
+              filters: [fileOperationFilter],
+            },
           },
         },
       },

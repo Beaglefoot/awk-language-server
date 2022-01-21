@@ -1,4 +1,4 @@
-import { readdirSync, readFileSync } from 'fs'
+import { accessSync, constants, readdirSync, readFileSync } from 'fs'
 import { extname } from 'path'
 import { URL } from 'url'
 import { TextDocument } from 'vscode-languageserver-textdocument'
@@ -21,8 +21,15 @@ export function readDocumentFromUrl(context: Context, url: URL): TextDocument | 
 /** Get files ending with .awk or .gawk recursively */
 export function getAwkFilesInDir(uri: string): URL[] {
   const result: URL[] = []
+  const url = new URL(uri)
 
-  for (const dirent of readdirSync(new URL(uri), { withFileTypes: true })) {
+  try {
+    accessSync(url, constants.R_OK)
+  } catch (_err) {
+    return []
+  }
+
+  for (const dirent of readdirSync(url, { withFileTypes: true })) {
     const extension = extname(dirent.name)
 
     if (extension === '.awk' || extension === '.gawk') {

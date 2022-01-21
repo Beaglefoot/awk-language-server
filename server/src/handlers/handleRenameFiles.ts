@@ -1,8 +1,11 @@
-import { relative, dirname } from 'path'
+import { statSync } from 'fs'
+import { relative, dirname, basename } from 'path'
+import { URL } from 'url'
 import { FileRename, RenameFilesParams, TextEdit } from 'vscode-languageserver/node'
 import { SyntaxNode, Tree } from 'web-tree-sitter'
 import { DependencyMap } from '../dependencies'
 import { Context, SymbolsByUri, TreesByUri } from '../interfaces'
+import { getAwkFilesInDir } from '../io'
 import { getRange, isInclude } from '../utils'
 
 type ParentURI = string
@@ -49,6 +52,29 @@ function getIncludeEdits(
   return result
 }
 
+/**
+ * Adapt folder renames to file renames
+ */
+function adaptFileRenames(files: FileRename[]): FileRename[] {
+  return (
+    files
+      .flatMap(({ oldUri, newUri }) => {
+        // newUri because handling DidRename
+        if (statSync(new URL(newUri)).isDirectory()) {
+          return getAwkFilesInDir(newUri).map((fileUrl) => ({
+            oldUri: oldUri + '/' + basename(fileUrl.toString()),
+            newUri: fileUrl.toString(),
+          }))
+        }
+
+        return { oldUri, newUri }
+      })
+      // This is a workaround
+      // https://github.com/microsoft/vscode-languageserver-node/issues/734
+      .filter(({ newUri }) => newUri.endsWith('.awk') || newUri.endsWith('.gawk'))
+  )
+}
+
 export function getRenameFilesHandler(
   context: Context,
   trees: TreesByUri,
@@ -56,13 +82,13 @@ export function getRenameFilesHandler(
   dependencies: DependencyMap,
 ) {
   return function handleRenameFiles(params: RenameFilesParams): void {
-    // TODO: Handle case with dir renaming
+    const fileRenames = adaptFileRenames(params.files)
 
     // Multiple file renames might result in multiple changes to the same parent document
     // This allows to aggregate such changes and not change the same file multiple times
     const changesInParents: Map<ParentURI, FileRename[]> = new Map()
 
-    for (const file of params.files) {
+    for (const file of fileRenames) {
       trees[file.newUri] = trees[file.oldUri]
       symbols[file.newUri] = symbols[file.oldUri]
 

@@ -14,10 +14,18 @@ import { Documentation } from '../documentation'
 import { Context } from '../interfaces'
 import { initializeParser } from '../parser'
 
+// Cannot use matches with file types until new release
+// https://github.com/microsoft/vscode-languageserver-node/issues/734
 const fileOperationFilter: FileOperationFilter = {
   pattern: {
     glob: '**/*.{awk,gawk}',
     options: { ignoreCase: true },
+  },
+}
+
+const folderOperationFilter: FileOperationFilter = {
+  pattern: {
+    glob: '**/*',
   },
 }
 
@@ -65,7 +73,7 @@ export function getInitializeHandler(
               filters: [fileOperationFilter],
             },
             didRename: {
-              filters: [fileOperationFilter],
+              filters: [fileOperationFilter, folderOperationFilter],
             },
           },
         },

@@ -64,6 +64,9 @@ export function getInitializeHandler(
             didCreate: {
               filters: [fileOperationFilter],
             },
+            didRename: {
+              filters: [fileOperationFilter],
+            },
           },
         },
       },

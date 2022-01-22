@@ -8,7 +8,7 @@ import { TextDocument } from 'vscode-languageserver-textdocument'
 import { getDocumentation } from './documentation'
 import { DependencyMap } from './dependencies'
 import { getDocumentSymbolHandler } from './handlers/handleDocumentSymbol'
-import { Context, SymbolsByUri, TreesByUri } from './interfaces'
+import { CliOptions, Context, SymbolsByUri, TreesByUri } from './interfaces'
 import { getInitializeHandler } from './handlers/handleInitialize'
 import { getDidChangeContentHandler } from './handlers/handleDidChangeContent'
 import { getCompletionHandler } from './handlers/handleCompletion'
@@ -104,11 +104,13 @@ function registerHandlers() {
   connection.workspace.onDidRenameFiles(handleRenameFiles)
 }
 
-function main() {
+export function main(cliOptions?: CliOptions) {
+  if (cliOptions) context.cliOptions = cliOptions
+
   registerHandlers()
 
   documents.listen(connection)
   connection.listen()
 }
 
-main()
+if (require.main === module) main()

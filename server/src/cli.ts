@@ -1,13 +1,16 @@
 #!/usr/bin/env node
 
 import * as parseArgs from 'minimist'
+import { CliOptions } from './interfaces'
+import { main } from './server'
 
 function usage(exitCode: number): never {
   console.log(
     'Usage:\n\tnode awk-language-server [OPTIONS]\n\n' +
       'Options:\n' +
       '\t-h|--help\t\tGet this message\n' +
-      '\t-v|--version\t\tGet current version number\n',
+      '\t-v|--version\t\tGet current version number\n' +
+      '\t--noIndex\t\tSkip indexing. Only opened files will be analyzed\n',
   )
 
   process.exit(exitCode)
@@ -30,9 +33,10 @@ const args = parseArgs(process.argv.slice(2), {
   default: {
     help: false,
     version: false,
+    noIndex: false,
   },
 
-  boolean: ['help', 'version'],
+  boolean: ['help', 'version', 'noIndex'],
 
   unknown: (key: string): boolean => {
     if (!key.startsWith('-')) return false
@@ -46,7 +50,11 @@ const args = parseArgs(process.argv.slice(2), {
 if (args.help) usage(0)
 if (args.version) printVersion()
 
-import './server'
+const options: CliOptions = {
+  noIndex: args.noIndex,
+}
+
+main(options)
 
 // Avoid writing to stdout at this point as it's reserved for client/server communication
-process.stderr.write('Language Server is started.')
+process.stderr.write('Language Server is started.\n')

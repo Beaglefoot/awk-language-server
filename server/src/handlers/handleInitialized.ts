@@ -36,9 +36,13 @@ export function getInitializedHandler(
     const workspaceFolders =
       (await context.connection.workspace.getWorkspaceFolders()) ?? []
 
-    progressReporter.begin('Indexing')
-    index(workspaceFolders)
-    progressReporter.done()
+    if (context.cliOptions?.noIndex) {
+      context.connection.console.log('Indexing skipped')
+    } else {
+      progressReporter.begin('Indexing')
+      index(workspaceFolders)
+      progressReporter.done()
+    }
 
     progressReporter.begin('Initializing formatter')
     initFormatter(workspaceFolders)

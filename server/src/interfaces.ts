@@ -21,9 +21,14 @@ export interface TreesByUri {
   [uri: string]: Tree
 }
 
+export interface CliOptions {
+  noIndex: boolean
+}
+
 export interface Context {
   connection: Connection
   documents: TextDocuments<TextDocument>
   capabilities: ClientCapabilities
   parser: Parser
+  cliOptions?: CliOptions
 }

@@ -55,7 +55,7 @@ function getIncludeEdits(
 /**
  * Adapt folder renames to file renames
  */
-function adaptFileRenames(files: FileRename[]): FileRename[] {
+function adaptFolderRenames(files: FileRename[]): FileRename[] {
   return (
     files
       .flatMap(({ oldUri, newUri }) => {
@@ -71,7 +71,10 @@ function adaptFileRenames(files: FileRename[]): FileRename[] {
       })
       // This is a workaround
       // https://github.com/microsoft/vscode-languageserver-node/issues/734
-      .filter(({ newUri }) => newUri.endsWith('.awk') || newUri.endsWith('.gawk'))
+      .filter(
+        ({ newUri }) =>
+          newUri.toLowerCase().endsWith('.awk') || newUri.toLowerCase().endsWith('.gawk'),
+      )
   )
 }
 
@@ -82,7 +85,7 @@ export function getRenameFilesHandler(
   dependencies: DependencyMap,
 ) {
   return function handleRenameFiles(params: RenameFilesParams): void {
-    const fileRenames = adaptFileRenames(params.files)
+    const fileRenames = adaptFolderRenames(params.files)
 
     // Multiple file renames might result in multiple changes to the same parent document
     // This allows to aggregate such changes and not change the same file multiple times

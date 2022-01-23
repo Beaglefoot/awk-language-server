@@ -8,8 +8,7 @@ import { readDocumentFromUrl } from '../io'
 import { validate } from '../validation/validate'
 
 /**
- * This handles cases when file is copied from somewhere else
- * or when deleted file is restored with Ctrl+z
+ * This handles the case when deleted file is restored with Ctrl+z
  */
 export function getCreateFilesHandler(
   context: Context,

@@ -66,8 +66,11 @@ export function getInitializeHandler(
         documentFormattingProvider: true,
         workspace: {
           fileOperations: {
+            willDelete: {
+              filters: [fileOperationFilter, folderOperationFilter],
+            },
             didDelete: {
-              filters: [fileOperationFilter],
+              filters: [fileOperationFilter, folderOperationFilter],
             },
             didCreate: {
               filters: [fileOperationFilter],

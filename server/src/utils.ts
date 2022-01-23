@@ -1,6 +1,7 @@
+import { extname } from 'path'
 import { URL } from 'url'
 import { Position } from 'vscode-languageserver-textdocument'
-import { Range } from 'vscode-languageserver/node'
+import { Range, URI } from 'vscode-languageserver/node'
 import { Point, SyntaxNode, Tree } from 'web-tree-sitter'
 
 export function* nodesGen(node: SyntaxNode) {
@@ -243,4 +244,9 @@ export function isLoop(node: SyntaxNode): boolean {
 
 export function isSwitch(node: SyntaxNode): boolean {
   return node.type === 'switch_statement'
+}
+
+export function isAwkExtension(path: URI | string): boolean {
+  const ext = extname(path).toLowerCase()
+  return ext === '.awk' || ext === '.gawk'
 }

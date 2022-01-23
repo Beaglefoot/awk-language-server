@@ -6,7 +6,7 @@ import { SyntaxNode, Tree } from 'web-tree-sitter'
 import { DependencyMap } from '../dependencies'
 import { Context, SymbolsByUri, TreesByUri } from '../interfaces'
 import { getAwkFilesInDir } from '../io'
-import { getRange, isInclude } from '../utils'
+import { getRange, isAwkExtension, isInclude } from '../utils'
 
 type ParentURI = string
 
@@ -31,7 +31,7 @@ function getIncludeEdits(
       const oldIncludeNode = getIncludes(trees[parentUri]).find((n) => {
         const includeText = n.lastNamedChild!.text.replace(/"/g, '')
 
-        if (includeText.endsWith('.awk') || includeText.endsWith('.gawk')) {
+        if (isAwkExtension(includeText)) {
           return includeText === oldRelPath
         }
 
@@ -71,10 +71,7 @@ function adaptFolderRenames(files: FileRename[]): FileRename[] {
       })
       // This is a workaround
       // https://github.com/microsoft/vscode-languageserver-node/issues/734
-      .filter(
-        ({ newUri }) =>
-          newUri.toLowerCase().endsWith('.awk') || newUri.toLowerCase().endsWith('.gawk'),
-      )
+      .filter(({ newUri }) => isAwkExtension(newUri))
   )
 }
 

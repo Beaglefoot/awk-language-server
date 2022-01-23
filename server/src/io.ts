@@ -3,6 +3,7 @@ import { extname } from 'path'
 import { URL } from 'url'
 import { TextDocument } from 'vscode-languageserver-textdocument'
 import { Context } from './interfaces'
+import { isAwkExtension } from './utils'
 
 export function readDocumentFromUrl(context: Context, url: URL): TextDocument | null {
   let content: string
@@ -30,9 +31,7 @@ export function getAwkFilesInDir(uri: string): URL[] {
   }
 
   for (const dirent of readdirSync(url, { withFileTypes: true })) {
-    const extension = extname(dirent.name)
-
-    if (extension === '.awk' || extension === '.gawk') {
+    if (isAwkExtension(dirent.name)) {
       result.push(new URL(`${uri}/${dirent.name}`))
       continue
     }

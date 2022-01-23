@@ -62,6 +62,8 @@ export function getDidDeleteFilesHandler(
           })
         }
       }
+
+      fileDeletesMap.delete(uri)
     }
   }
 }

@@ -84,10 +84,15 @@ endif
 
 #### [nvim-lspconfig](https://github.com/neovim/nvim-lspconfig)
 
-It works if `workspaceFolders` requests are handled. `root_dir` is set
-to the directory containing the opened awk file.
-
-Add to your `init.vim` (or `init.lua`):
+A [default config](https://github.com/neovim/nvim-lspconfig/blob/master/doc/server_configurations.md#awk_ls)
+for `awk-language-server` was
+[merged into nvim-lspconfig](https://github.com/neovim/nvim-lspconfig/pull/1665#event-5938617547).
+It works only if `workspaceFolders` requests are handled and a default
+handler for these was only just
+[set to be added upstream in Neovim 0.7](https://github.com/neovim/neovim/pull/17149/), so
+the config itself is gated for use only in Neovim >= v0.7. For users below that version,
+please use a manual config that handles these requests by adding the following to your
+`init.vim` (or `init.lua`):
 ```lua
 lua << EOF
 local configs = require('lspconfig.configs')
@@ -97,9 +102,6 @@ if not configs.awklsp then
     default_config = {
       cmd = { 'awk-language-server' },
       filetypes = { 'awk' },
-      root_dir = function(fname)
-        return lspconfig.util.path.dirname(fname)
-      end,
       single_file_support = true,
       handlers = {
         ['workspace/workspaceFolders'] = function()

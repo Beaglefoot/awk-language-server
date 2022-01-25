@@ -72,10 +72,10 @@ function registerHandlers() {
   const handleRenameRequest = getRenameRequestHandler(trees, dependencies)
   const handleDocumentFormatting = getDocumentFormattingHandler(documents, connection)
   const handleDidDeleteFiles = getDidDeleteFilesHandler(
+    context,
     trees,
     symbols,
     dependencies,
-    connection,
     docs,
   )
   const handleCreateFiles = getCreateFilesHandler(

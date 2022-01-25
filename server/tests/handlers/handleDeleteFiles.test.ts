@@ -1,0 +1,314 @@
+import { URL } from 'url'
+import { MessageConnection } from 'vscode-languageserver-protocol'
+import * as Parser from 'web-tree-sitter'
+import { DependencyMap } from '../../src/dependencies'
+import { Documentation } from '../../src/documentation'
+import {
+  getDidDeleteFilesHandler,
+  handleWillDeleteFiles,
+} from '../../src/handlers/handleDeleteFiles'
+import { Context, SymbolsByUri, SymbolsMap, TreesByUri } from '../../src/interfaces'
+import * as io from '../../src/io'
+import { initializeParser } from '../../src/parser'
+import { getConnections, getDummyContext } from '../helpers'
+import * as v from '../../src/validation/validate'
+
+describe('handleDidDeleteFiles', () => {
+  let server: MessageConnection
+  let client: MessageConnection
+  let context: Context
+  let parser: Parser
+  let trees: TreesByUri = {}
+  let symbols: SymbolsByUri = {}
+
+  const docs: Documentation = {
+    builtins: {},
+    functions: {},
+    io_statements: {},
+    patterns: {},
+    version: '0',
+  }
+
+  const dependencies = new DependencyMap()
+  const uriA = 'file:///a.awk'
+  const uriFolder = 'file:///folder/'
+  const uriF1 = uriFolder + 'f1.awk'
+  const uriB = 'file:///b.awk'
+
+  const validate = jest.spyOn(v, 'validate')
+
+  beforeAll(async () => {
+    jest.spyOn(io, 'isDir').mockImplementation((uri: string) => uri.endsWith('/'))
+    jest
+      .spyOn(io, 'getAwkFilesInDir')
+      .mockImplementation((_uri: string) => [uriF1, uriB].map((f) => new URL(f)))
+
+    parser = await initializeParser()
+
+    const connections = getConnections()
+
+    server = connections.server
+    client = connections.client
+  })
+
+  beforeEach(() => {
+    trees = {}
+    symbols = {}
+
+    trees[uriA] = {} as Parser.Tree
+    trees[uriB] = {} as Parser.Tree
+    trees[uriF1] = {} as Parser.Tree
+
+    symbols[uriA] = {} as SymbolsMap
+    symbols[uriB] = {} as SymbolsMap
+    symbols[uriF1] = {} as SymbolsMap
+
+    dependencies.update(uriA, new Set([uriF1, uriB]))
+
+    context = getDummyContext(server, parser)
+  })
+
+  describe('Individual files', () => {
+    it('should clean up trees', async () => {
+      // Arrange
+      const handleDidDeleteFiles = getDidDeleteFilesHandler(
+        context,
+        trees,
+        symbols,
+        dependencies,
+        docs,
+      )
+
+      const willDeleteNotification = new Promise<void>((resolve) => {
+        server.onNotification('workspace/willDeleteFiles', (params) => {
+          resolve()
+          handleWillDeleteFiles(params)
+        })
+      })
+
+      const didDeleteNotification = new Promise<void>((resolve) => {
+        server.onNotification('workspace/didDeleteFiles', (params) => {
+          resolve()
+          handleDidDeleteFiles(params)
+        })
+      })
+
+      // Act
+      client.sendNotification('workspace/willDeleteFiles', {
+        files: [{ uri: uriB }],
+      })
+      client.sendNotification('workspace/didDeleteFiles', {
+        files: [{ uri: uriB }],
+      })
+
+      await Promise.all([willDeleteNotification, didDeleteNotification])
+
+      // Assert
+      expect(trees[uriB]).toBeUndefined()
+    })
+
+    it('should clean up symbols', async () => {
+      // Arrange
+      const handleDidDeleteFiles = getDidDeleteFilesHandler(
+        context,
+        trees,
+        symbols,
+        dependencies,
+        docs,
+      )
+
+      const willDeleteNotification = new Promise<void>((resolve) => {
+        server.onNotification('workspace/willDeleteFiles', (params) => {
+          resolve()
+          handleWillDeleteFiles(params)
+        })
+      })
+
+      const didDeleteNotification = new Promise<void>((resolve) => {
+        server.onNotification('workspace/didDeleteFiles', (params) => {
+          resolve()
+          handleDidDeleteFiles(params)
+        })
+      })
+
+      // Act
+      client.sendNotification('workspace/willDeleteFiles', {
+        files: [{ uri: uriB }],
+      })
+      client.sendNotification('workspace/didDeleteFiles', {
+        files: [{ uri: uriB }],
+      })
+
+      await Promise.all([willDeleteNotification, didDeleteNotification])
+
+      // Assert
+      expect(symbols[uriB]).toBeUndefined()
+    })
+
+    it('should revalidate dependents', async () => {
+      // Arrange
+      const handleDidDeleteFiles = getDidDeleteFilesHandler(
+        context,
+        trees,
+        symbols,
+        dependencies,
+        docs,
+      )
+
+      const willDeleteNotification = new Promise<void>((resolve) => {
+        server.onNotification('workspace/willDeleteFiles', (params) => {
+          resolve()
+          handleWillDeleteFiles(params)
+        })
+      })
+
+      const didDeleteNotification = new Promise<void>((resolve) => {
+        server.onNotification('workspace/didDeleteFiles', (params) => {
+          resolve()
+          handleDidDeleteFiles(params)
+        })
+      })
+
+      // Act
+      client.sendNotification('workspace/willDeleteFiles', {
+        files: [{ uri: uriB }],
+      })
+      client.sendNotification('workspace/didDeleteFiles', {
+        files: [{ uri: uriB }],
+      })
+
+      await Promise.all([willDeleteNotification, didDeleteNotification])
+
+      // Assert
+      expect(validate).toHaveBeenLastCalledWith(
+        trees[uriA],
+        symbols,
+        dependencies,
+        uriA,
+        docs,
+      )
+    })
+  })
+
+  describe('Folders', () => {
+    it('should clean up trees', async () => {
+      // Arrange
+      const handleDidDeleteFiles = getDidDeleteFilesHandler(
+        context,
+        trees,
+        symbols,
+        dependencies,
+        docs,
+      )
+
+      const willDeleteNotification = new Promise<void>((resolve) => {
+        server.onNotification('workspace/willDeleteFiles', (params) => {
+          resolve()
+          handleWillDeleteFiles(params)
+        })
+      })
+
+      const didDeleteNotification = new Promise<void>((resolve) => {
+        server.onNotification('workspace/didDeleteFiles', (params) => {
+          resolve()
+          handleDidDeleteFiles(params)
+        })
+      })
+
+      // Act
+      client.sendNotification('workspace/willDeleteFiles', {
+        files: [{ uri: uriFolder }],
+      })
+      client.sendNotification('workspace/didDeleteFiles', {
+        files: [{ uri: uriFolder }],
+      })
+
+      await Promise.all([willDeleteNotification, didDeleteNotification])
+
+      // Assert
+      expect(trees[uriF1]).toBeUndefined()
+    })
+
+    it('should clean up symbols', async () => {
+      // Arrange
+      const handleDidDeleteFiles = getDidDeleteFilesHandler(
+        context,
+        trees,
+        symbols,
+        dependencies,
+        docs,
+      )
+
+      const willDeleteNotification = new Promise<void>((resolve) => {
+        server.onNotification('workspace/willDeleteFiles', (params) => {
+          resolve()
+          handleWillDeleteFiles(params)
+        })
+      })
+
+      const didDeleteNotification = new Promise<void>((resolve) => {
+        server.onNotification('workspace/didDeleteFiles', (params) => {
+          resolve()
+          handleDidDeleteFiles(params)
+        })
+      })
+
+      // Act
+      client.sendNotification('workspace/willDeleteFiles', {
+        files: [{ uri: uriFolder }],
+      })
+      client.sendNotification('workspace/didDeleteFiles', {
+        files: [{ uri: uriFolder }],
+      })
+
+      await Promise.all([willDeleteNotification, didDeleteNotification])
+
+      // Assert
+      expect(symbols[uriF1]).toBeUndefined()
+    })
+
+    it('should revalidate dependents', async () => {
+      // Arrange
+      const handleDidDeleteFiles = getDidDeleteFilesHandler(
+        context,
+        trees,
+        symbols,
+        dependencies,
+        docs,
+      )
+
+      const willDeleteNotification = new Promise<void>((resolve) => {
+        server.onNotification('workspace/willDeleteFiles', (params) => {
+          resolve()
+          handleWillDeleteFiles(params)
+        })
+      })
+
+      const didDeleteNotification = new Promise<void>((resolve) => {
+        server.onNotification('workspace/didDeleteFiles', (params) => {
+          resolve()
+          handleDidDeleteFiles(params)
+        })
+      })
+
+      // Act
+      client.sendNotification('workspace/willDeleteFiles', {
+        files: [{ uri: uriFolder }],
+      })
+      client.sendNotification('workspace/didDeleteFiles', {
+        files: [{ uri: uriFolder }],
+      })
+
+      await Promise.all([willDeleteNotification, didDeleteNotification])
+
+      // Assert
+      expect(validate).toHaveBeenLastCalledWith(
+        trees[uriA],
+        symbols,
+        dependencies,
+        uriA,
+        docs,
+      )
+    })
+  })
+})

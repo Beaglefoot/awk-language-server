@@ -1,5 +1,4 @@
-import { accessSync, constants, readdirSync, readFileSync } from 'fs'
-import { extname } from 'path'
+import { accessSync, constants, readdirSync, readFileSync, statSync } from 'fs'
 import { URL } from 'url'
 import { TextDocument } from 'vscode-languageserver-textdocument'
 import { Context } from './interfaces'
@@ -42,4 +41,7 @@ export function getAwkFilesInDir(uri: string): URL[] {
   }
 
   return result
+}
+export function isDir(uri: string): boolean {
+  return statSync(new URL(uri)).isDirectory()
 }

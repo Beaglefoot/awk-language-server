@@ -5,7 +5,7 @@ import { FileRename, RenameFilesParams, TextEdit } from 'vscode-languageserver/n
 import { SyntaxNode, Tree } from 'web-tree-sitter'
 import { DependencyMap } from '../dependencies'
 import { Context, SymbolsByUri, TreesByUri } from '../interfaces'
-import { getAwkFilesInDir } from '../io'
+import { getAwkFilesInDir, isDir } from '../io'
 import { getRange, isAwkExtension, isInclude } from '../utils'
 
 type ParentURI = string
@@ -55,16 +55,19 @@ function getIncludeEdits(
 /**
  * Adapt folder renames to file renames
  */
-function adaptFolderRenames(files: FileRename[]): FileRename[] {
+export function adaptFolderRenames(files: FileRename[]): FileRename[] {
   return (
     files
       .flatMap(({ oldUri, newUri }) => {
         // newUri because handling DidRename
-        if (statSync(new URL(newUri)).isDirectory()) {
-          return getAwkFilesInDir(newUri).map((fileUrl) => ({
-            oldUri: oldUri + '/' + basename(fileUrl.toString()),
-            newUri: fileUrl.toString(),
-          }))
+        if (isDir(newUri)) {
+          return getAwkFilesInDir(newUri).map((fileUrl) => {
+            const separator = oldUri.endsWith('/') ? '' : '/'
+            return {
+              oldUri: oldUri + separator + basename(fileUrl.toString()),
+              newUri: fileUrl.toString(),
+            }
+          })
         }
 
         return { oldUri, newUri }

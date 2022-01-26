@@ -53,7 +53,11 @@ export function getConnections(): {
   return { client, server }
 }
 
-export function getDummyContext(server: MessageConnection, parser: Parser): Context {
+export function getDummyContext(
+  server: MessageConnection,
+  parser: Parser,
+  connectionProps: { [prop: string]: any } = {},
+): Context {
   const missingConnectionProperties = {
     console: { log: jest.fn() },
     sendDiagnostics: jest.fn(),
@@ -61,7 +65,7 @@ export function getDummyContext(server: MessageConnection, parser: Parser): Cont
   const documents: TextDocuments<TextDocument> = new TextDocuments(TextDocument)
 
   return {
-    connection: { ...server, ...missingConnectionProperties } as any,
+    connection: { ...server, ...missingConnectionProperties, ...connectionProps } as any,
     documents,
     capabilities: {},
     parser,

@@ -6,7 +6,9 @@ import {
   TextDocuments,
 } from 'vscode-languageserver/node'
 import { Tree } from 'web-tree-sitter'
-import Parser = require('web-tree-sitter')
+import * as Parser from 'web-tree-sitter'
+import { Documentation } from './documentation'
+import { DependencyMap } from './dependencies'
 
 type SymbolName = string
 
@@ -30,5 +32,9 @@ export interface Context {
   documents: TextDocuments<TextDocument>
   capabilities: ClientCapabilities
   parser: Parser
+  trees: TreesByUri
+  symbols: SymbolsByUri
+  dependencies: DependencyMap
+  docs: Documentation
   cliOptions?: CliOptions
 }

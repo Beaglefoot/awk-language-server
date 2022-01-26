@@ -2,10 +2,12 @@ import {
   DocumentHighlight,
   DocumentHighlightParams,
 } from 'vscode-languageserver-protocol/node'
-import { TreesByUri } from '../interfaces'
+import { Context } from '../interfaces'
 import { findReferences, getName, getNodeAt } from '../utils'
 
-export function getDocumentHighlightHandler(trees: TreesByUri) {
+export function getDocumentHighlightHandler(context: Context) {
+  const { trees } = context
+
   return function handleDocumentHighlight(
     params: DocumentHighlightParams,
   ): DocumentHighlight[] {

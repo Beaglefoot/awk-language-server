@@ -5,31 +5,31 @@ import {
   RenameRequest,
   TextEdit,
 } from 'vscode-languageserver-protocol'
-import { getConnections, getRange } from '../helpers'
-import { TreesByUri } from '../../src/interfaces'
+import { getConnections, getDummyContext, getRange } from '../helpers'
+import { Context } from '../../src/interfaces'
 import { getRenameRequestHandler } from '../../src/handlers/handleRenameRequest'
 import { initializeParser } from '../../src/parser'
-import { DependencyMap } from '../../src/dependencies'
-import * as Parser from 'web-tree-sitter'
 import { readFileSync } from 'fs'
 import { join } from 'path'
 
 describe('handleRenameRequest', () => {
   let server: MessageConnection
   let client: MessageConnection
-  let parser: Parser
-  const trees: TreesByUri = {}
-  const dependencies = new DependencyMap()
+  let context: Context
   let uriA: string
   let uriB: string
   let uriC: string
 
   beforeAll(async () => {
-    parser = await initializeParser()
+    const parser = await initializeParser()
     const connections = getConnections()
 
     server = connections.server
     client = connections.client
+
+    context = getDummyContext(server, parser)
+
+    const { trees, dependencies } = context
 
     const contentA = readFileSync(
       join('server', 'tests', 'handlers', 'fixtures', 'rename_a.awk'),
@@ -43,6 +43,7 @@ describe('handleRenameRequest', () => {
       join('server', 'tests', 'handlers', 'fixtures', 'rename_c.awk'),
       'utf8',
     )
+
     uriA = 'file:///a.awk'
     uriB = 'file:///b.awk'
     uriC = 'file:///c.awk'
@@ -64,7 +65,7 @@ describe('handleRenameRequest', () => {
       newName,
     }
 
-    server.onRequest(RenameRequest.type, getRenameRequestHandler(trees, dependencies))
+    server.onRequest(RenameRequest.type, getRenameRequestHandler(context))
 
     // Act
     const result = await client.sendRequest(RenameRequest.type, sentParams)
@@ -85,7 +86,7 @@ describe('handleRenameRequest', () => {
       newName,
     }
 
-    server.onRequest(RenameRequest.type, getRenameRequestHandler(trees, dependencies))
+    server.onRequest(RenameRequest.type, getRenameRequestHandler(context))
 
     // Act
     const result = await client.sendRequest(RenameRequest.type, sentParams)
@@ -108,7 +109,7 @@ describe('handleRenameRequest', () => {
       newName,
     }
 
-    server.onRequest(RenameRequest.type, getRenameRequestHandler(trees, dependencies))
+    server.onRequest(RenameRequest.type, getRenameRequestHandler(context))
 
     // Act
     const result = await client.sendRequest(RenameRequest.type, sentParams)
@@ -134,7 +135,7 @@ describe('handleRenameRequest', () => {
       newName,
     }
 
-    server.onRequest(RenameRequest.type, getRenameRequestHandler(trees, dependencies))
+    server.onRequest(RenameRequest.type, getRenameRequestHandler(context))
 
     // Act
     const result = await client.sendRequest(RenameRequest.type, sentParams)
@@ -160,7 +161,7 @@ describe('handleRenameRequest', () => {
       newName,
     }
 
-    server.onRequest(RenameRequest.type, getRenameRequestHandler(trees, dependencies))
+    server.onRequest(RenameRequest.type, getRenameRequestHandler(context))
 
     // Act
     const result = await client.sendRequest(RenameRequest.type, sentParams)
@@ -181,7 +182,7 @@ describe('handleRenameRequest', () => {
       newName,
     }
 
-    server.onRequest(RenameRequest.type, getRenameRequestHandler(trees, dependencies))
+    server.onRequest(RenameRequest.type, getRenameRequestHandler(context))
 
     // Act
     const result = await client.sendRequest(RenameRequest.type, sentParams)

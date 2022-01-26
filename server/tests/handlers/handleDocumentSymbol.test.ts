@@ -7,18 +7,24 @@ import {
   Position,
 } from 'vscode-languageserver-protocol'
 import { DocumentSymbolParams } from 'vscode-languageserver-protocol/node'
-import { getConnections } from '../helpers'
-import { SymbolsByUri, SymbolsMap } from '../../src/interfaces'
+import { getConnections, getDummyContext } from '../helpers'
+import { Context, SymbolsMap } from '../../src/interfaces'
 import { getDocumentSymbolHandler } from '../../src/handlers/handleDocumentSymbol'
+import { initializeParser } from '../../src/parser'
 
 describe('handleDocumentSymbol', () => {
   let server: MessageConnection
   let client: MessageConnection
+  let context: Context
 
-  beforeAll(() => {
+  beforeAll(async () => {
+    const parser = await initializeParser()
     const connections = getConnections()
+
     server = connections.server
     client = connections.client
+
+    context = getDummyContext(server, parser)
   })
 
   it('should provide list of symbols from current document', async () => {
@@ -33,12 +39,13 @@ describe('handleDocumentSymbol', () => {
 
     symbolsMap.set('myFunc', [symbolInfo])
 
-    const symbols: SymbolsByUri = { [uri]: symbolsMap }
+    context.symbols[uri] = symbolsMap
+
     const sentParams: DocumentSymbolParams = {
       textDocument: { uri },
     }
 
-    server.onRequest(DocumentSymbolRequest.type, getDocumentSymbolHandler(symbols))
+    server.onRequest(DocumentSymbolRequest.type, getDocumentSymbolHandler(context))
 
     // Act
     const result = await client.sendRequest(DocumentSymbolRequest.type, sentParams)

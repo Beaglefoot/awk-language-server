@@ -2,28 +2,33 @@ import {
   MessageConnection,
   SymbolInformation,
   SymbolKind,
-  Range,
-  Position,
   WorkspaceSymbolParams,
   WorkspaceSymbolRequest,
 } from 'vscode-languageserver-protocol'
-import { getConnections, getRange } from '../helpers'
-import { SymbolsByUri, SymbolsMap } from '../../src/interfaces'
+import { getConnections, getDummyContext, getRange } from '../helpers'
+import { Context } from '../../src/interfaces'
 import { getWorkspaceSymbolHandler } from '../../src/handlers/handleWorkspaceSymbol'
+import { initializeParser } from '../../src/parser'
 
 describe('handleWorkspaceSymbol', () => {
-  const symbols: SymbolsByUri = {}
   let server: MessageConnection
   let client: MessageConnection
+  let context: Context
   let uriA: string
   let uriB: string
   let symbolA: SymbolInformation
   let symbolB: SymbolInformation
 
-  beforeAll(() => {
+  beforeAll(async () => {
+    const parser = await initializeParser()
     const connections = getConnections()
+
     server = connections.server
     client = connections.client
+
+    context = getDummyContext(server, parser)
+
+    const { symbols } = context
 
     uriA = 'file:///a.awk'
     uriB = 'file:///b.awk'
@@ -55,7 +60,7 @@ describe('handleWorkspaceSymbol', () => {
       query: 'func',
     }
 
-    server.onRequest(WorkspaceSymbolRequest.type, getWorkspaceSymbolHandler(symbols))
+    server.onRequest(WorkspaceSymbolRequest.type, getWorkspaceSymbolHandler(context))
 
     // Act
     const result = await client.sendRequest(WorkspaceSymbolRequest.type, sentParams)

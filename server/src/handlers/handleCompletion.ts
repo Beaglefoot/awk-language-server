@@ -3,10 +3,11 @@ import {
   TextDocumentPositionParams,
 } from 'vscode-languageserver-protocol/node'
 import { getPredefinedCompletionItems, symbolInfoToCompletionItem } from '../completion'
-import { DependencyMap } from '../dependencies'
-import { SymbolsByUri } from '../interfaces'
+import { Context } from '../interfaces'
 
-export function getCompletionHandler(symbols: SymbolsByUri, dependencies: DependencyMap) {
+export function getCompletionHandler(context: Context) {
+  const { symbols, dependencies } = context
+
   return function handleCompletion(params: TextDocumentPositionParams): CompletionItem[] {
     const allDeps = dependencies.getAllBreadthFirst(params.textDocument.uri)
     const allSymbols = [...allDeps]

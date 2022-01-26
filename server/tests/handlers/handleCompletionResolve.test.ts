@@ -6,10 +6,9 @@ import {
   SymbolInformation,
   SymbolKind,
 } from 'vscode-languageserver-protocol'
-import { getConnections, getRange } from '../helpers'
-import { TreesByUri } from '../../src/interfaces'
+import { getConnections, getDummyContext, getRange } from '../helpers'
+import { Context } from '../../src/interfaces'
 import { getCompletionResolveHandler } from '../../src/handlers/handleCompletionResolve'
-import { Documentation, getDocumentation } from '../../src/documentation'
 import { UserDefinedDataEntry } from '../../src/completion'
 import { initializeParser } from '../../src/parser'
 import * as Parser from 'web-tree-sitter'
@@ -17,17 +16,18 @@ import * as Parser from 'web-tree-sitter'
 describe('handleCompletionResolve', () => {
   let server: MessageConnection
   let client: MessageConnection
-  let trees: TreesByUri = {}
-  let docs: Documentation
   let parser: Parser
+  let context: Context
 
   beforeAll(async () => {
     parser = await initializeParser()
+
     const connections = getConnections()
 
     server = connections.server
     client = connections.client
-    docs = getDocumentation()
+
+    context = getDummyContext(server, parser)
   })
 
   it('should provide details for builtins', async () => {
@@ -38,17 +38,14 @@ describe('handleCompletionResolve', () => {
       data: 'functions.tolower(str)',
     }
 
-    server.onRequest(
-      CompletionResolveRequest.type,
-      getCompletionResolveHandler(trees, docs),
-    )
+    server.onRequest(CompletionResolveRequest.type, getCompletionResolveHandler(context))
 
     // Act
     const result = await client.sendRequest(CompletionResolveRequest.type, sentParams)
 
     // Assert
     expect(result.detail).toEqual('tolower(str)')
-    expect(result.documentation).toEqual(docs.functions['tolower(str)'])
+    expect(result.documentation).toEqual(context.docs.functions['tolower(str)'])
   })
 
   it('should provide details for user defined symbols', async () => {
@@ -62,7 +59,7 @@ describe('handleCompletionResolve', () => {
       uri,
     )
 
-    trees[uri] = parser.parse(dummyFuncDefinition)
+    context.trees[uri] = parser.parse(dummyFuncDefinition)
 
     const sentParams: CompletionItem = {
       label: 'tolower',
@@ -73,10 +70,7 @@ describe('handleCompletionResolve', () => {
       } as UserDefinedDataEntry,
     }
 
-    server.onRequest(
-      CompletionResolveRequest.type,
-      getCompletionResolveHandler(trees, docs),
-    )
+    server.onRequest(CompletionResolveRequest.type, getCompletionResolveHandler(context))
 
     // Act
     const result = await client.sendRequest(CompletionResolveRequest.type, sentParams)

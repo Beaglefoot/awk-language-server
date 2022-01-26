@@ -1,10 +1,7 @@
-import { statSync } from 'fs'
 import { relative, dirname, basename } from 'path'
-import { URL } from 'url'
 import { FileRename, RenameFilesParams, TextEdit } from 'vscode-languageserver/node'
 import { SyntaxNode, Tree } from 'web-tree-sitter'
-import { DependencyMap } from '../dependencies'
-import { Context, SymbolsByUri, TreesByUri } from '../interfaces'
+import { Context, TreesByUri } from '../interfaces'
 import { getAwkFilesInDir, isDir } from '../io'
 import { getRange, isAwkExtension, isInclude } from '../utils'
 
@@ -78,12 +75,9 @@ export function adaptFolderRenames(files: FileRename[]): FileRename[] {
   )
 }
 
-export function getRenameFilesHandler(
-  context: Context,
-  trees: TreesByUri,
-  symbols: SymbolsByUri,
-  dependencies: DependencyMap,
-) {
+export function getRenameFilesHandler(context: Context) {
+  const { trees, symbols, dependencies } = context
+
   return function handleRenameFiles(params: RenameFilesParams): void {
     const fileRenames = adaptFolderRenames(params.files)
 

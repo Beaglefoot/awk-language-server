@@ -3,8 +3,7 @@ import {
   TextEdit,
   WorkspaceEdit,
 } from 'vscode-languageserver-protocol/node'
-import { DependencyMap } from '../dependencies'
-import { TreesByUri } from '../interfaces'
+import { Context } from '../interfaces'
 import {
   findReferences,
   getName,
@@ -13,7 +12,9 @@ import {
   isIdentifier,
 } from '../utils'
 
-export function getRenameRequestHandler(trees: TreesByUri, dependencies: DependencyMap) {
+export function getRenameRequestHandler(context: Context) {
+  const { trees, dependencies } = context
+
   return async function handleRenameRequest(
     params: RenameParams,
   ): Promise<WorkspaceEdit | null> {

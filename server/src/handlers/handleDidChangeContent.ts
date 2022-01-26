@@ -1,18 +1,12 @@
 import { TextDocument } from 'vscode-languageserver-textdocument'
 import { TextDocumentChangeEvent } from 'vscode-languageserver/node'
 import { analyze } from '../analyze'
-import { DependencyMap } from '../dependencies'
-import { Documentation } from '../documentation'
-import { Context, SymbolsByUri, TreesByUri } from '../interfaces'
+import { Context } from '../interfaces'
 import { validate } from '../validation/validate'
 
-export function getDidChangeContentHandler(
-  context: Context,
-  trees: TreesByUri,
-  symbols: SymbolsByUri,
-  dependencies: DependencyMap,
-  docs: Documentation,
-) {
+export function getDidChangeContentHandler(context: Context) {
+  const { trees, symbols, dependencies, docs } = context
+
   return function handleDidChangeContent(
     change: TextDocumentChangeEvent<TextDocument>,
   ): void {

@@ -1,7 +1,9 @@
 import { SymbolInformation, WorkspaceSymbolParams } from 'vscode-languageserver/node'
-import { SymbolsByUri } from '../interfaces'
+import { Context } from '../interfaces'
 
-export function getWorkspaceSymbolHandler(symbols: SymbolsByUri) {
+export function getWorkspaceSymbolHandler(context: Context) {
+  const { symbols } = context
+
   return function handleWorkspaceSymbol(
     params: WorkspaceSymbolParams,
   ): SymbolInformation[] {

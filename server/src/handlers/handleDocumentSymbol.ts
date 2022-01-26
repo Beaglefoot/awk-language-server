@@ -1,7 +1,9 @@
 import { DocumentSymbolParams, SymbolInformation } from 'vscode-languageserver/node'
-import { SymbolsByUri } from '../interfaces'
+import { Context, SymbolsByUri } from '../interfaces'
 
-export function getDocumentSymbolHandler(symbols: SymbolsByUri) {
+export function getDocumentSymbolHandler(context: Context) {
+  const { symbols } = context
+
   return function handleDocumentSymbol(
     params: DocumentSymbolParams,
   ): SymbolInformation[] {

@@ -9,28 +9,30 @@ import {
   CompletionItem,
   CompletionItemKind,
 } from 'vscode-languageserver-protocol'
-import { getConnections, getRange } from '../helpers'
-import { SymbolsByUri, SymbolsMap } from '../../src/interfaces'
+import { getConnections, getDummyContext, getRange } from '../helpers'
+import { Context, SymbolsMap } from '../../src/interfaces'
 import { getCompletionHandler } from '../../src/handlers/handleCompletion'
-import { DependencyMap } from '../../src/dependencies'
 import { initCompletionList } from '../../src/completion'
 import { getDocumentation } from '../../src/documentation'
+import * as Parser from 'web-tree-sitter'
 
 describe('handleCompletion', () => {
   let server: MessageConnection
   let client: MessageConnection
   let uri: string
-  let symbols: SymbolsByUri
-  let dependencies: DependencyMap
+  let context: Context
 
   beforeAll(() => {
     const connections = getConnections()
 
     server = connections.server
     client = connections.client
+
+    context = getDummyContext(server, {} as Parser)
+
     uri = 'file:///my_file.awk'
-    dependencies = new DependencyMap()
-    dependencies.update(uri, new Set())
+
+    context.dependencies.update(uri, new Set())
 
     const symbolsMap: SymbolsMap = new Map()
     const symbolInfo = SymbolInformation.create(
@@ -41,7 +43,7 @@ describe('handleCompletion', () => {
 
     symbolsMap.set('myFunc', [symbolInfo])
 
-    symbols = { [uri]: symbolsMap }
+    context.symbols = { [uri]: symbolsMap }
   })
 
   it('should provide completions from current document', async () => {
@@ -51,7 +53,7 @@ describe('handleCompletion', () => {
       position: Position.create(0, 0),
     }
 
-    server.onRequest(CompletionRequest.type, getCompletionHandler(symbols, dependencies))
+    server.onRequest(CompletionRequest.type, getCompletionHandler(context))
 
     // Act
     const result = (await client.sendRequest(
@@ -69,7 +71,10 @@ describe('handleCompletion', () => {
 
   it('should provide completions from included document', async () => {
     // Arrange
+    const { dependencies, symbols } = context
+
     const includedUri = 'file:///somelib.awk'
+
     dependencies.update(uri, new Set([includedUri]))
 
     symbols[includedUri] = new Map()
@@ -82,7 +87,7 @@ describe('handleCompletion', () => {
       position: Position.create(0, 0),
     }
 
-    server.onRequest(CompletionRequest.type, getCompletionHandler(symbols, dependencies))
+    server.onRequest(CompletionRequest.type, getCompletionHandler(context))
 
     // Act
     const result = (await client.sendRequest(
@@ -107,7 +112,7 @@ describe('handleCompletion', () => {
       position: Position.create(0, 0),
     }
 
-    server.onRequest(CompletionRequest.type, getCompletionHandler(symbols, dependencies))
+    server.onRequest(CompletionRequest.type, getCompletionHandler(context))
 
     // Act
     const result = (await client.sendRequest(

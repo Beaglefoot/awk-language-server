@@ -1,8 +1,7 @@
 import { URL } from 'url'
-import { MessageConnection, WorkspaceEdit } from 'vscode-languageserver-protocol'
+import { MessageConnection } from 'vscode-languageserver-protocol'
 import * as Parser from 'web-tree-sitter'
-import { DependencyMap } from '../../src/dependencies'
-import { Context, SymbolsByUri, SymbolsMap, TreesByUri } from '../../src/interfaces'
+import { Context, SymbolsMap } from '../../src/interfaces'
 import * as io from '../../src/io'
 import { initializeParser } from '../../src/parser'
 import { getConnections, getDummyContext, getRange } from '../helpers'
@@ -19,10 +18,7 @@ describe('handleRenameFiles', () => {
   let client: MessageConnection
   let context: Context
   let parser: Parser
-  let trees: TreesByUri = {}
-  let symbols: SymbolsByUri = {}
 
-  const dependencies = new DependencyMap()
   const uriA = 'file:///a.awk'
   const uriB = 'file:///b.awk'
   const uriC = 'file:///c.awk'
@@ -52,8 +48,13 @@ describe('handleRenameFiles', () => {
   })
 
   beforeEach(() => {
-    trees = {}
-    symbols = {}
+    const workspace = {
+      applyEdit: jest.fn(),
+    }
+
+    context = getDummyContext(server, parser, { workspace })
+
+    const { trees, symbols, dependencies } = context
 
     trees[uriA] = {} as Parser.Tree
     trees[uriC] = treeC
@@ -65,13 +66,13 @@ describe('handleRenameFiles', () => {
 
     dependencies.update(uriA, new Set([uriD]))
     dependencies.update(uriC, new Set([uriA]))
-
-    context = getDummyContext(server, parser)
   })
 
   it('should rename trees', async () => {
     // Arrange
-    const handleRenameFiles = getRenameFilesHandler(context, trees, symbols, dependencies)
+    const { trees } = context
+
+    const handleRenameFiles = getRenameFilesHandler(context)
 
     const didRenameNotification = new Promise<void>((resolve) => {
       server.onNotification('workspace/didRenameFiles', (params) => {
@@ -101,7 +102,9 @@ describe('handleRenameFiles', () => {
 
   it('should rename symbols', async () => {
     // Arrange
-    const handleRenameFiles = getRenameFilesHandler(context, trees, symbols, dependencies)
+    const { symbols } = context
+
+    const handleRenameFiles = getRenameFilesHandler(context)
 
     const didRenameNotification = new Promise<void>((resolve) => {
       server.onNotification('workspace/didRenameFiles', (params) => {
@@ -131,7 +134,9 @@ describe('handleRenameFiles', () => {
 
   it('should update dependencies', async () => {
     // Arrange
-    const handleRenameFiles = getRenameFilesHandler(context, trees, symbols, dependencies)
+    const { dependencies } = context
+
+    const handleRenameFiles = getRenameFilesHandler(context)
 
     const didRenameNotification = new Promise<void>((resolve) => {
       server.onNotification('workspace/didRenameFiles', (params) => {
@@ -171,12 +176,7 @@ describe('handleRenameFiles', () => {
 
   it('should apply @include edits', async () => {
     // Arrange
-    const workspace = {
-      applyEdit: jest.fn(),
-    }
-
-    const context = getDummyContext(server, parser, { workspace })
-    const handleRenameFiles = getRenameFilesHandler(context, trees, symbols, dependencies)
+    const handleRenameFiles = getRenameFilesHandler(context)
 
     const didRenameNotification = new Promise<void>((resolve) => {
       server.onNotification('workspace/didRenameFiles', (params) => {
@@ -198,7 +198,7 @@ describe('handleRenameFiles', () => {
     await didRenameNotification
 
     // Assert
-    expect(workspace.applyEdit).toHaveBeenLastCalledWith({
+    expect(context.connection.workspace.applyEdit).toHaveBeenLastCalledWith({
       changes: {
         [uriC]: [{ range: getRange(0, 0, 0, 12), newText: '@include "b"' }],
       },

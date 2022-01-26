@@ -1,7 +1,5 @@
 import { DeleteFilesParams, FileDelete, URI } from 'vscode-languageserver/node'
-import { DependencyMap } from '../dependencies'
-import { Documentation } from '../documentation'
-import { Context, SymbolsByUri, TreesByUri } from '../interfaces'
+import { Context } from '../interfaces'
 import { getAwkFilesInDir, isDir } from '../io'
 import { isAwkExtension } from '../utils'
 import { validate } from '../validation/validate'
@@ -31,13 +29,9 @@ export function handleWillDeleteFiles(params: DeleteFilesParams): null {
   return null
 }
 
-export function getDidDeleteFilesHandler(
-  context: Context,
-  trees: TreesByUri,
-  symbols: SymbolsByUri,
-  dependencies: DependencyMap,
-  docs: Documentation,
-) {
+export function getDidDeleteFilesHandler(context: Context) {
+  const { trees, symbols, dependencies, docs } = context
+
   return function handleDidDeleteFiles(params: DeleteFilesParams): void {
     for (const { uri } of params.files) {
       if (!fileDeletesMap.has(uri)) continue

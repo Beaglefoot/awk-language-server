@@ -1,19 +1,13 @@
 import { URL } from 'url'
 import { WorkspaceFolder } from 'vscode-languageserver/node'
 import { analyze } from '../analyze'
-import { DependencyMap } from '../dependencies'
-import { Documentation } from '../documentation'
 import { initFormatter } from '../format'
-import { Context, SymbolsByUri, TreesByUri } from '../interfaces'
+import { Context } from '../interfaces'
 import { getAwkFilesInDir, readDocumentFromUrl } from '../io'
 
-export function getInitializedHandler(
-  context: Context,
-  trees: TreesByUri,
-  symbols: SymbolsByUri,
-  dependencies: DependencyMap,
-  docs: Documentation,
-) {
+export function getInitializedHandler(context: Context) {
+  const { trees, symbols, dependencies, docs } = context
+
   function index(workspaceFolders: WorkspaceFolder[]) {
     const urls: URL[] = workspaceFolders.flatMap((folder) => getAwkFilesInDir(folder.uri))
 

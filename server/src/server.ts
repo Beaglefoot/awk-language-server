@@ -8,7 +8,7 @@ import { TextDocument } from 'vscode-languageserver-textdocument'
 import { getDocumentation } from './documentation'
 import { DependencyMap } from './dependencies'
 import { getDocumentSymbolHandler } from './handlers/handleDocumentSymbol'
-import { CliOptions, Context, SymbolsByUri, TreesByUri } from './interfaces'
+import { CliOptions, Context } from './interfaces'
 import { getInitializeHandler } from './handlers/handleInitialize'
 import { getDidChangeContentHandler } from './handlers/handleDidChangeContent'
 import { getCompletionHandler } from './handlers/handleCompletion'
@@ -30,62 +30,42 @@ import {
 import { getCreateFilesHandler } from './handlers/handleCreateFiles'
 import { getRenameFilesHandler } from './handlers/handleRenameFiles'
 
-// Initialized later
-let context = {} as Context
-
-const connection =
-  require.main === module
-    ? createConnection(ProposedFeatures.all)
-    : createConnection(process.stdin, process.stdout)
-const documents: TextDocuments<TextDocument> = new TextDocuments(TextDocument)
-const docs = getDocumentation()
-const trees: TreesByUri = {}
-const symbols: SymbolsByUri = {}
-const dependencies = new DependencyMap()
+// Enriched later
+const context = {
+  connection:
+    require.main === module
+      ? createConnection(ProposedFeatures.all)
+      : createConnection(process.stdin, process.stdout),
+  documents: new TextDocuments(TextDocument),
+  capabilities: {},
+  parser: {},
+  trees: {},
+  symbols: {},
+  dependencies: new DependencyMap(),
+  docs: getDocumentation(),
+} as Context
 
 function registerHandlers() {
-  const handleInitialize = getInitializeHandler(context, connection, documents, docs)
-  const handleInitialized = getInitializedHandler(
-    context,
-    trees,
-    symbols,
-    dependencies,
-    docs,
-  )
-  const handleDidChangeContent = getDidChangeContentHandler(
-    context,
-    trees,
-    symbols,
-    dependencies,
-    docs,
-  )
-  const handleCompletion = getCompletionHandler(symbols, dependencies)
-  const handleCompletionResolve = getCompletionResolveHandler(trees, docs)
-  const handleDefinition = getDefinitionHandler(trees, symbols, dependencies)
-  const handleDocumentHighlight = getDocumentHighlightHandler(trees)
-  const handleDocumentSymbol = getDocumentSymbolHandler(symbols)
-  const handleWorkspaceSymbol = getWorkspaceSymbolHandler(symbols)
-  const handleReferences = getReferencesHandler(trees, dependencies)
-  const handleHover = getHoverHandler(trees, symbols, dependencies, docs)
-  const handleSemanticTokens = getSemanticTokensHandler(trees, connection)
-  const handlePrepareRename = getPrepareRenameHandler(trees, connection, docs)
-  const handleRenameRequest = getRenameRequestHandler(trees, dependencies)
-  const handleDocumentFormatting = getDocumentFormattingHandler(documents, connection)
-  const handleDidDeleteFiles = getDidDeleteFilesHandler(
-    context,
-    trees,
-    symbols,
-    dependencies,
-    docs,
-  )
-  const handleCreateFiles = getCreateFilesHandler(
-    context,
-    trees,
-    symbols,
-    dependencies,
-    docs,
-  )
-  const handleRenameFiles = getRenameFilesHandler(context, trees, symbols, dependencies)
+  const { connection, documents } = context
+
+  const handleInitialize = getInitializeHandler(context)
+  const handleInitialized = getInitializedHandler(context)
+  const handleDidChangeContent = getDidChangeContentHandler(context)
+  const handleCompletion = getCompletionHandler(context)
+  const handleCompletionResolve = getCompletionResolveHandler(context)
+  const handleDefinition = getDefinitionHandler(context)
+  const handleDocumentHighlight = getDocumentHighlightHandler(context)
+  const handleDocumentSymbol = getDocumentSymbolHandler(context)
+  const handleWorkspaceSymbol = getWorkspaceSymbolHandler(context)
+  const handleReferences = getReferencesHandler(context)
+  const handleHover = getHoverHandler(context)
+  const handleSemanticTokens = getSemanticTokensHandler(context)
+  const handlePrepareRename = getPrepareRenameHandler(context)
+  const handleRenameRequest = getRenameRequestHandler(context)
+  const handleDocumentFormatting = getDocumentFormattingHandler(context)
+  const handleDidDeleteFiles = getDidDeleteFilesHandler(context)
+  const handleCreateFiles = getCreateFilesHandler(context)
+  const handleRenameFiles = getRenameFilesHandler(context)
 
   connection.onInitialize(handleInitialize)
   connection.onInitialized(handleInitialized)
@@ -109,6 +89,8 @@ function registerHandlers() {
 }
 
 export function main(cliOptions?: CliOptions) {
+  const { documents, connection } = context
+
   if (cliOptions) context.cliOptions = cliOptions
 
   registerHandlers()

@@ -5,35 +5,36 @@ import {
   DocumentHighlightRequest,
   DocumentHighlight,
 } from 'vscode-languageserver-protocol'
-import { getConnections, getRange } from '../helpers'
-import { TreesByUri } from '../../src/interfaces'
+import { getConnections, getDummyContext, getRange } from '../helpers'
+import { Context } from '../../src/interfaces'
 import { getDocumentHighlightHandler } from '../../src/handlers/handleDocumentHighlight'
 import { initializeParser } from '../../src/parser'
-import * as Parser from 'web-tree-sitter'
 import { readFileSync } from 'fs'
 import { join } from 'path'
 
 describe('handleDocumentHighlight', () => {
   let server: MessageConnection
   let client: MessageConnection
-  let parser: Parser
-  const trees: TreesByUri = {}
   let uri: string
+  let context: Context
 
   beforeAll(async () => {
-    parser = await initializeParser()
+    const parser = await initializeParser()
     const connections = getConnections()
 
     server = connections.server
     client = connections.client
 
+    context = getDummyContext(server, parser)
+
     const content = readFileSync(
       join('server', 'tests', 'handlers', 'fixtures', 'document_highlight.awk'),
       'utf8',
     )
+
     uri = 'file:///a.awk'
 
-    trees[uri] = parser.parse(content)
+    context.trees[uri] = parser.parse(content)
   })
 
   it('should provide symbol highlights in document', async () => {
@@ -43,7 +44,7 @@ describe('handleDocumentHighlight', () => {
       position: Position.create(5, 4),
     }
 
-    server.onRequest(DocumentHighlightRequest.type, getDocumentHighlightHandler(trees))
+    server.onRequest(DocumentHighlightRequest.type, getDocumentHighlightHandler(context))
 
     // Act
     const result = await client.sendRequest(DocumentHighlightRequest.type, sentParams)
@@ -62,7 +63,7 @@ describe('handleDocumentHighlight', () => {
       position: Position.create(1, 11),
     }
 
-    server.onRequest(DocumentHighlightRequest.type, getDocumentHighlightHandler(trees))
+    server.onRequest(DocumentHighlightRequest.type, getDocumentHighlightHandler(context))
 
     // Act
     const result = await client.sendRequest(DocumentHighlightRequest.type, sentParams)

@@ -1,16 +1,12 @@
 import { FileOperationFilter } from 'vscode-languageserver-protocol/lib/common/protocol.fileOperations'
-import { TextDocument } from 'vscode-languageserver-textdocument'
 import { WorkDoneProgressReporter } from 'vscode-languageserver/lib/common/progress'
 import {
   CancellationToken,
-  Connection,
   InitializeParams,
   InitializeResult,
-  TextDocuments,
   TextDocumentSyncKind,
 } from 'vscode-languageserver/node'
 import { initCompletionList } from '../completion'
-import { Documentation } from '../documentation'
 import { Context } from '../interfaces'
 import { initializeParser } from '../parser'
 
@@ -29,12 +25,9 @@ const folderOperationFilter: FileOperationFilter = {
   },
 }
 
-export function getInitializeHandler(
-  context: Context,
-  connection: Connection,
-  documents: TextDocuments<TextDocument>,
-  docs: Documentation,
-) {
+export function getInitializeHandler(context: Context) {
+  const { docs } = context
+
   return async function handleInitialize(
     params: InitializeParams,
     _cancel: CancellationToken,
@@ -45,8 +38,6 @@ export function getInitializeHandler(
     const parser = await initializeParser()
     initCompletionList(docs)
 
-    context.connection = connection
-    context.documents = documents
     context.capabilities = params.capabilities
     context.parser = parser
 

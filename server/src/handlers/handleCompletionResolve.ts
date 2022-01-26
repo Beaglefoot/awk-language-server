@@ -4,10 +4,11 @@ import {
   enrichWithSymbolInfo,
   UserDefinedDataEntry,
 } from '../completion'
-import { Documentation } from '../documentation'
-import { TreesByUri } from '../interfaces'
+import { Context } from '../interfaces'
 
-export function getCompletionResolveHandler(trees: TreesByUri, docs: Documentation) {
+export function getCompletionResolveHandler(context: Context) {
+  const { trees, docs } = context
+
   return function handleCompletionResolve(item: CompletionItem): CompletionItem {
     if (typeof item.data === 'string') {
       enrichWithDocumentation(item, docs)

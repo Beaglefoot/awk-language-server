@@ -7,32 +7,31 @@ import {
   DefinitionRequest,
   Location,
 } from 'vscode-languageserver-protocol'
-import { getConnections, getRange } from '../helpers'
-import { SymbolsByUri, TreesByUri } from '../../src/interfaces'
+import { getConnections, getDummyContext, getRange } from '../helpers'
+import { Context } from '../../src/interfaces'
 import { getDefinitionHandler } from '../../src/handlers/handleDefinition'
 import { initializeParser } from '../../src/parser'
-import { DependencyMap } from '../../src/dependencies'
-import * as Parser from 'web-tree-sitter'
 import { readFileSync } from 'fs'
 import { join } from 'path'
 
 describe('handleDefinition', () => {
   let server: MessageConnection
   let client: MessageConnection
-  let parser: Parser
-  const trees: TreesByUri = {}
-  const symbols: SymbolsByUri = {}
-  const dependencies = new DependencyMap()
+  let context: Context
   let uriA: string
   let uriB: string
   let uriC: string
 
   beforeAll(async () => {
-    parser = await initializeParser()
+    const parser = await initializeParser()
     const connections = getConnections()
 
     server = connections.server
     client = connections.client
+
+    context = getDummyContext(server, parser)
+
+    const { trees, symbols, dependencies } = context
 
     const contentA = readFileSync(
       join('server', 'tests', 'handlers', 'fixtures', 'definition_a.awk'),
@@ -46,6 +45,7 @@ describe('handleDefinition', () => {
       join('server', 'tests', 'handlers', 'fixtures', 'definition_c.awk'),
       'utf8',
     )
+
     uriA = 'file:///a.awk'
     uriB = 'file:///b.awk'
     uriC = 'file:///c.awk'
@@ -87,10 +87,7 @@ describe('handleDefinition', () => {
       position: Position.create(5, 2),
     }
 
-    server.onRequest(
-      DefinitionRequest.type,
-      getDefinitionHandler(trees, symbols, dependencies),
-    )
+    server.onRequest(DefinitionRequest.type, getDefinitionHandler(context))
 
     // Act
     const result = await client.sendRequest(DefinitionRequest.type, sentParams)
@@ -106,10 +103,7 @@ describe('handleDefinition', () => {
       position: Position.create(5, 8),
     }
 
-    server.onRequest(
-      DefinitionRequest.type,
-      getDefinitionHandler(trees, symbols, dependencies),
-    )
+    server.onRequest(DefinitionRequest.type, getDefinitionHandler(context))
 
     // Act
     const result = await client.sendRequest(DefinitionRequest.type, sentParams)
@@ -125,10 +119,7 @@ describe('handleDefinition', () => {
       position: Position.create(8, 4),
     }
 
-    server.onRequest(
-      DefinitionRequest.type,
-      getDefinitionHandler(trees, symbols, dependencies),
-    )
+    server.onRequest(DefinitionRequest.type, getDefinitionHandler(context))
 
     // Act
     const result = await client.sendRequest(DefinitionRequest.type, sentParams)
@@ -144,10 +135,7 @@ describe('handleDefinition', () => {
       position: Position.create(0, 8),
     }
 
-    server.onRequest(
-      DefinitionRequest.type,
-      getDefinitionHandler(trees, symbols, dependencies),
-    )
+    server.onRequest(DefinitionRequest.type, getDefinitionHandler(context))
 
     // Act
     const result = await client.sendRequest(DefinitionRequest.type, sentParams)

@@ -10,6 +10,8 @@ import { Context } from '../src/interfaces'
 import { TextDocument } from 'vscode-languageserver-textdocument'
 import * as Parser from 'web-tree-sitter'
 import { Range } from 'vscode-languageserver/node'
+import { getDocumentation } from '../src/documentation'
+import { DependencyMap } from '../src/dependencies'
 
 export class NullLogger implements Logger {
   error(_message: string): void {}
@@ -58,6 +60,7 @@ export function getDummyContext(
   parser: Parser,
   connectionProps: { [prop: string]: any } = {},
 ): Context {
+  // These are not present on MessageConnection
   const missingConnectionProperties = {
     console: { log: jest.fn() },
     sendDiagnostics: jest.fn(),
@@ -69,6 +72,10 @@ export function getDummyContext(
     documents,
     capabilities: {},
     parser,
+    trees: {},
+    symbols: {},
+    dependencies: new DependencyMap(),
+    docs: getDocumentation(),
   }
 }
 

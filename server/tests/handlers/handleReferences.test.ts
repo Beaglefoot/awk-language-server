@@ -5,8 +5,8 @@ import {
   ReferenceParams,
   ReferencesRequest,
 } from 'vscode-languageserver-protocol'
-import { getConnections, getRange } from '../helpers'
-import { TreesByUri } from '../../src/interfaces'
+import { getConnections, getDummyContext, getRange } from '../helpers'
+import { Context, TreesByUri } from '../../src/interfaces'
 import { getReferencesHandler } from '../../src/handlers/handleReferences'
 import { initializeParser } from '../../src/parser'
 import { DependencyMap } from '../../src/dependencies'
@@ -17,19 +17,21 @@ import { join } from 'path'
 describe('handleReferences', () => {
   let server: MessageConnection
   let client: MessageConnection
-  let parser: Parser
-  const trees: TreesByUri = {}
-  const dependencies = new DependencyMap()
+  let context: Context
   let uriA: string
   let uriB: string
   let uriC: string
 
   beforeAll(async () => {
-    parser = await initializeParser()
+    const parser = await initializeParser()
     const connections = getConnections()
 
     server = connections.server
     client = connections.client
+
+    context = getDummyContext(server, parser)
+
+    const { trees, dependencies } = context
 
     const contentA = readFileSync(
       join('server', 'tests', 'handlers', 'fixtures', 'references_a.awk'),
@@ -63,7 +65,7 @@ describe('handleReferences', () => {
       position: Position.create(4, 2),
     }
 
-    server.onRequest(ReferencesRequest.type, getReferencesHandler(trees, dependencies))
+    server.onRequest(ReferencesRequest.type, getReferencesHandler(context))
 
     // Act
     const result = await client.sendRequest(ReferencesRequest.type, sentParams)
@@ -81,7 +83,7 @@ describe('handleReferences', () => {
       position: Position.create(4, 8),
     }
 
-    server.onRequest(ReferencesRequest.type, getReferencesHandler(trees, dependencies))
+    server.onRequest(ReferencesRequest.type, getReferencesHandler(context))
 
     // Act
     const result = await client.sendRequest(ReferencesRequest.type, sentParams)
@@ -99,7 +101,7 @@ describe('handleReferences', () => {
       position: Position.create(0, 9),
     }
 
-    server.onRequest(ReferencesRequest.type, getReferencesHandler(trees, dependencies))
+    server.onRequest(ReferencesRequest.type, getReferencesHandler(context))
 
     // Act
     const result = await client.sendRequest(ReferencesRequest.type, sentParams)
@@ -117,7 +119,7 @@ describe('handleReferences', () => {
       position: Position.create(2, 16),
     }
 
-    server.onRequest(ReferencesRequest.type, getReferencesHandler(trees, dependencies))
+    server.onRequest(ReferencesRequest.type, getReferencesHandler(context))
 
     // Act
     const result = await client.sendRequest(ReferencesRequest.type, sentParams)
@@ -137,7 +139,7 @@ describe('handleReferences', () => {
       position: Position.create(4, 8),
     }
 
-    server.onRequest(ReferencesRequest.type, getReferencesHandler(trees, dependencies))
+    server.onRequest(ReferencesRequest.type, getReferencesHandler(context))
 
     // Act
     const result = await client.sendRequest(ReferencesRequest.type, sentParams)

@@ -7,34 +7,31 @@ import {
   HoverRequest,
   MarkupContent,
 } from 'vscode-languageserver-protocol'
-import { getConnections, getRange } from '../helpers'
-import { SymbolsByUri, TreesByUri } from '../../src/interfaces'
+import { getConnections, getDummyContext, getRange } from '../helpers'
+import { Context } from '../../src/interfaces'
 import { getHoverHandler } from '../../src/handlers/handleHover'
 import { initializeParser } from '../../src/parser'
-import { DependencyMap } from '../../src/dependencies'
-import { getDocumentation } from '../../src/documentation'
-import * as Parser from 'web-tree-sitter'
 import { readFileSync } from 'fs'
 import { join } from 'path'
 
 describe('handleHover', () => {
   let server: MessageConnection
   let client: MessageConnection
-  let parser: Parser
-  const trees: TreesByUri = {}
-  const symbols: SymbolsByUri = {}
-  const dependencies = new DependencyMap()
-  const docs = getDocumentation()
+  let context: Context
   let uriA: string
   let uriB: string
   let uriC: string
 
   beforeAll(async () => {
-    parser = await initializeParser()
+    const parser = await initializeParser()
     const connections = getConnections()
 
     server = connections.server
     client = connections.client
+
+    context = getDummyContext(server, parser)
+
+    const { trees, symbols, dependencies } = context
 
     const contentA = readFileSync(
       join('server', 'tests', 'handlers', 'fixtures', 'hover_a.awk'),
@@ -85,10 +82,7 @@ describe('handleHover', () => {
       position: Position.create(6, 10),
     }
 
-    server.onRequest(
-      HoverRequest.type,
-      getHoverHandler(trees, symbols, dependencies, docs),
-    )
+    server.onRequest(HoverRequest.type, getHoverHandler(context))
 
     // Act
     const result = await client.sendRequest(HoverRequest.type, sentParams)
@@ -97,7 +91,7 @@ describe('handleHover', () => {
     const { value } = result?.contents as MarkupContent
 
     expect(value).toMatch('tolower')
-    expect(value).toMatch(docs.functions['tolower(str)'])
+    expect(value).toMatch(context.docs.functions['tolower(str)'])
   })
 
   it('should provide hint for builtin array members', async () => {
@@ -107,10 +101,7 @@ describe('handleHover', () => {
       position: Position.create(9, 14),
     }
 
-    server.onRequest(
-      HoverRequest.type,
-      getHoverHandler(trees, symbols, dependencies, docs),
-    )
+    server.onRequest(HoverRequest.type, getHoverHandler(context))
 
     // Act
     const result = await client.sendRequest(HoverRequest.type, sentParams)
@@ -119,7 +110,7 @@ describe('handleHover', () => {
     const { value } = result?.contents as MarkupContent
 
     expect(value).toMatch('PROCINFO["api_major"]')
-    expect(value).toMatch(docs.builtins['PROCINFO["api_major"]'])
+    expect(value).toMatch(context.docs.builtins['PROCINFO["api_major"]'])
   })
 
   it('should provide hint for function defined in the same document', async () => {
@@ -129,10 +120,7 @@ describe('handleHover', () => {
       position: Position.create(7, 10),
     }
 
-    server.onRequest(
-      HoverRequest.type,
-      getHoverHandler(trees, symbols, dependencies, docs),
-    )
+    server.onRequest(HoverRequest.type, getHoverHandler(context))
 
     // Act
     const result = await client.sendRequest(HoverRequest.type, sentParams)
@@ -150,10 +138,7 @@ describe('handleHover', () => {
       position: Position.create(7, 15),
     }
 
-    server.onRequest(
-      HoverRequest.type,
-      getHoverHandler(trees, symbols, dependencies, docs),
-    )
+    server.onRequest(HoverRequest.type, getHoverHandler(context))
 
     // Act
     const result = await client.sendRequest(HoverRequest.type, sentParams)
@@ -171,10 +156,7 @@ describe('handleHover', () => {
       position: Position.create(7, 15),
     }
 
-    server.onRequest(
-      HoverRequest.type,
-      getHoverHandler(trees, symbols, dependencies, docs),
-    )
+    server.onRequest(HoverRequest.type, getHoverHandler(context))
 
     // Act
     const result = await client.sendRequest(HoverRequest.type, sentParams)
@@ -192,10 +174,7 @@ describe('handleHover', () => {
       position: Position.create(8, 10),
     }
 
-    server.onRequest(
-      HoverRequest.type,
-      getHoverHandler(trees, symbols, dependencies, docs),
-    )
+    server.onRequest(HoverRequest.type, getHoverHandler(context))
 
     // Act
     const result = await client.sendRequest(HoverRequest.type, sentParams)
@@ -213,10 +192,7 @@ describe('handleHover', () => {
       position: Position.create(8, 15),
     }
 
-    server.onRequest(
-      HoverRequest.type,
-      getHoverHandler(trees, symbols, dependencies, docs),
-    )
+    server.onRequest(HoverRequest.type, getHoverHandler(context))
 
     // Act
     const result = await client.sendRequest(HoverRequest.type, sentParams)
@@ -234,10 +210,7 @@ describe('handleHover', () => {
       position: Position.create(0, 2),
     }
 
-    server.onRequest(
-      HoverRequest.type,
-      getHoverHandler(trees, symbols, dependencies, docs),
-    )
+    server.onRequest(HoverRequest.type, getHoverHandler(context))
 
     // Act
     const result = await client.sendRequest(HoverRequest.type, sentParams)

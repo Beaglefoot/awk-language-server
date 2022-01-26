@@ -1,15 +1,11 @@
-import { Connection } from 'vscode-languageserver'
 import { PrepareRenameParams, Range } from 'vscode-languageserver-protocol/node'
-import { Documentation } from '../documentation'
 import { getBuiltinHints } from '../hints'
-import { TreesByUri } from '../interfaces'
+import { Context } from '../interfaces'
 import { getName, getNodeAt, isIdentifier, pointToPosition } from '../utils'
 
-export function getPrepareRenameHandler(
-  trees: TreesByUri,
-  connection: Connection,
-  docs: Documentation,
-) {
+export function getPrepareRenameHandler(context: Context) {
+  const { trees, docs, connection } = context
+
   return function handlePrepareRename(params: PrepareRenameParams): Range | null {
     const { position, textDocument } = params
     const node = getNodeAt(trees[textDocument.uri], position.line, position.character)

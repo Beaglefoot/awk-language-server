@@ -1,13 +1,12 @@
 import { URL } from 'url'
 import { MessageConnection } from 'vscode-languageserver-protocol'
 import * as Parser from 'web-tree-sitter'
-import { DependencyMap } from '../../src/dependencies'
 import { Documentation } from '../../src/documentation'
 import {
   getDidDeleteFilesHandler,
   handleWillDeleteFiles,
 } from '../../src/handlers/handleDeleteFiles'
-import { Context, SymbolsByUri, SymbolsMap, TreesByUri } from '../../src/interfaces'
+import { Context, SymbolsMap } from '../../src/interfaces'
 import * as io from '../../src/io'
 import { initializeParser } from '../../src/parser'
 import { getConnections, getDummyContext } from '../helpers'
@@ -18,18 +17,7 @@ describe('handleDidDeleteFiles', () => {
   let client: MessageConnection
   let context: Context
   let parser: Parser
-  let trees: TreesByUri = {}
-  let symbols: SymbolsByUri = {}
 
-  const docs: Documentation = {
-    builtins: {},
-    functions: {},
-    io_statements: {},
-    patterns: {},
-    version: '0',
-  }
-
-  const dependencies = new DependencyMap()
   const uriA = 'file:///a.awk'
   const uriFolder = 'file:///folder/'
   const uriF1 = uriFolder + 'f1.awk'
@@ -52,8 +40,9 @@ describe('handleDidDeleteFiles', () => {
   })
 
   beforeEach(() => {
-    trees = {}
-    symbols = {}
+    context = getDummyContext(server, parser)
+
+    const { trees, symbols, dependencies } = context
 
     trees[uriA] = {} as Parser.Tree
     trees[uriB] = {} as Parser.Tree
@@ -64,20 +53,12 @@ describe('handleDidDeleteFiles', () => {
     symbols[uriF1] = {} as SymbolsMap
 
     dependencies.update(uriA, new Set([uriF1, uriB]))
-
-    context = getDummyContext(server, parser)
   })
 
   describe('Individual files', () => {
     it('should clean up trees', async () => {
       // Arrange
-      const handleDidDeleteFiles = getDidDeleteFilesHandler(
-        context,
-        trees,
-        symbols,
-        dependencies,
-        docs,
-      )
+      const handleDidDeleteFiles = getDidDeleteFilesHandler(context)
 
       const willDeleteNotification = new Promise<void>((resolve) => {
         server.onNotification('workspace/willDeleteFiles', (params) => {
@@ -104,18 +85,12 @@ describe('handleDidDeleteFiles', () => {
       await Promise.all([willDeleteNotification, didDeleteNotification])
 
       // Assert
-      expect(trees[uriB]).toBeUndefined()
+      expect(context.trees[uriB]).toBeUndefined()
     })
 
     it('should clean up symbols', async () => {
       // Arrange
-      const handleDidDeleteFiles = getDidDeleteFilesHandler(
-        context,
-        trees,
-        symbols,
-        dependencies,
-        docs,
-      )
+      const handleDidDeleteFiles = getDidDeleteFilesHandler(context)
 
       const willDeleteNotification = new Promise<void>((resolve) => {
         server.onNotification('workspace/willDeleteFiles', (params) => {
@@ -142,18 +117,12 @@ describe('handleDidDeleteFiles', () => {
       await Promise.all([willDeleteNotification, didDeleteNotification])
 
       // Assert
-      expect(symbols[uriB]).toBeUndefined()
+      expect(context.symbols[uriB]).toBeUndefined()
     })
 
     it('should revalidate dependents', async () => {
       // Arrange
-      const handleDidDeleteFiles = getDidDeleteFilesHandler(
-        context,
-        trees,
-        symbols,
-        dependencies,
-        docs,
-      )
+      const handleDidDeleteFiles = getDidDeleteFilesHandler(context)
 
       const willDeleteNotification = new Promise<void>((resolve) => {
         server.onNotification('workspace/willDeleteFiles', (params) => {
@@ -181,11 +150,11 @@ describe('handleDidDeleteFiles', () => {
 
       // Assert
       expect(validate).toHaveBeenLastCalledWith(
-        trees[uriA],
-        symbols,
-        dependencies,
+        context.trees[uriA],
+        context.symbols,
+        context.dependencies,
         uriA,
-        docs,
+        context.docs,
       )
     })
   })
@@ -193,13 +162,7 @@ describe('handleDidDeleteFiles', () => {
   describe('Folders', () => {
     it('should clean up trees', async () => {
       // Arrange
-      const handleDidDeleteFiles = getDidDeleteFilesHandler(
-        context,
-        trees,
-        symbols,
-        dependencies,
-        docs,
-      )
+      const handleDidDeleteFiles = getDidDeleteFilesHandler(context)
 
       const willDeleteNotification = new Promise<void>((resolve) => {
         server.onNotification('workspace/willDeleteFiles', (params) => {
@@ -226,18 +189,12 @@ describe('handleDidDeleteFiles', () => {
       await Promise.all([willDeleteNotification, didDeleteNotification])
 
       // Assert
-      expect(trees[uriF1]).toBeUndefined()
+      expect(context.trees[uriF1]).toBeUndefined()
     })
 
     it('should clean up symbols', async () => {
       // Arrange
-      const handleDidDeleteFiles = getDidDeleteFilesHandler(
-        context,
-        trees,
-        symbols,
-        dependencies,
-        docs,
-      )
+      const handleDidDeleteFiles = getDidDeleteFilesHandler(context)
 
       const willDeleteNotification = new Promise<void>((resolve) => {
         server.onNotification('workspace/willDeleteFiles', (params) => {
@@ -264,18 +221,12 @@ describe('handleDidDeleteFiles', () => {
       await Promise.all([willDeleteNotification, didDeleteNotification])
 
       // Assert
-      expect(symbols[uriF1]).toBeUndefined()
+      expect(context.symbols[uriF1]).toBeUndefined()
     })
 
     it('should revalidate dependents', async () => {
       // Arrange
-      const handleDidDeleteFiles = getDidDeleteFilesHandler(
-        context,
-        trees,
-        symbols,
-        dependencies,
-        docs,
-      )
+      const handleDidDeleteFiles = getDidDeleteFilesHandler(context)
 
       const willDeleteNotification = new Promise<void>((resolve) => {
         server.onNotification('workspace/willDeleteFiles', (params) => {
@@ -303,11 +254,11 @@ describe('handleDidDeleteFiles', () => {
 
       // Assert
       expect(validate).toHaveBeenLastCalledWith(
-        trees[uriA],
-        symbols,
-        dependencies,
+        context.trees[uriA],
+        context.symbols,
+        context.dependencies,
         uriA,
-        docs,
+        context.docs,
       )
     })
   })

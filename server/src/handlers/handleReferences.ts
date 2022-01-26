@@ -1,9 +1,10 @@
 import { Location, ReferenceParams } from 'vscode-languageserver/node'
-import { DependencyMap } from '../dependencies'
-import { TreesByUri } from '../interfaces'
+import { Context } from '../interfaces'
 import { findReferences, getName, getNodeAt, getParentFunction } from '../utils'
 
-export function getReferencesHandler(trees: TreesByUri, dependencies: DependencyMap) {
+export function getReferencesHandler(context: Context) {
+  const { trees, dependencies } = context
+
   return function handleReferences(params: ReferenceParams): Location[] {
     const { textDocument, position } = params
     const node = getNodeAt(trees[textDocument.uri], position.line, position.character)

@@ -1,19 +1,16 @@
 import {
-  Connection,
   DocumentFormattingParams,
   Position,
   Range,
-  TextDocuments,
   TextEdit,
   uinteger,
 } from 'vscode-languageserver/node'
-import { TextDocument } from 'vscode-languageserver-textdocument'
 import { formatDocument } from '../format'
+import { Context } from '../interfaces'
 
-export function getDocumentFormattingHandler(
-  documents: TextDocuments<TextDocument>,
-  connection: Connection,
-) {
+export function getDocumentFormattingHandler(context: Context) {
+  const { documents, connection } = context
+
   return (params: DocumentFormattingParams): TextEdit[] => {
     const editedDocument = documents.get(params.textDocument.uri)
 

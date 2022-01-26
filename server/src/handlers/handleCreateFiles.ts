@@ -1,22 +1,16 @@
 import { URL } from 'url'
 import { CreateFilesParams } from 'vscode-languageserver/node'
 import { analyze } from '../analyze'
-import { DependencyMap } from '../dependencies'
-import { Documentation } from '../documentation'
-import { Context, SymbolsByUri, TreesByUri } from '../interfaces'
+import { Context } from '../interfaces'
 import { readDocumentFromUrl } from '../io'
 import { validate } from '../validation/validate'
 
 /**
  * This handles the case when deleted file is restored with Ctrl+z
  */
-export function getCreateFilesHandler(
-  context: Context,
-  trees: TreesByUri,
-  symbols: SymbolsByUri,
-  dependencies: DependencyMap,
-  docs: Documentation,
-) {
+export function getCreateFilesHandler(context: Context) {
+  const { trees, symbols, dependencies, docs } = context
+
   return function handleCreateFiles(params: CreateFilesParams): void {
     for (const file of params.files) {
       const textDocument = readDocumentFromUrl(context, new URL(file.uri))

@@ -9,11 +9,9 @@ import { getConnections, getDummyContext, getRange } from '../helpers'
 import { TextDocumentChangeEvent } from 'vscode-languageserver/node'
 import { TextDocument } from 'vscode-languageserver-textdocument'
 import { getDidChangeContentHandler } from '../../src/handlers/handleDidChangeContent'
-import { DependencyMap } from '../../src/dependencies'
 import { initializeParser } from '../../src/parser'
 import * as Parser from 'web-tree-sitter'
-import { Context, SymbolsByUri, TreesByUri } from '../../src/interfaces'
-import { Documentation, getDocumentation } from '../../src/documentation'
+import { Context } from '../../src/interfaces'
 
 describe('handleDidChangeContent', () => {
   let server: MessageConnection
@@ -22,10 +20,8 @@ describe('handleDidChangeContent', () => {
   let fileContent: string
   let uri: string
   let change: TextDocumentChangeEvent<TextDocument>
-  let docs: Documentation
 
   beforeAll(async () => {
-    docs = getDocumentation()
     const connections = getConnections()
 
     server = connections.server
@@ -46,13 +42,7 @@ describe('handleDidChangeContent', () => {
 
   it('should send diagnostics to client', async () => {
     // Arrange
-    const handleDidChangeContent = getDidChangeContentHandler(
-      context,
-      {},
-      {},
-      new DependencyMap(),
-      docs,
-    )
+    const handleDidChangeContent = getDidChangeContentHandler(context)
 
     // Act
     handleDidChangeContent(change)
@@ -73,56 +63,35 @@ describe('handleDidChangeContent', () => {
 
   it('should update trees', async () => {
     // Arrange
-    const trees: TreesByUri = {}
-    const handleDidChangeContent = getDidChangeContentHandler(
-      context,
-      trees,
-      {},
-      new DependencyMap(),
-      docs,
-    )
+    const handleDidChangeContent = getDidChangeContentHandler(context)
 
     // Act
     handleDidChangeContent(change)
 
     // Assert
-    expect(trees[uri]).toHaveProperty('rootNode')
+    expect(context.trees[uri]).toHaveProperty('rootNode')
   })
 
   it('should update symbols', async () => {
     // Arrange
-    const symbols: SymbolsByUri = {}
-    const handleDidChangeContent = getDidChangeContentHandler(
-      context,
-      {},
-      symbols,
-      new DependencyMap(),
-      docs,
-    )
+    const handleDidChangeContent = getDidChangeContentHandler(context)
 
     // Act
     handleDidChangeContent(change)
 
     // Assert
-    expect(symbols[uri].has('my_func')).toBeTruthy()
+    expect(context.symbols[uri].has('my_func')).toBeTruthy()
   })
 
   it('should update dependencies', async () => {
     // Arrange
-    const dependencies = new DependencyMap()
-    const handleDidChangeContent = getDidChangeContentHandler(
-      context,
-      {},
-      {},
-      dependencies,
-      docs,
-    )
+    const handleDidChangeContent = getDidChangeContentHandler(context)
 
     // Act
     handleDidChangeContent(change)
 
     // Assert
-    expect(dependencies.has(uri)).toBeTruthy()
-    expect(dependencies.has('file:///somelib.awk')).toBeTruthy()
+    expect(context.dependencies.has(uri)).toBeTruthy()
+    expect(context.dependencies.has('file:///somelib.awk')).toBeTruthy()
   })
 })

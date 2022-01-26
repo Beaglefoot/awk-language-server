@@ -11,9 +11,15 @@ export interface Documentation {
   version: string
 }
 
+let cachedDocs: Documentation | null = null
+
 export function getDocumentation(): Documentation {
+  if (cachedDocs) return cachedDocs
+
   const json = readFileSync(`${__dirname}/../docs.json`, 'utf8')
-  return JSON.parse(json) as Documentation
+  cachedDocs = JSON.parse(json) as Documentation
+
+  return cachedDocs
 }
 
 export function dropParamList(fcall: string): string {

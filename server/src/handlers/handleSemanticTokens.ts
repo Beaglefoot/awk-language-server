@@ -1,8 +1,7 @@
 import { readFileSync } from 'fs'
-import { Connection } from 'vscode-languageserver/node'
 import { TextDocument } from 'vscode-languageserver-textdocument'
 import { QueryCapture } from 'web-tree-sitter'
-import { TreesByUri } from '../interfaces'
+import { Context } from '../interfaces'
 import { getQueriesList } from '../utils'
 import * as path from 'path'
 
@@ -14,7 +13,9 @@ interface UnencodedSemanticToken {
   tokenModifiers: string[]
 }
 
-export function getSemanticTokensHandler(trees: TreesByUri, connection: Connection) {
+export function getSemanticTokensHandler(context: Context) {
+  const { trees, connection } = context
+
   return function handleSemanticTokens(params: {
     textDocument: TextDocument
   }): UnencodedSemanticToken[] {

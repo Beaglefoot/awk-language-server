@@ -4,19 +4,14 @@ import {
   SymbolInformation,
   SymbolKind,
 } from 'vscode-languageserver/node'
-import { DependencyMap } from '../dependencies'
-import { Documentation } from '../documentation'
 import { getBuiltinHints, getFunctionHint, getVariableHint } from '../hints'
-import { SymbolsByUri, TreesByUri } from '../interfaces'
+import { Context } from '../interfaces'
 import { getFinalSymbolByPosition, getNearestPrecedingSymbol } from '../symbols'
 import { getName, getNodeAt, getNodeAtRange } from '../utils'
 
-export function getHoverHandler(
-  trees: TreesByUri,
-  symbols: SymbolsByUri,
-  dependencies: DependencyMap,
-  docs: Documentation,
-) {
+export function getHoverHandler(context: Context) {
+  const { trees, symbols, dependencies, docs } = context
+
   return function handleHover(params: HoverParams): Hover | null {
     const tree = trees[params.textDocument.uri]
     const { line, character } = params.position

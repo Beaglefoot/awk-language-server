@@ -1,13 +1,10 @@
 import { DefinitionParams, Location } from 'vscode-languageserver-protocol/node'
-import { DependencyMap } from '../dependencies'
-import { SymbolsByUri, TreesByUri } from '../interfaces'
+import { Context } from '../interfaces'
 import { getName, getNodeAt, getParentFunctionName } from '../utils'
 
-export function getDefinitionHandler(
-  trees: TreesByUri,
-  symbols: SymbolsByUri,
-  dependencies: DependencyMap,
-) {
+export function getDefinitionHandler(context: Context) {
+  const { trees, symbols, dependencies } = context
+
   return function handleDefinition(params: DefinitionParams): Location[] {
     const { textDocument, position } = params
     const node = getNodeAt(trees[textDocument.uri], position.line, position.character)

@@ -7,7 +7,7 @@ import {
 import { getFunctionHint, getVariableHint } from './hints'
 import { Context } from './interfaces'
 import { getFinalSymbolByPosition, getNearestPrecedingSymbol } from './symbols'
-import { getNodeAtRange } from './utils'
+import { getNodeAtRange, isIdentifier } from './utils'
 
 export function getFunctionHoverResult(
   context: Context,
@@ -78,10 +78,15 @@ export function getIdentifierHoverResult(
     nearestSymbol.location.range,
   )!
 
+  const definitionText =
+    isIdentifier(definitionNode) && definitionNode.parent
+      ? definitionNode.parent.text.split('\n')[0]
+      : definitionNode.text.trim()
+
   return {
     contents: {
       kind: 'markdown',
-      value: getVariableHint(definitionNode, nearestSymbol.location.uri),
+      value: getVariableHint(definitionText, nearestSymbol.location.uri),
     },
   }
 }

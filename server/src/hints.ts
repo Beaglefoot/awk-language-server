@@ -69,10 +69,8 @@ export function getFunctionHint(funcDefinitionNode: SyntaxNode): string {
   return formatHint(signature, precedingComments.replace(/\n/g, '\n\n'))
 }
 
-export function getVariableHint(definitionNode: SyntaxNode, uri: string): string {
+export function getVariableHint(definitionText: string, uri: string): string {
   const filename = basename(uri)
 
-  return (
-    `Variable defined at [${filename}](${uri})\n\n` + formatHint(definitionNode.text, '')
-  )
+  return `Variable defined at [${filename}](${uri})\n\n` + formatHint(definitionText, '')
 }

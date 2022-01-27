@@ -211,7 +211,8 @@ export function getParentFunction(node: SyntaxNode): SyntaxNode | null {
 
   if (!parentFunc) return null
 
-  const paramList = parentFunc.descendantsOfType('param_list')[0]
+  const paramList =
+    parentFunc.namedChildren[1].type === 'param_list' ? parentFunc.namedChildren[1] : null
 
   if (!paramList) return null
 

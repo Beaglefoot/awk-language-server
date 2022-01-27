@@ -14,6 +14,7 @@ import {
   isInclude,
   isParamList,
   nodesGen,
+  getParentFunction,
 } from './utils'
 
 const kinds: { [tree_sitter_type: string]: SymbolKind } = {
@@ -49,7 +50,7 @@ function getSymbolInfo(node: SyntaxNode, uri: string): SymbolInformation | null 
     return getSymbolInfoFromParam(node, uri)
   }
 
-  if (getParentFunctionName(node)) return null
+  if (getParentFunction(node)) return null
 
   if (isDefinition(node.parent)) {
     return getSymbolInfoFromDefinition(node.parent, uri)

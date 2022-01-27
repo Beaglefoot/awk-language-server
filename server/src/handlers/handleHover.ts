@@ -1,21 +1,17 @@
-import {
-  Hover,
-  HoverParams,
-  SymbolInformation,
-  SymbolKind,
-} from 'vscode-languageserver/node'
-import { getBuiltinHints, getFunctionHint, getVariableHint } from '../hints'
+import { Hover, HoverParams } from 'vscode-languageserver/node'
+import { getBuiltinHints } from '../hints'
+import { getFunctionHoverResult, getIdentifierHoverResult } from '../hover'
 import { Context } from '../interfaces'
-import { getFinalSymbolByPosition, getNearestPrecedingSymbol } from '../symbols'
-import { getName, getNodeAt, getNodeAtRange } from '../utils'
+import { getName, getNodeAt } from '../utils'
 
 export function getHoverHandler(context: Context) {
-  const { trees, symbols, dependencies, docs } = context
+  const { trees, docs } = context
 
   return function handleHover(params: HoverParams): Hover | null {
-    const tree = trees[params.textDocument.uri]
+    const { uri } = params.textDocument
     const { line, character } = params.position
-    let node = getNodeAt(tree, line, character)
+
+    let node = getNodeAt(trees[uri], line, character)
 
     if (!node) return null
 
@@ -34,72 +30,11 @@ export function getHoverHandler(context: Context) {
     }
 
     if (['func_call', 'func_def'].includes(node.parent?.type || '')) {
-      const allDeps = dependencies.getLinkedUris(params.textDocument.uri)
-
-      let funcDefinitionSymbol: SymbolInformation | undefined
-
-      for (const uri of allDeps) {
-        if (symbols[uri]?.has(name)) {
-          funcDefinitionSymbol = symbols[uri]
-            .get(name)!
-            .find((si) => si.kind === SymbolKind.Function)
-
-          if (funcDefinitionSymbol) break
-        }
-      }
-
-      if (!funcDefinitionSymbol) return null
-
-      const funcDefinitionNode = getNodeAtRange(
-        trees[funcDefinitionSymbol.location.uri],
-        funcDefinitionSymbol.location.range,
-      )!
-
-      return {
-        contents: {
-          kind: 'markdown',
-          value: getFunctionHint(funcDefinitionNode),
-        },
-      }
+      return getFunctionHoverResult(context, name, uri)
     }
 
     if (node.type === 'identifier') {
-      let nearestSymbol: SymbolInformation | null = null
-
-      if (symbols[params.textDocument.uri].has(name)) {
-        nearestSymbol = getNearestPrecedingSymbol(
-          params.position,
-          symbols[params.textDocument.uri].get(name)!,
-        )
-      }
-
-      if (!nearestSymbol) {
-        const uriWithFinalDefinition = [
-          ...dependencies.getAllDepthFirst(params.textDocument.uri),
-        ]
-          .reverse()
-          .find((u) => symbols[u]?.has(name))
-
-        if (!uriWithFinalDefinition) return null
-
-        nearestSymbol = getFinalSymbolByPosition(
-          symbols[uriWithFinalDefinition].get(name)!,
-        )
-      }
-
-      if (!nearestSymbol) return null
-
-      const definitionNode = getNodeAtRange(
-        trees[nearestSymbol.location.uri],
-        nearestSymbol.location.range,
-      )!
-
-      return {
-        contents: {
-          kind: 'markdown',
-          value: getVariableHint(definitionNode, nearestSymbol.location.uri),
-        },
-      }
+      return getIdentifierHoverResult(context, name, uri, params.position)
     }
 
     return null

@@ -15,12 +15,14 @@
     "vscode": "^1.52.0"
   },
   "categories": [
-    "Programming Languages"
+    "Programming Languages",
+    "Formatters"
   ],
   "keywords": [
     "awk",
     "gawk",
-    "ide"
+    "ide",
+    "lsp"
   ],
   "activationEvents": [
     "onLanguage:awk"

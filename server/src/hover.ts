@@ -4,10 +4,11 @@ import {
   SymbolInformation,
   SymbolKind,
 } from 'vscode-languageserver/node'
+import { SyntaxNode } from 'web-tree-sitter'
 import { getFunctionHint, getVariableHint } from './hints'
 import { Context } from './interfaces'
 import { getFinalSymbolByPosition, getNearestPrecedingSymbol } from './symbols'
-import { getNodeAtRange, isIdentifier } from './utils'
+import { getNodeAtRange, isIdentifier, isParamList } from './utils'
 
 export function getFunctionHoverResult(
   context: Context,
@@ -78,15 +79,30 @@ export function getIdentifierHoverResult(
     nearestSymbol.location.range,
   )!
 
-  const definitionText =
-    isIdentifier(definitionNode) && definitionNode.parent
-      ? definitionNode.parent.text.split('\n')[0]
-      : definitionNode.text.trim()
-
   return {
     contents: {
       kind: 'markdown',
-      value: getVariableHint(definitionText, nearestSymbol.location.uri),
+      value: getVariableHint(
+        getDefinitionText(definitionNode),
+        nearestSymbol.location.uri,
+      ),
     },
   }
+}
+
+function getDefinitionText(node: SyntaxNode): string {
+  if (isIdentifier(node) && node.parent) {
+    if (isParamList(node.parent)) {
+      const funcDefNode = node.parent.parent!
+      const firstLineOfText = funcDefNode.text.split('\n')[0]
+
+      return firstLineOfText.includes(')')
+        ? firstLineOfText.replace(/{/, '').trim()
+        : `${funcDefNode.children[0].text} ${funcDefNode.children[1].text} (...${node.text})`
+    }
+
+    return node.parent.text.split('\n')[0].trim()
+  }
+
+  return node.text.trim()
 }

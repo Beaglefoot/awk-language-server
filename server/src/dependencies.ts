@@ -34,13 +34,21 @@ export class DependencyMap extends Map<string, DependencyNode> {
     this.get(uri).childrenUris = newDependencies
   }
 
-  public hasParent(uri: string, parentUri: string): boolean {
+  public hasParent(
+    uri: string,
+    parentUri: string,
+    visitedUris: Set<string> = new Set(),
+  ): boolean {
+    if (visitedUris.has(uri)) return false
+
     const { parentUris } = this.get(uri)
 
     if (parentUris.has(parentUri)) return true
 
+    visitedUris.add(uri)
+
     for (const pu of parentUris) {
-      if (this.hasParent(pu, parentUri)) return true
+      if (this.hasParent(pu, parentUri, visitedUris)) return true
     }
 
     return false
@@ -56,12 +64,13 @@ export class DependencyMap extends Map<string, DependencyNode> {
     result.add(uri)
 
     while (queue.length) {
-      const uri = queue.shift() as string
+      const uri = queue.shift()!
 
-      this.get(uri).childrenUris.forEach((u) => {
+      for (const u of this.get(uri).childrenUris) {
+        if (result.has(u)) continue
         result.add(u)
         queue.push(u)
-      })
+      }
     }
 
     return result
@@ -75,12 +84,14 @@ export class DependencyMap extends Map<string, DependencyNode> {
     const stack = [uri]
 
     while (stack.length) {
-      const uri = stack.pop() as string
+      const uri = stack.pop()!
 
       result.add(uri)
-      ;[...this.get(uri).childrenUris].reverse().forEach((u) => {
+
+      for (const u of [...this.get(uri).childrenUris].reverse()) {
+        if (result.has(u)) continue
         stack.push(u)
-      })
+      }
     }
 
     return result

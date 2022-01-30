@@ -43,6 +43,13 @@ describe('DependencyMap.hasParent method', () => {
     dmap.update('a', new Set(['b']))
     expect(dmap.hasParent('b', 'root')).toBeTruthy()
   })
+
+  it('should handle cyclical dependencies', () => {
+    const dmap = new DependencyMap()
+    dmap.update('root', new Set(['a', 'c']))
+    dmap.update('a', new Set(['root']))
+    expect(dmap.hasParent('a', 'c')).toBeFalsy()
+  })
 })
 
 describe('DependencyMap.getAllBreadthFirst method', () => {
@@ -62,6 +69,16 @@ describe('DependencyMap.getAllBreadthFirst method', () => {
       'b1',
       'b2',
     ])
+  })
+
+  it('should handle cyclical dependencies', () => {
+    const dmap = new DependencyMap()
+
+    dmap.update('root', new Set(['a', 'b']))
+    dmap.update('a', new Set(['b']))
+    dmap.update('b', new Set(['a']))
+
+    expect([...dmap.getAllBreadthFirst('root')]).toEqual(['root', 'a', 'b'])
   })
 })
 
@@ -85,6 +102,16 @@ describe('DependencyMap.getAllDepthFirst method', () => {
       'b2',
     ])
   })
+
+  it('should handle cyclical dependencies', () => {
+    const dmap = new DependencyMap()
+
+    dmap.update('root', new Set(['a', 'b']))
+    dmap.update('a', new Set(['b']))
+    dmap.update('b', new Set(['a']))
+
+    expect([...dmap.getAllDepthFirst('root')]).toEqual(['root', 'a', 'b'])
+  })
 })
 
 describe('DependencyMap.getLinkedUris method', () => {
@@ -107,5 +134,15 @@ describe('DependencyMap.getLinkedUris method', () => {
       'b2',
       'root3',
     ])
+  })
+
+  it('should handle cyclical dependencies', () => {
+    const dmap = new DependencyMap()
+
+    dmap.update('root', new Set(['a', 'b']))
+    dmap.update('a', new Set(['b']))
+    dmap.update('b', new Set(['a']))
+
+    expect(dmap.getLinkedUris('b')).toEqual(new Set(['root', 'a', 'b']))
   })
 })

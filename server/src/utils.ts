@@ -251,3 +251,7 @@ export function isAwkExtension(path: URI | string): boolean {
   const ext = extname(path).toLowerCase()
   return ext === '.awk' || ext === '.gawk'
 }
+
+export function isBlock(node: SyntaxNode): boolean {
+  return node.type === 'block'
+}

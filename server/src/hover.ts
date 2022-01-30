@@ -8,7 +8,7 @@ import { SyntaxNode } from 'web-tree-sitter'
 import { getFunctionHint, getVariableHint } from './hints'
 import { Context } from './interfaces'
 import { getFinalSymbolByPosition, getNearestPrecedingSymbol } from './symbols'
-import { getNodeAtRange, isIdentifier, isParamList } from './utils'
+import { getNodeAtRange, isBlock, isIdentifier, isParamList } from './utils'
 
 export function getFunctionHoverResult(
   context: Context,
@@ -99,6 +99,15 @@ function getDefinitionText(node: SyntaxNode): string {
       return firstLineOfText.includes(')')
         ? firstLineOfText.replace(/{/, '').trim()
         : `${funcDefNode.children[0].text} ${funcDefNode.children[1].text} (...${node.text})`
+    }
+
+    if (isBlock(node.parent)) {
+      const offset = node.startPosition.row - node.parent.startPosition.row
+
+      return node.parent.text
+        .split('\n')
+        .filter((_, i) => offset - 1 <= i && i <= offset + 1)
+        .join('\n')
     }
 
     return node.parent.text.split('\n')[0].trim()

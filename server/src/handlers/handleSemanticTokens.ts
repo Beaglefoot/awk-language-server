@@ -41,7 +41,7 @@ export function getSemanticTokensHandler(context: Context) {
 
       if (query.captureNames.length > 1) {
         connection.console.warn(
-          `Got more that 1 captureNames: ${query.captureNames.join(', ')}`,
+          `Got more than 1 captureNames: ${query.captureNames.join(', ')}`,
         )
       }
 

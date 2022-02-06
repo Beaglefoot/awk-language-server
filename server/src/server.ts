@@ -41,6 +41,7 @@ const context = {
   parser: {},
   trees: {},
   symbols: {},
+  namespaces: {},
   dependencies: new DependencyMap(),
   docs: getDocumentation(),
 } as Context

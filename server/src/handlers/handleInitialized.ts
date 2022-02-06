@@ -6,7 +6,7 @@ import { Context } from '../interfaces'
 import { getAwkFilesInDir, readDocumentFromUrl } from '../io'
 
 export function getInitializedHandler(context: Context) {
-  const { trees, symbols, dependencies, docs } = context
+  const { trees, symbols, namespaces, dependencies, docs } = context
 
   function index(workspaceFolders: WorkspaceFolder[]) {
     const urls: URL[] = workspaceFolders.flatMap((folder) => getAwkFilesInDir(folder.uri))
@@ -17,10 +17,17 @@ export function getInitializedHandler(context: Context) {
 
       if (!document) continue
 
-      const { tree, symbols: s, dependencyUris } = analyze(context, document, docs)
+      const {
+        tree,
+        symbols: s,
+        dependencyUris,
+        namespaces: ns,
+      } = analyze(context, document, docs)
 
       trees[url.href] = tree
       symbols[url.href] = s
+      namespaces[url.href] = ns
+
       dependencies.update(url.href, new Set(dependencyUris))
     }
   }

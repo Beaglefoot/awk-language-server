@@ -1,6 +1,7 @@
-import { getFunctionSignature, getQueriesList } from '../src/utils'
+import { getFunctionSignature, getQueriesList, isNodeWithinRange } from '../src/utils'
 import { initializeParser } from '../src/parser'
 import * as Parser from 'web-tree-sitter'
+import { getRange } from './helpers'
 
 function normalizeSpace(str: string): string {
   return str
@@ -93,5 +94,58 @@ describe('getFunctionSignature function', () => {
     const functionDefinitionNode = tree.rootNode.descendantsOfType('func_def')[0]
 
     expect(getFunctionSignature(functionDefinitionNode)).toEqual('f(a, b)')
+  })
+})
+
+describe('isNodeWithinRange function', () => {
+  it('Should handle a node inside range rows', () => {
+    const node = {
+      startPosition: {
+        row: 1,
+        column: 0,
+      },
+      endPosition: {
+        row: 2,
+        column: 0,
+      },
+    } as Parser.SyntaxNode
+
+    const range = getRange(0, 0, 3, 0)
+
+    expect(isNodeWithinRange(node, range)).toBeTruthy()
+  })
+
+  it('Should handle a node on the same line as range start', () => {
+    const node = {
+      startPosition: {
+        row: 0,
+        column: 1,
+      },
+      endPosition: {
+        row: 0,
+        column: 2,
+      },
+    } as Parser.SyntaxNode
+
+    const range = getRange(0, 0, 3, 0)
+
+    expect(isNodeWithinRange(node, range)).toBeTruthy()
+  })
+
+  it('Should handle a node on the same line as range end', () => {
+    const node = {
+      startPosition: {
+        row: 3,
+        column: 0,
+      },
+      endPosition: {
+        row: 3,
+        column: 2,
+      },
+    } as Parser.SyntaxNode
+
+    const range = getRange(0, 0, 3, 2)
+
+    expect(isNodeWithinRange(node, range)).toBeTruthy()
   })
 })

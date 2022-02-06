@@ -74,6 +74,7 @@ export function getDummyContext(
     parser,
     trees: {},
     symbols: {},
+    namespaces: {},
     dependencies: new DependencyMap(),
     docs: getDocumentation(),
   }

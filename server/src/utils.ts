@@ -3,6 +3,7 @@ import { URL } from 'url'
 import { Position } from 'vscode-languageserver-textdocument'
 import { Range, URI } from 'vscode-languageserver/node'
 import { Point, SyntaxNode, Tree } from 'web-tree-sitter'
+import { NamespaceMap } from './interfaces'
 
 export function* nodesGen(node: SyntaxNode) {
   const queue: SyntaxNode[] = [node]
@@ -254,4 +255,35 @@ export function isAwkExtension(path: URI | string): boolean {
 
 export function isBlock(node: SyntaxNode): boolean {
   return node.type === 'block'
+}
+
+export function isNamespace(node: SyntaxNode): boolean {
+  return node.type === 'directive' && node.firstChild!.text === '@namespace'
+}
+
+export function isNodeWithinRange(node: SyntaxNode, range: Range): boolean {
+  const doesStartInside =
+    node.startPosition.row > range.start.line ||
+    (node.startPosition.row === range.start.line &&
+      node.startPosition.column >= range.start.character)
+
+  const doesEndInside =
+    node.endPosition.row < range.end.line ||
+    (node.endPosition.row === range.end.line &&
+      node.endPosition.column <= range.end.character)
+
+  return doesStartInside && doesEndInside
+}
+
+export function getNamespace(node: SyntaxNode, namespaces: NamespaceMap): string | null {
+  if (!isIdentifier) return null
+
+  if (node.previousNamedSibling?.type === 'namespace')
+    return node.previousNamedSibling.text
+
+  for (const [ns, range] of namespaces) {
+    if (isNodeWithinRange(node, range)) return ns
+  }
+
+  return 'awk'
 }

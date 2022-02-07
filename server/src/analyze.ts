@@ -126,21 +126,18 @@ export function analyze(
     const symbolInfo = getSymbolInfo(node, document.uri)
 
     if (!symbolInfo) continue
+
+    const ns = getNamespace(node, namespaces)
+
+    symbolInfo.containerName = symbolInfo.containerName
+      ? `${ns}::${symbolInfo.containerName}`
+      : ns
+
     if (getBuiltinHints(docs)[symbolInfo.name]) continue
-
-    console.log(
-      document.uri,
-      node.startPosition.row,
-      node.text,
-      getNamespace(node, namespaces),
-    )
-
-    // TODO: this check must be aware of namespace
     if (isKnownSymbol(symbols.get(symbolInfo.name) || [], symbolInfo)) continue
 
     if (!symbols.get(symbolInfo.name)) symbols.set(symbolInfo.name, [])
 
-    // TODO: right before adding place namespace into containerName
     symbols.get(symbolInfo.name)!.push(symbolInfo)
   }
 

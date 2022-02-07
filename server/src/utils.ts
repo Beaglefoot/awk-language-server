@@ -275,10 +275,9 @@ export function isNodeWithinRange(node: SyntaxNode, range: Range): boolean {
   return doesStartInside && doesEndInside
 }
 
-export function getNamespace(node: SyntaxNode, namespaces: NamespaceMap): string | null {
-  if (!isIdentifier) return null
-
-  if (node.previousNamedSibling?.type === 'namespace')
+/** Get namespace which node belongs to */
+export function getNamespace(node: SyntaxNode, namespaces: NamespaceMap): string {
+  if (isIdentifier(node) && node.previousNamedSibling?.type === 'namespace')
     return node.previousNamedSibling.text
 
   for (const [ns, range] of namespaces) {
@@ -286,4 +285,14 @@ export function getNamespace(node: SyntaxNode, namespaces: NamespaceMap): string
   }
 
   return 'awk'
+}
+
+export function isAssignment(node: SyntaxNode): boolean {
+  return [
+    'assignment_exp',
+    'update_exp',
+    'for_in_statement',
+    'getline_input',
+    'getline_file',
+  ].includes(node.type)
 }

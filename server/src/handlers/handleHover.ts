@@ -2,10 +2,10 @@ import { Hover, HoverParams } from 'vscode-languageserver/node'
 import { getBuiltinHints } from '../hints'
 import { getFunctionHoverResult, getIdentifierHoverResult } from '../hover'
 import { Context } from '../interfaces'
-import { getName, getNodeAt } from '../utils'
+import { getName, getNamespace, getNodeAt } from '../utils'
 
 export function getHoverHandler(context: Context) {
-  const { trees, docs } = context
+  const { trees, namespaces, docs } = context
 
   return function handleHover(params: HoverParams): Hover | null {
     const { uri } = params.textDocument
@@ -29,12 +29,15 @@ export function getHoverHandler(context: Context) {
       return { contents: { kind: 'markdown', value: builtins[name] } }
     }
 
+    const ns = getNamespace(node, namespaces[uri] || new Map())
+
     if (['func_call', 'func_def'].includes(node.parent?.type || '')) {
+      // TODO: Handle namespaces
       return getFunctionHoverResult(context, name, uri)
     }
 
     if (node.type === 'identifier') {
-      return getIdentifierHoverResult(context, name, uri, params.position)
+      return getIdentifierHoverResult(context, name, ns, uri, params.position)
     }
 
     return null

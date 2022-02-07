@@ -31,7 +31,7 @@ describe('handleHover', () => {
 
     context = getDummyContext(server, parser)
 
-    const { trees, symbols, dependencies } = context
+    const { trees, symbols, namespaces, dependencies } = context
 
     const contentA = readFileSync(
       join('server', 'tests', 'handlers', 'fixtures', 'hover_a.awk'),
@@ -45,6 +45,7 @@ describe('handleHover', () => {
       join('server', 'tests', 'handlers', 'fixtures', 'hover_c.awk'),
       'utf8',
     )
+
     uriA = 'file:///a.awk'
     uriB = 'file:///b.awk'
     uriC = 'file:///c.awk'
@@ -59,20 +60,70 @@ describe('handleHover', () => {
     symbols[uriB] = new Map()
 
     symbols[uriA].set('f', [
-      SymbolInformation.create('f', SymbolKind.Function, getRange(3, 0, 3, 16), uriA),
+      SymbolInformation.create(
+        'f',
+        SymbolKind.Function,
+        getRange(3, 0, 3, 16),
+        uriA,
+        'awk',
+      ),
     ])
 
     symbols[uriA].set('str', [
-      SymbolInformation.create('str', SymbolKind.Variable, getRange(6, 4, 6, 26), uriA),
+      SymbolInformation.create(
+        'str',
+        SymbolKind.Variable,
+        getRange(6, 4, 6, 26),
+        uriA,
+        'awk',
+      ),
+    ])
+
+    symbols[uriA].set('x', [
+      SymbolInformation.create(
+        'x',
+        SymbolKind.Variable,
+        getRange(15, 4, 15, 10),
+        uriA,
+        'A',
+      ),
     ])
 
     symbols[uriB].set('sum', [
-      SymbolInformation.create('sum', SymbolKind.Function, getRange(1, 0, 3, 1), uriB),
+      SymbolInformation.create(
+        'sum',
+        SymbolKind.Function,
+        getRange(1, 0, 3, 1),
+        uriB,
+        'awk',
+      ),
     ])
 
     symbols[uriB].set('var_b', [
-      SymbolInformation.create('var_b', SymbolKind.Function, getRange(6, 4, 6, 14), uriB),
+      SymbolInformation.create(
+        'var_b',
+        SymbolKind.Function,
+        getRange(6, 4, 6, 14),
+        uriB,
+        'awk',
+      ),
     ])
+
+    symbols[uriB].set('x', [
+      SymbolInformation.create(
+        'x',
+        SymbolKind.Function,
+        getRange(11, 8, 11, 14),
+        uriB,
+        'B',
+      ),
+    ])
+
+    namespaces[uriA] = new Map()
+    namespaces[uriB] = new Map()
+
+    namespaces[uriA].set('A', getRange(12, 14, 20, 0))
+    namespaces[uriB].set('B', getRange(9, 14, 13, 0))
   })
 
   it('should provide hint for builtin functions', async () => {
@@ -219,5 +270,41 @@ describe('handleHover', () => {
     const { value } = result?.contents as MarkupContent
 
     expect(value).toMatch('sum(a, b)')
+  })
+
+  it('should provide hint for namespaced symbol defined in the same document', async () => {
+    // Arrange
+    const sentParams: HoverParams = {
+      textDocument: { uri: uriA },
+      position: Position.create(16, 13),
+    }
+
+    server.onRequest(HoverRequest.type, getHoverHandler(context))
+
+    // Act
+    const result = await client.sendRequest(HoverRequest.type, sentParams)
+
+    // Assert
+    const { value } = result?.contents as MarkupContent
+
+    expect(value).toMatch('x = "a"')
+  })
+
+  it('should provide hint for namespaced symbol defined in included document', async () => {
+    // Arrange
+    const sentParams: HoverParams = {
+      textDocument: { uri: uriA },
+      position: Position.create(17, 13),
+    }
+
+    server.onRequest(HoverRequest.type, getHoverHandler(context))
+
+    // Act
+    const result = await client.sendRequest(HoverRequest.type, sentParams)
+
+    // Assert
+    const { value } = result?.contents as MarkupContent
+
+    expect(value).toMatch('x = "b"')
   })
 })

@@ -1,8 +1,18 @@
 import { Hover, HoverParams } from 'vscode-languageserver/node'
+import { SyntaxNode } from 'web-tree-sitter'
 import { getBuiltinHints } from '../hints'
 import { getFunctionHoverResult, getIdentifierHoverResult } from '../hover'
 import { Context } from '../interfaces'
 import { getName, getNamespace, getNodeAt } from '../utils'
+
+function isFunction(node: SyntaxNode): boolean {
+  const parent =
+    node.parent?.type === 'ns_qualified_name' ? node.parent.parent : node.parent
+
+  if (!parent) return false
+
+  return ['func_call', 'func_def'].includes(parent.type)
+}
 
 export function getHoverHandler(context: Context) {
   const { trees, namespaces, docs } = context
@@ -31,9 +41,8 @@ export function getHoverHandler(context: Context) {
 
     const ns = getNamespace(node, namespaces[uri] || new Map())
 
-    if (['func_call', 'func_def'].includes(node.parent?.type || '')) {
-      // TODO: Handle namespaces
-      return getFunctionHoverResult(context, name, uri)
+    if (isFunction(node)) {
+      return getFunctionHoverResult(context, name, ns, uri)
     }
 
     if (node.type === 'identifier') {

@@ -89,6 +89,16 @@ describe('handleHover', () => {
       ),
     ])
 
+    symbols[uriA].set('fn', [
+      SymbolInformation.create(
+        'fn',
+        SymbolKind.Function,
+        getRange(20, 0, 20, 17),
+        uriA,
+        'A',
+      ),
+    ])
+
     symbols[uriB].set('sum', [
       SymbolInformation.create(
         'sum',
@@ -119,11 +129,21 @@ describe('handleHover', () => {
       ),
     ])
 
+    symbols[uriB].set('fn', [
+      SymbolInformation.create(
+        'fn',
+        SymbolKind.Function,
+        getRange(13, 0, 13, 17),
+        uriB,
+        'B',
+      ),
+    ])
+
     namespaces[uriA] = new Map()
     namespaces[uriB] = new Map()
 
-    namespaces[uriA].set('A', getRange(12, 14, 20, 0))
-    namespaces[uriB].set('B', getRange(9, 14, 13, 0))
+    namespaces[uriA].set('A', getRange(12, 14, 27, 0))
+    namespaces[uriB].set('B', getRange(9, 14, 15, 0))
   })
 
   it('should provide hint for builtin functions', async () => {
@@ -306,5 +326,41 @@ describe('handleHover', () => {
     const { value } = result?.contents as MarkupContent
 
     expect(value).toMatch('x = "b"')
+  })
+
+  it('should provide hint for namespaced function defined in the same document', async () => {
+    // Arrange
+    const sentParams: HoverParams = {
+      textDocument: { uri: uriA },
+      position: Position.create(23, 7),
+    }
+
+    server.onRequest(HoverRequest.type, getHoverHandler(context))
+
+    // Act
+    const result = await client.sendRequest(HoverRequest.type, sentParams)
+
+    // Assert
+    const { value } = result?.contents as MarkupContent
+
+    expect(value).toMatch('fn(a)')
+  })
+
+  it('should provide hint for namespaced function defined in included document', async () => {
+    // Arrange
+    const sentParams: HoverParams = {
+      textDocument: { uri: uriA },
+      position: Position.create(24, 7),
+    }
+
+    server.onRequest(HoverRequest.type, getHoverHandler(context))
+
+    // Act
+    const result = await client.sendRequest(HoverRequest.type, sentParams)
+
+    // Assert
+    const { value } = result?.contents as MarkupContent
+
+    expect(value).toMatch('fn(b)')
   })
 })

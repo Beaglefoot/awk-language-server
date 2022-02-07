@@ -13,19 +13,24 @@ import { getNodeAtRange, isAssignment, isBlock, isIdentifier, isParamList } from
 export function getFunctionHoverResult(
   context: Context,
   nodeName: string,
+  namespace: string,
   uri: string,
 ): Hover | null {
-  const { dependencies, symbols, trees } = context
+  const { dependencies, symbols, namespaces, trees } = context
 
-  const allDeps = dependencies.getLinkedUris(uri)
+  const allDeps = [...dependencies.getLinkedUris(uri)].filter(
+    (u) => namespace === 'awk' || namespaces[u]?.has(namespace),
+  )
 
   let funcDefinitionSymbol: SymbolInformation | undefined
 
   for (const uri of allDeps) {
-    if (symbols[uri]?.has(nodeName)) {
-      funcDefinitionSymbol = symbols[uri]
-        .get(nodeName)!
-        .find((si) => si.kind === SymbolKind.Function)
+    const symbolInfos = symbols[uri]?.get(nodeName)
+
+    if (symbolInfos) {
+      funcDefinitionSymbol = symbolInfos.find(
+        (si) => si.kind === SymbolKind.Function && si.containerName === namespace,
+      )
 
       if (funcDefinitionSymbol) break
     }

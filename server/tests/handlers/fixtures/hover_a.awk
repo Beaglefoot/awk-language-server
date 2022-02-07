@@ -17,3 +17,10 @@ BEGIN {
     print A::x
     print B::x
 }
+
+function fn(a) {}
+
+BEGIN {
+    A::fn(1)
+    B::fn(1)
+}

@@ -10,3 +10,5 @@ BEGIN {
 @namespace "B"
 
 BEGIN { x = "b" }
+
+function fn(b) {}

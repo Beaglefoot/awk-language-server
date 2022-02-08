@@ -18,6 +18,7 @@ import {
   isNamespace,
   pointToPosition,
   getNamespace,
+  getNamespaceName,
 } from './utils'
 
 const kinds: { [tree_sitter_type: string]: SymbolKind } = {
@@ -119,6 +120,22 @@ export function analyze(
     if (isInclude(node) && node.childCount === 2) {
       const url = getDependencyUrl(node, document.uri)
       dependencyUris.push(url.href)
+    }
+
+    if (isNamespace(node)) {
+      const name = getNamespaceName(node)
+      const symbolInfo = SymbolInformation.create(
+        name,
+        SymbolKind.Namespace,
+        namespaces.get(name)!,
+        document.uri,
+      )
+
+      if (!symbols.get(symbolInfo.name)) symbols.set(symbolInfo.name, [])
+
+      symbols.get(symbolInfo.name)!.push(symbolInfo)
+
+      continue
     }
 
     if (!isIdentifier(node)) continue

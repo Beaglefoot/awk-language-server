@@ -296,3 +296,8 @@ export function isAssignment(node: SyntaxNode): boolean {
     'getline_file',
   ].includes(node.type)
 }
+
+/** Get namespace name on directive node */
+export function getNamespaceName(node: SyntaxNode): string {
+  return node.lastChild!.text.slice(1, -1)
+}

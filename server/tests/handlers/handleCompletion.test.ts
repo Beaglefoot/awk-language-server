@@ -30,20 +30,37 @@ describe('handleCompletion', () => {
 
     context = getDummyContext(server, {} as Parser)
 
+    const { symbols, namespaces, dependencies } = context
+
     uri = 'file:///my_file.awk'
 
-    context.dependencies.update(uri, new Set())
+    dependencies.update(uri, new Set())
 
     const symbolsMap: SymbolsMap = new Map()
-    const symbolInfo = SymbolInformation.create(
-      'myFunc',
-      SymbolKind.Function,
-      Range.create(Position.create(0, 0), Position.create(3, 1)),
-    )
 
-    symbolsMap.set('myFunc', [symbolInfo])
+    symbolsMap.set('myFunc', [
+      SymbolInformation.create(
+        'myFunc',
+        SymbolKind.Function,
+        Range.create(Position.create(0, 0), Position.create(3, 1)),
+        uri,
+        'awk',
+      ),
+    ])
 
-    context.symbols = { [uri]: symbolsMap }
+    symbolsMap.set('fn', [
+      SymbolInformation.create(
+        'fn',
+        SymbolKind.Function,
+        getRange(5, 0, 5, 17),
+        uri,
+        'A',
+      ),
+    ])
+
+    symbols[uri] = symbolsMap
+
+    namespaces[uri].set('A', getRange(5, 0, 50, 0))
   })
 
   it('should provide completions from current document', async () => {
@@ -79,7 +96,13 @@ describe('handleCompletion', () => {
 
     symbols[includedUri] = new Map()
     symbols[includedUri].set('new_func', [
-      SymbolInformation.create('new_func', SymbolKind.Function, getRange(0, 0, 1, 1)),
+      SymbolInformation.create(
+        'new_func',
+        SymbolKind.Function,
+        getRange(0, 0, 1, 1),
+        includedUri,
+        'awk',
+      ),
     ])
 
     const sentParams: TextDocumentPositionParams = {
@@ -124,5 +147,51 @@ describe('handleCompletion', () => {
     expect(
       result.find((i) => i.label === 'tolower' && i.kind === CompletionItemKind.Function),
     ).toBeTruthy()
+  })
+
+  it('should prepend completions with namespaces', async () => {
+    // Arrange
+    const sentParams: TextDocumentPositionParams = {
+      textDocument: { uri },
+      position: Position.create(0, 0),
+    }
+
+    server.onRequest(CompletionRequest.type, getCompletionHandler(context))
+
+    // Act
+    const result = (await client.sendRequest(
+      CompletionRequest.type,
+      sentParams,
+    )) as CompletionItem[]
+
+    // Assert
+    const item = CompletionItem.create('A::fn')
+    item.kind = CompletionItemKind.Function
+    expect(
+      result.find((i) => i.kind === item.kind && i.label === item.label),
+    ).toMatchObject(item)
+  })
+
+  it('should not prepend completions with namespaces for current namespace', async () => {
+    // Arrange
+    const sentParams: TextDocumentPositionParams = {
+      textDocument: { uri },
+      position: Position.create(6, 0),
+    }
+
+    server.onRequest(CompletionRequest.type, getCompletionHandler(context))
+
+    // Act
+    const result = (await client.sendRequest(
+      CompletionRequest.type,
+      sentParams,
+    )) as CompletionItem[]
+
+    // Assert
+    const item = CompletionItem.create('fn')
+    item.kind = CompletionItemKind.Function
+    expect(
+      result.find((i) => i.kind === item.kind && i.label === item.label),
+    ).toMatchObject(item)
   })
 })

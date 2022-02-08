@@ -264,6 +264,18 @@ export function isNamespace(node: SyntaxNode): boolean {
   return node.type === 'directive' && node.firstChild!.text === '@namespace'
 }
 
+export function isPositionWithinRange(position: Position, range: Range): boolean {
+  const doesStartInside =
+    position.line > range.start.line ||
+    (position.line === range.start.line && position.character >= range.start.character)
+
+  const doesEndInside =
+    position.line < range.end.line ||
+    (position.line === range.end.line && position.character <= range.end.character)
+
+  return doesStartInside && doesEndInside
+}
+
 export function isNodeWithinRange(node: SyntaxNode, range: Range): boolean {
   const doesStartInside =
     node.startPosition.row > range.start.line ||

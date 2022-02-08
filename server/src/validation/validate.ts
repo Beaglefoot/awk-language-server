@@ -1,7 +1,7 @@
 import { Diagnostic, _Connection } from 'vscode-languageserver/node'
 import { nodesGen } from '../utils'
 import { Tree } from 'web-tree-sitter'
-import { SymbolsByUri } from '../interfaces'
+import { NamespacesByUri, SymbolsByUri } from '../interfaces'
 import { DependencyMap } from '../dependencies'
 import { Documentation } from '../documentation'
 import { Validator } from './validator'
@@ -28,6 +28,7 @@ const validators: Validator[] = [
 export function validate(
   tree: Tree,
   symbols: SymbolsByUri,
+  namespaces: NamespacesByUri,
   dependencies: DependencyMap,
   uri: string,
   docs: Documentation,
@@ -39,6 +40,7 @@ export function validate(
       const result = v({
         node,
         symbols,
+        namespaces,
         dependencies,
         uri,
         docs,

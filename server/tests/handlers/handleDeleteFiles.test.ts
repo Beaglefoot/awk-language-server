@@ -188,6 +188,7 @@ describe('handleDidDeleteFiles', () => {
       expect(validate).toHaveBeenLastCalledWith(
         context.trees[uriA],
         context.symbols,
+        context.namespaces,
         context.dependencies,
         uriA,
         context.docs,
@@ -292,6 +293,7 @@ describe('handleDidDeleteFiles', () => {
       expect(validate).toHaveBeenLastCalledWith(
         context.trees[uriA],
         context.symbols,
+        context.namespaces,
         context.dependencies,
         uriA,
         context.docs,

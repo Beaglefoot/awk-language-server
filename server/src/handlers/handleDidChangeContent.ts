@@ -21,6 +21,7 @@ export function getDidChangeContentHandler(context: Context) {
     const diagnostics = validate(
       results.tree,
       symbols,
+      namespaces,
       dependencies,
       change.document.uri,
       docs,

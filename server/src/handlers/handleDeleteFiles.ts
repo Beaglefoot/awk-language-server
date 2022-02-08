@@ -46,7 +46,14 @@ export function getDidDeleteFilesHandler(context: Context) {
         for (const depUri of dependents) {
           context.connection.sendDiagnostics({
             uri: depUri,
-            diagnostics: validate(trees[depUri], symbols, dependencies, depUri, docs),
+            diagnostics: validate(
+              trees[depUri],
+              symbols,
+              namespaces,
+              dependencies,
+              depUri,
+              docs,
+            ),
           })
         }
       }

@@ -8,3 +8,5 @@ function f(x) {}
 function a(x) {
     x = 1
 }
+
+BEGIN { B::fn() }

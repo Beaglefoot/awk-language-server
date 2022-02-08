@@ -102,15 +102,19 @@ export function isIdentifier(node: SyntaxNode): boolean {
 
 export function findReferences(
   startingNode: SyntaxNode,
-  queriedNode: SyntaxNode,
+  startingNamespaces: NamespaceMap,
+  searchedNode: SyntaxNode,
+  searchedNamespaces: NamespaceMap,
 ): Range[] {
   const result: Range[] = []
-  const name = getName(queriedNode)
+  const name = getName(searchedNode)
+  const ns = getNamespace(searchedNode, searchedNamespaces)
 
   for (const node of nodesGen(startingNode)) {
     if (!isReference(node) && !isDefinition(node)) continue
 
-    if (getName(node) === name) result.push(getRange(node))
+    if (getName(node) === name && getNamespace(node, startingNamespaces) === ns)
+      result.push(getRange(node))
   }
 
   return result

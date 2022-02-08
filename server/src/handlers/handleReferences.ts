@@ -3,7 +3,7 @@ import { Context } from '../interfaces'
 import { findReferences, getNodeAt, getParentFunction } from '../utils'
 
 export function getReferencesHandler(context: Context) {
-  const { trees, dependencies } = context
+  const { trees, namespaces, dependencies } = context
 
   return function handleReferences(params: ReferenceParams): Location[] {
     const { textDocument, position } = params
@@ -14,9 +14,12 @@ export function getReferencesHandler(context: Context) {
     const parentFunc = getParentFunction(node)
 
     if (parentFunc) {
-      return findReferences(parentFunc, node).map((range) =>
-        Location.create(textDocument.uri, range),
-      )
+      return findReferences(
+        parentFunc,
+        namespaces[textDocument.uri],
+        node,
+        namespaces[textDocument.uri],
+      ).map((range) => Location.create(textDocument.uri, range))
     }
 
     const result: Location[] = []
@@ -25,9 +28,12 @@ export function getReferencesHandler(context: Context) {
       if (!trees[uri]) continue
 
       result.push(
-        ...findReferences(trees[uri].rootNode, node).map((range) =>
-          Location.create(uri, range),
-        ),
+        ...findReferences(
+          trees[uri].rootNode,
+          namespaces[uri],
+          node,
+          namespaces[textDocument.uri],
+        ).map((range) => Location.create(uri, range)),
       )
     }
 

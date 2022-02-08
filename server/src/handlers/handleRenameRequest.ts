@@ -7,7 +7,7 @@ import { Context } from '../interfaces'
 import { findReferences, getNodeAt, getParentFunction, isIdentifier } from '../utils'
 
 export function getRenameRequestHandler(context: Context) {
-  const { trees, dependencies } = context
+  const { trees, namespaces, dependencies } = context
 
   return async function handleRenameRequest(
     params: RenameParams,
@@ -27,9 +27,12 @@ export function getRenameRequestHandler(context: Context) {
         },
       }
 
-      edits.changes![textDocument.uri] = findReferences(parentFunction, node).map((r) =>
-        TextEdit.replace(r, newName),
-      )
+      edits.changes![textDocument.uri] = findReferences(
+        parentFunction,
+        namespaces[textDocument.uri],
+        node,
+        namespaces[textDocument.uri],
+      ).map((r) => TextEdit.replace(r, newName))
 
       return edits
     }
@@ -43,9 +46,12 @@ export function getRenameRequestHandler(context: Context) {
       if (!edits.changes) edits.changes = {}
       if (!edits.changes[uri]) edits.changes[uri] = []
 
-      edits.changes[uri] = findReferences(trees[uri].rootNode, node).map((r) =>
-        TextEdit.replace(r, newName),
-      )
+      edits.changes[uri] = findReferences(
+        trees[uri].rootNode,
+        namespaces[uri],
+        node,
+        namespaces[textDocument.uri],
+      ).map((r) => TextEdit.replace(r, newName))
     }
 
     return edits

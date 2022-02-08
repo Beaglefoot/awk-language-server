@@ -6,11 +6,9 @@ import {
   ReferencesRequest,
 } from 'vscode-languageserver-protocol'
 import { getConnections, getDummyContext, getRange } from '../helpers'
-import { Context, TreesByUri } from '../../src/interfaces'
+import { Context } from '../../src/interfaces'
 import { getReferencesHandler } from '../../src/handlers/handleReferences'
 import { initializeParser } from '../../src/parser'
-import { DependencyMap } from '../../src/dependencies'
-import * as Parser from 'web-tree-sitter'
 import { readFileSync } from 'fs'
 import { join } from 'path'
 
@@ -31,7 +29,7 @@ describe('handleReferences', () => {
 
     context = getDummyContext(server, parser)
 
-    const { trees, dependencies } = context
+    const { trees, namespaces, dependencies } = context
 
     const contentA = readFileSync(
       join('server', 'tests', 'handlers', 'fixtures', 'references_a.awk'),
@@ -45,6 +43,7 @@ describe('handleReferences', () => {
       join('server', 'tests', 'handlers', 'fixtures', 'references_c.awk'),
       'utf8',
     )
+
     uriA = 'file:///a.awk'
     uriB = 'file:///b.awk'
     uriC = 'file:///c.awk'
@@ -52,6 +51,9 @@ describe('handleReferences', () => {
     trees[uriA] = parser.parse(contentA)
     trees[uriB] = parser.parse(contentB)
     trees[uriC] = parser.parse(contentC)
+
+    namespaces[uriA].set('A', getRange(7, 0, 15, 0))
+    namespaces[uriB].set('B', getRange(3, 0, 8, 0))
 
     dependencies.update(uriA, new Set([uriB]))
     dependencies.update(uriC, new Set([uriB]))
@@ -149,5 +151,46 @@ describe('handleReferences', () => {
     expect(result).toContainEqual(Location.create(uriA, getRange(4, 8, 4, 11)))
     expect(result).toContainEqual(Location.create(uriB, getRange(0, 9, 0, 12)))
     expect(result).toContainEqual(Location.create(uriC, getRange(2, 2, 2, 5)))
+  })
+
+  it('should provide referenced locations for namespaced symbol from the same file', async () => {
+    // Arrange
+    const sentParams: ReferenceParams = {
+      context: { includeDeclaration: true },
+      textDocument: { uri: uriA },
+      position: Position.create(11, 13),
+    }
+
+    server.onRequest(ReferencesRequest.type, getReferencesHandler(context))
+
+    // Act
+    const result = await client.sendRequest(ReferencesRequest.type, sentParams)
+
+    // Assert
+    expect(result).toEqual([
+      Location.create(uriA, getRange(8, 9, 8, 11)),
+      Location.create(uriA, getRange(11, 13, 11, 15)),
+    ])
+  })
+
+  it('should provide referenced locations for namespaced symbol from included file', async () => {
+    // Arrange
+    const sentParams: ReferenceParams = {
+      context: { includeDeclaration: true },
+      textDocument: { uri: uriB },
+      position: Position.create(6, 8),
+    }
+
+    server.onRequest(ReferencesRequest.type, getReferencesHandler(context))
+
+    // Act
+    const result = await client.sendRequest(ReferencesRequest.type, sentParams)
+
+    // Assert
+    expect(result).toEqual([
+      Location.create(uriB, getRange(4, 9, 4, 11)),
+      Location.create(uriB, getRange(6, 8, 6, 10)),
+      Location.create(uriA, getRange(12, 13, 12, 15)),
+    ])
   })
 })

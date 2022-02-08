@@ -30,7 +30,7 @@ export function handleWillDeleteFiles(params: DeleteFilesParams): null {
 }
 
 export function getDidDeleteFilesHandler(context: Context) {
-  const { trees, symbols, dependencies, docs } = context
+  const { trees, symbols, namespaces, dependencies, docs } = context
 
   return function handleDidDeleteFiles(params: DeleteFilesParams): void {
     for (const { uri } of params.files) {
@@ -41,6 +41,7 @@ export function getDidDeleteFilesHandler(context: Context) {
 
         delete trees[fileDelete.uri]
         delete symbols[fileDelete.uri]
+        delete namespaces[fileDelete.uri]
 
         for (const depUri of dependents) {
           context.connection.sendDiagnostics({

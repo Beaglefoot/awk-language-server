@@ -1,6 +1,6 @@
 import { Location, ReferenceParams } from 'vscode-languageserver/node'
 import { Context } from '../interfaces'
-import { findReferences, getName, getNodeAt, getParentFunction } from '../utils'
+import { findReferences, getNodeAt, getParentFunction } from '../utils'
 
 export function getReferencesHandler(context: Context) {
   const { trees, dependencies } = context
@@ -11,14 +11,10 @@ export function getReferencesHandler(context: Context) {
 
     if (!node) return []
 
-    const name = getName(node)
-
-    if (!name) return []
-
     const parentFunc = getParentFunction(node)
 
     if (parentFunc) {
-      return findReferences(trees[textDocument.uri], name, parentFunc).map((range) =>
+      return findReferences(parentFunc, node).map((range) =>
         Location.create(textDocument.uri, range),
       )
     }
@@ -29,7 +25,7 @@ export function getReferencesHandler(context: Context) {
       if (!trees[uri]) continue
 
       result.push(
-        ...findReferences(trees[uri], name, parentFunc).map((range) =>
+        ...findReferences(trees[uri].rootNode, node).map((range) =>
           Location.create(uri, range),
         ),
       )

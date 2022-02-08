@@ -101,17 +101,16 @@ export function isIdentifier(node: SyntaxNode): boolean {
 }
 
 export function findReferences(
-  tree: Tree,
-  queriedName: string,
-  parentFunc?: SyntaxNode | null,
+  startingNode: SyntaxNode,
+  queriedNode: SyntaxNode,
 ): Range[] {
   const result: Range[] = []
-  const startingNode = parentFunc || tree.rootNode
+  const name = getName(queriedNode)
 
   for (const node of nodesGen(startingNode)) {
     if (!isReference(node) && !isDefinition(node)) continue
 
-    if (getName(node) === queriedName) result.push(getRange(node))
+    if (getName(node) === name) result.push(getRange(node))
   }
 
   return result

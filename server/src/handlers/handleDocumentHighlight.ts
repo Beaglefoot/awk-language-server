@@ -3,7 +3,7 @@ import {
   DocumentHighlightParams,
 } from 'vscode-languageserver-protocol/node'
 import { Context } from '../interfaces'
-import { findReferences, getName, getNodeAt } from '../utils'
+import { findReferences, getNodeAt } from '../utils'
 
 export function getDocumentHighlightHandler(context: Context) {
   const { trees } = context
@@ -21,13 +21,9 @@ export function getDocumentHighlightHandler(context: Context) {
       node = node.parent
     }
 
-    const queriedName = getName(node)
-
-    if (!queriedName) return []
-
     const tree = trees[textDocument.uri]
 
-    return findReferences(tree, queriedName).map((range) =>
+    return findReferences(tree.rootNode, node).map((range) =>
       DocumentHighlight.create(range),
     )
   }

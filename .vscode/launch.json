@@ -13,7 +13,8 @@
         "--extensionDevelopmentPath=${workspaceRoot}/client",
       ],
       "env": {
-        "AWK_SERVER_PATH": "../server/out/server.js"
+        "AWK_SERVER_PATH": "../server/out/server.js",
+        "AWKPATH": "./include:./include2"
       },
       "outFiles": [
         "${workspaceRoot}/client/out/**/*.js"

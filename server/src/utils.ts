@@ -1,5 +1,6 @@
-import { extname } from 'path'
-import { URL } from 'url'
+import { existsSync } from 'fs'
+import { extname, join } from 'path'
+import { pathToFileURL, URL } from 'url'
 import { Position } from 'vscode-languageserver-textdocument'
 import { Range, URI } from 'vscode-languageserver/node'
 import { Point, SyntaxNode, Tree } from 'web-tree-sitter'
@@ -163,6 +164,14 @@ export function getDependencyUrl(node: SyntaxNode, baseUri: string): URL {
   if (!filename.endsWith('.awk') && !filename.endsWith('.gawk')) {
     // The way GAWK behaves
     filename += '.awk'
+  }
+
+  const paths = process.env.AWKPATH?.split(':') || []
+
+  for (const p of paths) {
+    const url = pathToFileURL(join(p, filename))
+
+    if (existsSync(url)) return url
   }
 
   return new URL(filename, baseUri)

@@ -117,3 +117,21 @@ end
 lspconfig.awklsp.setup{}
 EOF
 ```
+
+## Notes
+
+AWK Language Server supports `AWKPATH`. If you prefer to place all your awk libs in some directory
+and then `@include` it without dir name, then simply pass this env variable to your editor of choice.
+
+```sh
+AWKPATH=./include vim main.vim
+```
+
+or
+
+```sh
+export AWKPATH=./include
+vim main.vim
+```
+
+Check [this cool project](https://github.com/djanderson/aho) for inspiration.

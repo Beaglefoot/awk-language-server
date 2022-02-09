@@ -29,7 +29,7 @@ describe('handleRenameRequest', () => {
 
     context = getDummyContext(server, parser)
 
-    const { trees, dependencies } = context
+    const { trees, namespaces, dependencies } = context
 
     const contentA = readFileSync(
       join('server', 'tests', 'handlers', 'fixtures', 'rename_a.awk'),
@@ -51,6 +51,8 @@ describe('handleRenameRequest', () => {
     trees[uriA] = parser.parse(contentA)
     trees[uriB] = parser.parse(contentB)
     trees[uriC] = parser.parse(contentC)
+
+    namespaces[uriA].set('A', getRange(7, 0, 10, 0))
 
     dependencies.update(uriA, new Set([uriB]))
     dependencies.update(uriC, new Set([uriB]))
@@ -196,6 +198,26 @@ describe('handleRenameRequest', () => {
     ])
     expect(result?.changes?.[uriC]).toEqual([
       TextEdit.replace(getRange(4, 4, 4, 9), newName),
+    ])
+  })
+
+  it('should not rename symbol with the same name but different namespace', async () => {
+    // Arrange
+    const newName = 'aaa'
+    const sentParams: RenameParams = {
+      textDocument: { uri: uriA },
+      position: Position.create(8, 9),
+      newName,
+    }
+
+    server.onRequest(RenameRequest.type, getRenameRequestHandler(context))
+
+    // Act
+    const result = await client.sendRequest(RenameRequest.type, sentParams)
+
+    // Assert
+    expect(result?.changes?.[uriA]).toEqual([
+      TextEdit.replace(getRange(8, 9, 8, 10), newName),
     ])
   })
 })

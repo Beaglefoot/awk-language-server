@@ -31,7 +31,7 @@ describe('handleDefinition', () => {
 
     context = getDummyContext(server, parser)
 
-    const { trees, symbols, dependencies } = context
+    const { trees, symbols, namespaces, dependencies } = context
 
     const contentA = readFileSync(
       join('server', 'tests', 'handlers', 'fixtures', 'definition_a.awk'),
@@ -61,10 +61,22 @@ describe('handleDefinition', () => {
     symbols[uriC] = new Map()
 
     symbols[uriA].set('f', [
-      SymbolInformation.create('f', SymbolKind.Function, getRange(3, 0, 3, 16), uriA),
+      SymbolInformation.create(
+        'f',
+        SymbolKind.Function,
+        getRange(3, 0, 3, 16),
+        uriA,
+        'awk',
+      ),
     ])
     symbols[uriA].set('a', [
-      SymbolInformation.create('a', SymbolKind.Function, getRange(7, 0, 9, 1), uriA),
+      SymbolInformation.create(
+        'a',
+        SymbolKind.Function,
+        getRange(7, 0, 9, 1),
+        uriA,
+        'awk',
+      ),
     ])
     symbols[uriA].set('x', [
       SymbolInformation.create(
@@ -72,12 +84,29 @@ describe('handleDefinition', () => {
         SymbolKind.Function,
         getRange(7, 11, 7, 12),
         uriA,
-        'a',
+        'awk::a',
       ),
     ])
     symbols[uriB].set('sum', [
-      SymbolInformation.create('sum', SymbolKind.Function, getRange(0, 0, 0, 21), uriB),
+      SymbolInformation.create(
+        'sum',
+        SymbolKind.Function,
+        getRange(0, 0, 0, 21),
+        uriB,
+        'awk',
+      ),
     ])
+    symbols[uriB].set('fn', [
+      SymbolInformation.create(
+        'fn',
+        SymbolKind.Function,
+        getRange(5, 0, 5, 17),
+        uriB,
+        'B',
+      ),
+    ])
+
+    namespaces[uriB].set('B', getRange(3, 0, 6, 0))
   })
 
   it('should provide locations for same file symbols', async () => {
@@ -142,5 +171,21 @@ describe('handleDefinition', () => {
 
     // Assert
     expect(result).toEqual([Location.create(uriB, getRange(0, 0, 0, 21))])
+  })
+
+  it('should handle definitions for namespaced symbols', async () => {
+    // Arrange
+    const sentParams: DefinitionParams = {
+      textDocument: { uri: uriA },
+      position: Position.create(11, 11),
+    }
+
+    server.onRequest(DefinitionRequest.type, getDefinitionHandler(context))
+
+    // Act
+    const result = await client.sendRequest(DefinitionRequest.type, sentParams)
+
+    // Assert
+    expect(result).toEqual([Location.create(uriB, getRange(5, 0, 5, 17))])
   })
 })

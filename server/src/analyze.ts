@@ -1,9 +1,9 @@
 import { TextDocument } from 'vscode-languageserver-textdocument'
-import { SymbolInformation, SymbolKind } from 'vscode-languageserver/node'
+import { Range, SymbolInformation, SymbolKind } from 'vscode-languageserver/node'
 import { SyntaxNode, Tree } from 'web-tree-sitter'
 import { Documentation } from './documentation'
 import { getBuiltinHints } from './hints'
-import { Context, SymbolsMap } from './interfaces'
+import { Context, NamespaceMap, SymbolsMap } from './interfaces'
 import {
   getDependencyUrl,
   getName,
@@ -15,6 +15,10 @@ import {
   isParamList,
   nodesGen,
   getParentFunction,
+  isNamespace,
+  pointToPosition,
+  getNamespace,
+  getNamespaceName,
 } from './utils'
 
 const kinds: { [tree_sitter_type: string]: SymbolKind } = {
@@ -77,6 +81,24 @@ function isKnownSymbol(
   return false
 }
 
+function getNamespaceMap(tree: Tree): NamespaceMap {
+  const result: NamespaceMap = new Map()
+  const namespaces = tree.rootNode.namedChildren.filter(isNamespace) || []
+
+  namespaces.forEach((ns, i) => {
+    const nextNs = namespaces[i + 1]
+    const name = ns.lastChild!.text.slice(1, -1)
+    const range = Range.create(
+      pointToPosition(ns.startPosition),
+      pointToPosition(nextNs?.startPosition || tree.rootNode.endPosition),
+    )
+
+    result.set(name, range)
+  })
+
+  return result
+}
+
 export function analyze(
   context: Context,
   document: TextDocument,
@@ -84,11 +106,14 @@ export function analyze(
 ): {
   tree: Tree
   symbols: SymbolsMap
+  namespaces: NamespaceMap
   document: TextDocument
   dependencyUris: string[]
 } {
   const tree = context.parser.parse(document.getText())
-  const symbols: Map<string, SymbolInformation[]> = new Map()
+  const symbols: SymbolsMap = new Map()
+  const namespaces: NamespaceMap = getNamespaceMap(tree)
+
   const dependencyUris: string[] = []
 
   for (const node of nodesGen(tree.rootNode)) {
@@ -97,11 +122,34 @@ export function analyze(
       dependencyUris.push(url.href)
     }
 
+    if (isNamespace(node)) {
+      const name = getNamespaceName(node)
+      const symbolInfo = SymbolInformation.create(
+        name,
+        SymbolKind.Namespace,
+        namespaces.get(name)!,
+        document.uri,
+      )
+
+      if (!symbols.get(symbolInfo.name)) symbols.set(symbolInfo.name, [])
+
+      symbols.get(symbolInfo.name)!.push(symbolInfo)
+
+      continue
+    }
+
     if (!isIdentifier(node)) continue
 
     const symbolInfo = getSymbolInfo(node, document.uri)
 
     if (!symbolInfo) continue
+
+    const ns = getNamespace(node, namespaces)
+
+    symbolInfo.containerName = symbolInfo.containerName
+      ? `${ns}::${symbolInfo.containerName}`
+      : ns
+
     if (getBuiltinHints(docs)[symbolInfo.name]) continue
     if (isKnownSymbol(symbols.get(symbolInfo.name) || [], symbolInfo)) continue
 
@@ -113,6 +161,7 @@ export function analyze(
   return {
     tree,
     symbols,
+    namespaces,
     document,
     dependencyUris,
   }

@@ -76,7 +76,7 @@ export function adaptFolderRenames(files: FileRename[]): FileRename[] {
 }
 
 export function getRenameFilesHandler(context: Context) {
-  const { trees, symbols, dependencies } = context
+  const { trees, symbols, namespaces, dependencies } = context
 
   return function handleRenameFiles(params: RenameFilesParams): void {
     const fileRenames = adaptFolderRenames(params.files)
@@ -88,9 +88,11 @@ export function getRenameFilesHandler(context: Context) {
     for (const file of fileRenames) {
       trees[file.newUri] = trees[file.oldUri]
       symbols[file.newUri] = symbols[file.oldUri]
+      namespaces[file.newUri] = namespaces[file.oldUri]
 
       delete trees[file.oldUri]
       delete symbols[file.oldUri]
+      delete namespaces[file.oldUri]
 
       const depNode = dependencies.get(file.oldUri)
 

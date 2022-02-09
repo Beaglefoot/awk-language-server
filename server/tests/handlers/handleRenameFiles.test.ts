@@ -1,7 +1,7 @@
 import { URL } from 'url'
 import { MessageConnection } from 'vscode-languageserver-protocol'
 import * as Parser from 'web-tree-sitter'
-import { Context, SymbolsMap } from '../../src/interfaces'
+import { Context, NamespaceMap, SymbolsMap } from '../../src/interfaces'
 import * as io from '../../src/io'
 import { initializeParser } from '../../src/parser'
 import { getConnections, getDummyContext, getRange } from '../helpers'
@@ -53,8 +53,9 @@ describe('handleRenameFiles', () => {
     }
 
     context = getDummyContext(server, parser, { workspace })
+    context.namespaces = {} // Proxy from helpers doesn't work well here
 
-    const { trees, symbols, dependencies } = context
+    const { trees, symbols, namespaces, dependencies } = context
 
     trees[uriA] = {} as Parser.Tree
     trees[uriC] = treeC
@@ -63,6 +64,10 @@ describe('handleRenameFiles', () => {
     symbols[uriA] = {} as SymbolsMap
     symbols[uriC] = {} as SymbolsMap
     symbols[uriD] = {} as SymbolsMap
+
+    namespaces[uriA] = {} as NamespaceMap
+    namespaces[uriC] = {} as NamespaceMap
+    namespaces[uriD] = {} as NamespaceMap
 
     dependencies.update(uriA, new Set([uriD]))
     dependencies.update(uriC, new Set([uriA]))
@@ -130,6 +135,38 @@ describe('handleRenameFiles', () => {
     // Assert
     expect(symbols[uriB]).toEqual(oldSymbols)
     expect(symbols[uriA]).toBeUndefined()
+  })
+
+  it('should rename namespaces', async () => {
+    // Arrange
+    const { namespaces } = context
+
+    const handleRenameFiles = getRenameFilesHandler(context)
+
+    const didRenameNotification = new Promise<void>((resolve) => {
+      server.onNotification('workspace/didRenameFiles', (params) => {
+        resolve()
+        handleRenameFiles(params)
+      })
+    })
+
+    const oldNamespaces = namespaces[uriA]
+
+    // Act
+    client.sendNotification('workspace/didRenameFiles', {
+      files: [
+        {
+          oldUri: uriA,
+          newUri: uriB,
+        },
+      ],
+    })
+
+    await didRenameNotification
+
+    // Assert
+    expect(namespaces[uriB]).toEqual(oldNamespaces)
+    expect(namespaces[uriA]).toBeUndefined()
   })
 
   it('should update dependencies', async () => {

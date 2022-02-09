@@ -3,6 +3,7 @@ import { URL } from 'url'
 import { Position } from 'vscode-languageserver-textdocument'
 import { Range, URI } from 'vscode-languageserver/node'
 import { Point, SyntaxNode, Tree } from 'web-tree-sitter'
+import { NamespaceMap } from './interfaces'
 
 export function* nodesGen(node: SyntaxNode) {
   const queue: SyntaxNode[] = [node]
@@ -100,17 +101,20 @@ export function isIdentifier(node: SyntaxNode): boolean {
 }
 
 export function findReferences(
-  tree: Tree,
-  queriedName: string,
-  parentFunc?: SyntaxNode | null,
+  startingNode: SyntaxNode,
+  startingNamespaces: NamespaceMap,
+  searchedNode: SyntaxNode,
+  searchedNamespaces: NamespaceMap,
 ): Range[] {
   const result: Range[] = []
-  const startingNode = parentFunc || tree.rootNode
+  const name = getName(searchedNode)
+  const ns = getNamespace(searchedNode, searchedNamespaces)
 
   for (const node of nodesGen(startingNode)) {
     if (!isReference(node) && !isDefinition(node)) continue
 
-    if (getName(node) === queriedName) result.push(getRange(node))
+    if (getName(node) === name && getNamespace(node, startingNamespaces) === ns)
+      result.push(getRange(node))
   }
 
   return result
@@ -254,4 +258,61 @@ export function isAwkExtension(path: URI | string): boolean {
 
 export function isBlock(node: SyntaxNode): boolean {
   return node.type === 'block'
+}
+
+export function isNamespace(node: SyntaxNode): boolean {
+  return node.type === 'directive' && node.firstChild!.text === '@namespace'
+}
+
+export function isPositionWithinRange(position: Position, range: Range): boolean {
+  const doesStartInside =
+    position.line > range.start.line ||
+    (position.line === range.start.line && position.character >= range.start.character)
+
+  const doesEndInside =
+    position.line < range.end.line ||
+    (position.line === range.end.line && position.character <= range.end.character)
+
+  return doesStartInside && doesEndInside
+}
+
+export function isNodeWithinRange(node: SyntaxNode, range: Range): boolean {
+  const doesStartInside =
+    node.startPosition.row > range.start.line ||
+    (node.startPosition.row === range.start.line &&
+      node.startPosition.column >= range.start.character)
+
+  const doesEndInside =
+    node.endPosition.row < range.end.line ||
+    (node.endPosition.row === range.end.line &&
+      node.endPosition.column <= range.end.character)
+
+  return doesStartInside && doesEndInside
+}
+
+/** Get namespace which node belongs to */
+export function getNamespace(node: SyntaxNode, namespaces: NamespaceMap): string {
+  if (isIdentifier(node) && node.previousNamedSibling?.type === 'namespace')
+    return node.previousNamedSibling.text
+
+  for (const [ns, range] of namespaces) {
+    if (isNodeWithinRange(node, range)) return ns
+  }
+
+  return 'awk'
+}
+
+export function isAssignment(node: SyntaxNode): boolean {
+  return [
+    'assignment_exp',
+    'update_exp',
+    'for_in_statement',
+    'getline_input',
+    'getline_file',
+  ].includes(node.type)
+}
+
+/** Get namespace name on directive node */
+export function getNamespaceName(node: SyntaxNode): string {
+  return node.lastChild!.text.slice(1, -1)
 }

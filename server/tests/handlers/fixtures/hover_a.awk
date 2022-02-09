@@ -9,3 +9,18 @@ BEGIN {
     print str, var_b
     PROCINFO["api_major"]
 }
+
+@namespace "A"
+
+BEGIN {
+    x = "a"
+    print A::x
+    print B::x
+}
+
+function fn(a) {}
+
+BEGIN {
+    A::fn(1)
+    B::fn(1)
+}

@@ -6,7 +6,7 @@ import {
 } from 'vscode-languageserver-protocol'
 import { Duplex } from 'stream'
 import { Logger, TextDocuments } from 'vscode-languageserver/node'
-import { Context } from '../src/interfaces'
+import { Context, NamespacesByUri } from '../src/interfaces'
 import { TextDocument } from 'vscode-languageserver-textdocument'
 import * as Parser from 'web-tree-sitter'
 import { Range } from 'vscode-languageserver/node'
@@ -65,7 +65,28 @@ export function getDummyContext(
     console: { log: jest.fn() },
     sendDiagnostics: jest.fn(),
   }
+
   const documents: TextDocuments<TextDocument> = new TextDocuments(TextDocument)
+
+  // Avoid fails on uninitialized namespaces
+  const namespaces = new Proxy<NamespacesByUri>(
+    {},
+    {
+      get(ns, prop) {
+        // @ts-ignore
+        if (typeof prop === 'symbol') return ns[prop]
+
+        if (!ns[prop]) ns[prop] = new Map()
+
+        return ns[prop]
+      },
+      set(ns, prop, value) {
+        // @ts-ignore
+        ns[prop] = value
+        return true
+      },
+    },
+  )
 
   return {
     connection: { ...server, ...missingConnectionProperties, ...connectionProps } as any,
@@ -74,6 +95,7 @@ export function getDummyContext(
     parser,
     trees: {},
     symbols: {},
+    namespaces,
     dependencies: new DependencyMap(),
     docs: getDocumentation(),
   }

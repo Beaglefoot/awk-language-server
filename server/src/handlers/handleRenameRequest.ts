@@ -4,16 +4,10 @@ import {
   WorkspaceEdit,
 } from 'vscode-languageserver-protocol/node'
 import { Context } from '../interfaces'
-import {
-  findReferences,
-  getName,
-  getNodeAt,
-  getParentFunction,
-  isIdentifier,
-} from '../utils'
+import { findReferences, getNodeAt, getParentFunction, isIdentifier } from '../utils'
 
 export function getRenameRequestHandler(context: Context) {
-  const { trees, dependencies } = context
+  const { trees, namespaces, dependencies } = context
 
   return async function handleRenameRequest(
     params: RenameParams,
@@ -22,10 +16,6 @@ export function getRenameRequestHandler(context: Context) {
     const node = getNodeAt(trees[textDocument.uri], position.line, position.character)
 
     if (!node || !isIdentifier(node)) return null
-
-    const oldName = getName(node)
-
-    if (!oldName) return null
 
     const parentFunction = getParentFunction(node)
 
@@ -38,9 +28,10 @@ export function getRenameRequestHandler(context: Context) {
       }
 
       edits.changes![textDocument.uri] = findReferences(
-        trees[textDocument.uri],
-        oldName,
         parentFunction,
+        namespaces[textDocument.uri],
+        node,
+        namespaces[textDocument.uri],
       ).map((r) => TextEdit.replace(r, newName))
 
       return edits
@@ -55,9 +46,12 @@ export function getRenameRequestHandler(context: Context) {
       if (!edits.changes) edits.changes = {}
       if (!edits.changes[uri]) edits.changes[uri] = []
 
-      edits.changes[uri] = findReferences(trees[uri], oldName).map((r) =>
-        TextEdit.replace(r, newName),
-      )
+      edits.changes[uri] = findReferences(
+        trees[uri].rootNode,
+        namespaces[uri],
+        node,
+        namespaces[textDocument.uri],
+      ).map((r) => TextEdit.replace(r, newName))
     }
 
     return edits

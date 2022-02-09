@@ -74,18 +74,35 @@ export function enrichWithSymbolInfo(item: CompletionItem, tree: Tree): void {
   }
 }
 
+const symbolCompletionKindMap = {
+  [SymbolKind.Function]: CompletionItemKind.Function,
+  [SymbolKind.Variable]: CompletionItemKind.Variable,
+} as Record<SymbolKind, CompletionItemKind>
+
+function getCompletionKind(symbolInfo: SymbolInformation, namespaceUnderCursor: string) {
+  if (
+    symbolInfo.containerName?.includes('::') &&
+    symbolInfo.containerName !== namespaceUnderCursor
+  ) {
+    return CompletionItemKind.Text
+  }
+
+  return symbolCompletionKindMap[symbolInfo.kind] || CompletionItemKind.Text
+}
+
 export function symbolInfoToCompletionItem(
   symbolInfo: SymbolInformation,
+  namespaceUnderCursor: string,
 ): CompletionItem {
-  const compItem = CompletionItem.create(symbolInfo.name)
+  const label =
+    symbolInfo.containerName === namespaceUnderCursor ||
+    symbolInfo.containerName?.includes('::')
+      ? symbolInfo.name
+      : `${symbolInfo.containerName}::${symbolInfo.name}`
 
-  if (symbolInfo.kind === SymbolKind.Function) {
-    compItem.kind = CompletionItemKind.Function
-  } else if (symbolInfo.kind === SymbolKind.Variable) {
-    compItem.kind = CompletionItemKind.Variable
-  } else {
-    compItem.kind = CompletionItemKind.Text
-  }
+  const compItem = CompletionItem.create(label)
+
+  compItem.kind = getCompletionKind(symbolInfo, namespaceUnderCursor)
 
   // For now this interface differs from '.data' for builtins
   compItem.data = {

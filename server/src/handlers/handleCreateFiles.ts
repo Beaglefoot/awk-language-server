@@ -9,7 +9,7 @@ import { validate } from '../validation/validate'
  * This handles the case when deleted file is restored with Ctrl+z
  */
 export function getCreateFilesHandler(context: Context) {
-  const { trees, symbols, dependencies, docs } = context
+  const { trees, symbols, namespaces, dependencies, docs } = context
 
   return function handleCreateFiles(params: CreateFilesParams): void {
     for (const file of params.files) {
@@ -27,6 +27,7 @@ export function getCreateFilesHandler(context: Context) {
 
       trees[file.uri] = results.tree
       symbols[file.uri] = results.symbols
+      namespaces[file.uri] = results.namespaces
 
       dependencies.update(file.uri, new Set(results.dependencyUris))
 
@@ -35,7 +36,14 @@ export function getCreateFilesHandler(context: Context) {
       for (const depUri of dependents) {
         context.connection.sendDiagnostics({
           uri: depUri,
-          diagnostics: validate(trees[depUri], symbols, dependencies, depUri, docs),
+          diagnostics: validate(
+            trees[depUri],
+            symbols,
+            namespaces,
+            dependencies,
+            depUri,
+            docs,
+          ),
         })
       }
     }

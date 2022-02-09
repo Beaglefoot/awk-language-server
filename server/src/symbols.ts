@@ -6,6 +6,7 @@ export function getNearestPrecedingSymbol(
   symbolsToSearch: SymbolInformation[],
 ): SymbolInformation | null {
   const { line, character } = startingPosition
+
   let result: SymbolInformation | null = null
 
   for (const sym of symbolsToSearch) {

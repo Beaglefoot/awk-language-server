@@ -5,7 +5,7 @@ import { Context } from '../interfaces'
 import { validate } from '../validation/validate'
 
 export function getDidChangeContentHandler(context: Context) {
-  const { trees, symbols, dependencies, docs } = context
+  const { trees, symbols, namespaces, dependencies, docs } = context
 
   return function handleDidChangeContent(
     change: TextDocumentChangeEvent<TextDocument>,
@@ -14,12 +14,14 @@ export function getDidChangeContentHandler(context: Context) {
 
     trees[change.document.uri] = results.tree
     symbols[change.document.uri] = results.symbols
+    namespaces[change.document.uri] = results.namespaces
 
     dependencies.update(change.document.uri, new Set(results.dependencyUris))
 
     const diagnostics = validate(
       results.tree,
       symbols,
+      namespaces,
       dependencies,
       change.document.uri,
       docs,

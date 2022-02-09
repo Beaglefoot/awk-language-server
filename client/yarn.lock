@@ -19,13 +19,13 @@ agent-base@6:
   dependencies:
     debug "4"
 
-awk-language-server@0.8.0:
-  version "0.8.0"
-  resolved "https://registry.yarnpkg.com/awk-language-server/-/awk-language-server-0.8.0.tgz#8ae4364703584e856b1cc8af6280c070347ac556"
-  integrity sha512-Jxlp2eOAcPZlqvdBNx0GM/AeEtrMMAJTN3+mLpNXVJCW6XFyay7+3WPOSnU4NAgH5mj/T5ZuoRQk78uURXaDww==
+awk-language-server@0.9.0:
+  version "0.9.0"
+  resolved "https://registry.yarnpkg.com/awk-language-server/-/awk-language-server-0.9.0.tgz#574008e480c907c7354b9ec2dc70c4ae6300cdd7"
+  integrity sha512-iDXBV3++QFuGtcwHDlGPL2WImTttVuBCYwPdKE24JC7f2dr8I6f6jEhxn+3xrcoRSqYywQg7aSsFLrL5wAI0pg==
   dependencies:
     minimist "1.2.5"
-    tree-sitter-awk "0.4.1"
+    tree-sitter-awk "0.5.0"
     vscode-languageserver "^7.0.0"
     vscode-languageserver-textdocument "^1.0.1"
     web-tree-sitter "0.19.4"
@@ -283,10 +283,10 @@ string_decoder@~1.1.1:
   resolved "https://registry.yarnpkg.com/traverse/-/traverse-0.3.9.tgz#717b8f220cc0bb7b44e40514c22b2e8bbc70d8b9"
   integrity sha1-cXuPIgzAu3tE5AUUwisui7xw2Lk=
 
-tree-sitter-awk@0.4.1:
-  version "0.4.1"
-  resolved "https://registry.yarnpkg.com/tree-sitter-awk/-/tree-sitter-awk-0.4.1.tgz#fd401a8b671300a38972f681031a83e7b2a59979"
-  integrity sha512-AmS9cg8s6DQJvpK5qibWHI91K5b3g/NbU5jBsROmBOyusta0tcevlJP3wGY7VyJSlOypBynGDumsrTFMUI5xxw==
+tree-sitter-awk@0.5.0:
+  version "0.5.0"
+  resolved "https://registry.yarnpkg.com/tree-sitter-awk/-/tree-sitter-awk-0.5.0.tgz#0403e1e3c2b1d379da910b644532990be3690653"
+  integrity sha512-0Imr63Ro5UXs3bm7ySMI/GRxPKhvJ/iDOpvuE/pN9S3NUPg4fUbCWQ9raYyEZ4WKGDUsbkPdrMARdiyOPRSE1g==
   dependencies:
     nan "2.14.2"
 

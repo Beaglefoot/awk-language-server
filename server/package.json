@@ -23,7 +23,7 @@
     "url": "https://github.com/Beaglefoot/awk-language-server"
   },
   "dependencies": {
-    "minimist": "1.2.5",
+    "minimist": "1.2.6",
     "tree-sitter-awk": "0.5.0",
     "vscode-languageserver": "^7.0.0",
     "vscode-languageserver-textdocument": "^1.0.1",

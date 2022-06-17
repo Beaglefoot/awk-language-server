@@ -15,12 +15,13 @@ let prettierCmd = ''
 
 export function initFormatter(workspaceFolders: WorkspaceFolder[]) {
   for (const wsf of workspaceFolders) {
-    const prettierPath = resolve(
-      fileURLToPath(wsf.uri),
-      'node_modules',
-      '.bin',
-      'prettier',
-    )
+    const prettierPath = `"${
+      resolve(
+        fileURLToPath(wsf.uri),
+        'node_modules',
+        '.bin',
+        'prettier',
+      )}"`;
 
     if (isAwkPluginAvailable(prettierPath)) {
       prettierCmd = prettierPath

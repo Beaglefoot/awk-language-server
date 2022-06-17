@@ -46,7 +46,7 @@ export function getInitializedHandler(context: Context) {
     }
 
     progressReporter.begin('Initializing formatter')
-    initFormatter(workspaceFolders)
+    initFormatter(workspaceFolders, context.connection)
     progressReporter.done()
   }
 }

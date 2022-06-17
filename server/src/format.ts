@@ -1,6 +1,11 @@
-import { execSync, spawnSync } from 'child_process'
-import { WorkspaceFolder } from 'vscode-languageserver'
-import { fileURLToPath } from 'url'
+import {
+  execSync,
+  ExecSyncOptionsWithStringEncoding,
+  spawnSync,
+  SpawnSyncOptionsWithStringEncoding,
+} from 'child_process'
+import { Connection, WorkspaceFolder } from 'vscode-languageserver'
+import { fileURLToPath, pathToFileURL } from 'url'
 import { resolve } from 'path'
 
 interface PrettierSupportInfo {
@@ -11,31 +16,47 @@ interface PrettierSupportInfo {
   }[]
 }
 
-let prettierCmd = ''
+let canFormat = false
+let prettierDir = ''
 
-export function initFormatter(workspaceFolders: WorkspaceFolder[]) {
+export function initFormatter(
+  workspaceFolders: WorkspaceFolder[],
+  connection: Connection,
+) {
   for (const wsf of workspaceFolders) {
-    const prettierPath = resolve(
-      fileURLToPath(wsf.uri),
-      'node_modules',
-      '.bin',
-      'prettier',
-    )
+    const binDir = resolve(fileURLToPath(wsf.uri), 'node_modules', '.bin')
 
-    if (isAwkPluginAvailable(prettierPath)) {
-      prettierCmd = prettierPath
+    if (isAwkPluginAvailable(binDir)) {
+      canFormat = true
+      prettierDir = binDir
+      connection.console.log('Formatter is initialized at: ' + binDir)
       return
     }
   }
 
-  if (isAwkPluginAvailable('prettier')) prettierCmd = 'prettier'
+  if (isAwkPluginAvailable()) {
+    canFormat = true
+    connection.console.log('Formatter is initialized globally')
+    return
+  }
+
+  connection.console.log('No formatter was found')
 }
 
-export function isAwkPluginAvailable(prettierCmd: string): boolean {
+export function isAwkPluginAvailable(binDir?: string): boolean {
   let supportInfoRaw: string
 
+  const options: ExecSyncOptionsWithStringEncoding = {
+    encoding: 'utf8',
+  }
+
+  if (binDir) {
+    // @ts-ignore
+    options.cwd = pathToFileURL(binDir)
+  }
+
   try {
-    supportInfoRaw = execSync(`${prettierCmd} --support-info`, { encoding: 'utf8' })
+    supportInfoRaw = execSync(`prettier --support-info`, options)
   } catch (_err) {
     return false
   }
@@ -46,15 +67,22 @@ export function isAwkPluginAvailable(prettierCmd: string): boolean {
 }
 
 export function formatDocument(text: string): string | null {
-  if (!prettierCmd) return null
+  if (!canFormat) return null
+
+  const options: SpawnSyncOptionsWithStringEncoding = {
+    input: text,
+    encoding: 'utf8',
+  }
+
+  if (prettierDir) {
+    // @ts-ignore
+    options.cwd = pathToFileURL(prettierDir)
+  }
 
   const { stdout, status, error } = spawnSync(
-    prettierCmd,
+    'prettier',
     ['--parser', 'awk-parse', '--loglevel', 'silent'],
-    {
-      input: text,
-      encoding: 'utf8',
-    },
+    options,
   )
 
   if (status !== 0) {

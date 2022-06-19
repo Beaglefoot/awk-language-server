@@ -135,3 +135,9 @@ vim main.vim
 ```
 
 Check [this cool project](https://github.com/djanderson/aho) for inspiration.
+
+## Contributing
+
+Thanks for considering it.
+
+Please check this [guide](./CONTRIBUTING.md).

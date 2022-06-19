@@ -6,7 +6,7 @@ import { main } from './server'
 
 function usage(exitCode: number): never {
   console.log(
-    'Usage:\n\tnode awk-language-server [OPTIONS]\n\n' +
+    'Usage:\n\tawk-language-server [OPTIONS]\n\n' +
       'Options:\n' +
       '\t-h|--help\t\tGet this message\n' +
       '\t-v|--version\t\tGet current version number\n' +

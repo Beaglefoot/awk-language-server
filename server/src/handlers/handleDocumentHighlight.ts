@@ -5,6 +5,8 @@ import {
 import { Context } from '../interfaces'
 import { findReferences, getNodeAt } from '../utils'
 
+const applicableNodeTypes = new Set(['identifier', 'field_ref'])
+
 export function getDocumentHighlightHandler(context: Context) {
   const { trees, namespaces } = context
 
@@ -21,6 +23,8 @@ export function getDocumentHighlightHandler(context: Context) {
     if (node.type === 'number' && node.parent?.type === 'field_ref') {
       node = node.parent
     }
+
+    if (!applicableNodeTypes.has(node.type)) return []
 
     const tree = trees[textDocument.uri]
 

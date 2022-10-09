@@ -1,3 +1,4 @@
+import './workarounds/nodejs18'
 import * as Parser from 'web-tree-sitter'
 import * as path from 'path'
 

@@ -19,16 +19,16 @@ agent-base@6:
   dependencies:
     debug "4"
 
-awk-language-server@0.9.3:
-  version "0.9.3"
-  resolved "https://registry.yarnpkg.com/awk-language-server/-/awk-language-server-0.9.3.tgz#feb3a5e1f24c60132a45ba52e07fae3fe18207b0"
-  integrity sha512-q3N97SUtxF/nwWbQ8FN5qOd5f1IMURcfTmig0dayylHVj0ggNIChytwNcZW/9WX8u+aLdjiiyR3QozNUeHd9qA==
+awk-language-server@0.9.4:
+  version "0.9.4"
+  resolved "https://registry.yarnpkg.com/awk-language-server/-/awk-language-server-0.9.4.tgz#40b95e4fada6341461782c670b1df879b3da338f"
+  integrity sha512-nQ+YmpoAoe80VHhbA2m1iwka9HD5BQkavHBo6F9jyYqYy0y5HuCPsE5LrkDMCefGWeEibHPSk74W3EQ1mMRc4Q==
   dependencies:
     minimist "1.2.6"
-    tree-sitter-awk "0.5.0"
+    tree-sitter-awk "0.5.2"
     vscode-languageserver "^7.0.0"
     vscode-languageserver-textdocument "^1.0.1"
-    web-tree-sitter "0.19.4"
+    web-tree-sitter "0.20.7"
 
 balanced-match@^1.0.0:
   version "1.0.2"
@@ -205,10 +205,10 @@ ms@2.1.2:
   resolved "https://registry.yarnpkg.com/ms/-/ms-2.1.2.tgz#d09d1f357b443f493382a8eb3ccd183872ae6009"
   integrity sha512-sGkPx+VjMtmA6MX27oA4FBFELFCZZ4S4XqeGOXCv68tT+jb3vk/RyaKWP0PTKyWtmLSM0b+adUTEvbs1PEaH2w==
 
-nan@2.14.2:
-  version "2.14.2"
-  resolved "https://registry.yarnpkg.com/nan/-/nan-2.14.2.tgz#f5376400695168f4cc694ac9393d0c9585eeea19"
-  integrity sha512-M2ufzIiINKCuDfBSAUr1vWQ+vuVcA9kqx8JJUsbQi6yf1uGRyb7HfpdfUr5qLXf3B/t8dPvcjhKMmlfnP47EzQ==
+nan@2.17.0:
+  version "2.17.0"
+  resolved "https://registry.yarnpkg.com/nan/-/nan-2.17.0.tgz#c0150a2368a182f033e9aa5195ec76ea41a199cb"
+  integrity sha512-2ZTgtl0nJsO0KQCjEpxcIr5D+Yv90plTitZt9JBfQvVJDS5seMl3FOvsh3+9CoYWXf/1l5OaZzzF6nDm4cagaQ==
 
 once@^1.3.0:
   version "1.4.0"
@@ -283,12 +283,12 @@ string_decoder@~1.1.1:
   resolved "https://registry.yarnpkg.com/traverse/-/traverse-0.3.9.tgz#717b8f220cc0bb7b44e40514c22b2e8bbc70d8b9"
   integrity sha1-cXuPIgzAu3tE5AUUwisui7xw2Lk=
 
-tree-sitter-awk@0.5.0:
-  version "0.5.0"
-  resolved "https://registry.yarnpkg.com/tree-sitter-awk/-/tree-sitter-awk-0.5.0.tgz#0403e1e3c2b1d379da910b644532990be3690653"
-  integrity sha512-0Imr63Ro5UXs3bm7ySMI/GRxPKhvJ/iDOpvuE/pN9S3NUPg4fUbCWQ9raYyEZ4WKGDUsbkPdrMARdiyOPRSE1g==
+tree-sitter-awk@0.5.2:
+  version "0.5.2"
+  resolved "https://registry.yarnpkg.com/tree-sitter-awk/-/tree-sitter-awk-0.5.2.tgz#38043dcbf5f3320e75a7cbadc5b424979231600e"
+  integrity sha512-AEyl/aOACbxIxymLdgA+o4tAz1xkBYnidywUbaTWgr523c67Rfmo539amK80fQgnf3FIH9fNG0rs+ghfaBJXDQ==
   dependencies:
-    nan "2.14.2"
+    nan "2.17.0"
 
 unzipper@^0.10.11:
   version "0.10.11"
@@ -360,10 +360,10 @@ vscode-test@^1.3.0:
     rimraf "^3.0.2"
     unzipper "^0.10.11"
 
-web-tree-sitter@0.19.4:
-  version "0.19.4"
-  resolved "https://registry.yarnpkg.com/web-tree-sitter/-/web-tree-sitter-0.19.4.tgz#975076e233204de9063e7a7bda1138c4b454b424"
-  integrity sha512-8G0xBj05hqZybCqBtW7RPZ/hWEtP3DiLTauQzGJZuZYfVRgw7qj7iaZ+8djNqJ4VPrdOO+pS2dR1JsTbsLxdYg==
+web-tree-sitter@0.20.7:
+  version "0.20.7"
+  resolved "https://registry.yarnpkg.com/web-tree-sitter/-/web-tree-sitter-0.20.7.tgz#b0ddb78e8244221a3100f432c7e162516cd9cd09"
+  integrity sha512-flC9JJmTII9uAeeYpWF8hxDJ7bfY+leldQryetll8Nv4WgI+MXc6h7TiyAZASWl9uC9TvmfdgOjZn1DAQecb3A==
 
 wrappy@1:
   version "1.0.2"

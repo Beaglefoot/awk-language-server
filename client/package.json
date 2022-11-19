@@ -80,7 +80,7 @@
     "vscode:prepublish": "cd .. && yarn build:client:force"
   },
   "dependencies": {
-    "awk-language-server": "0.9.3",
+    "awk-language-server": "0.9.4",
     "vscode-languageclient": "^7.0.0"
   },
   "devDependencies": {

@@ -1,7 +1,7 @@
 {
   "name": "awk-language-server",
   "description": "AWK Language Server",
-  "version": "0.10.0",
+  "version": "0.10.1",
   "author": "Stanislav Chernov <ch-e-st@yandex.ru>",
   "publisher": "beaglefoot",
   "license": "MIT",

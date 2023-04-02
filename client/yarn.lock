@@ -19,10 +19,10 @@ agent-base@6:
   dependencies:
     debug "4"
 
-awk-language-server@0.9.5:
-  version "0.9.5"
-  resolved "https://registry.yarnpkg.com/awk-language-server/-/awk-language-server-0.9.5.tgz#9ca782feff4a49baaed16242a176b3d27f483add"
-  integrity sha512-1iYznIs+Nev9H5bqa+uiz5ysJL4LdDmKTQzsPMsVMVrO8Lo1jpNO7vVzwkVxgdAgJqakE3Um3ETsLyrl04IZYg==
+awk-language-server@0.10.0:
+  version "0.10.0"
+  resolved "https://registry.yarnpkg.com/awk-language-server/-/awk-language-server-0.10.0.tgz#4e8941f565adfe457a759e31b3d5c2762de10455"
+  integrity sha512-n3TGFILDKofLe7XphIdnfc6B2Quwh40JBi/PaPL+wjUkHm2RAm/3vs4LKWkDDkYGo3XSnZP34YqlNfXVrJrujg==
   dependencies:
     minimist "1.2.6"
     tree-sitter-awk "0.5.4"

@@ -19,16 +19,16 @@ agent-base@6:
   dependencies:
     debug "4"
 
-awk-language-server@0.10.0:
-  version "0.10.0"
-  resolved "https://registry.yarnpkg.com/awk-language-server/-/awk-language-server-0.10.0.tgz#4e8941f565adfe457a759e31b3d5c2762de10455"
-  integrity sha512-n3TGFILDKofLe7XphIdnfc6B2Quwh40JBi/PaPL+wjUkHm2RAm/3vs4LKWkDDkYGo3XSnZP34YqlNfXVrJrujg==
+awk-language-server@0.10.1:
+  version "0.10.1"
+  resolved "https://registry.yarnpkg.com/awk-language-server/-/awk-language-server-0.10.1.tgz#8795b14c2af47b2c656e5605a2c7c2d11c7ba006"
+  integrity sha512-kb+FrBbfsCVHyIPaJspacZ/n5xTn7tzR2w84wT576EKs5y5LENlZm5nJHorkIV2VeU4qzVYNmqXEKNfdtsdzVA==
   dependencies:
     minimist "1.2.6"
-    tree-sitter-awk "0.5.4"
+    tree-sitter-awk "0.6.0"
     vscode-languageserver "^7.0.0"
     vscode-languageserver-textdocument "^1.0.1"
-    web-tree-sitter "0.20.7"
+    web-tree-sitter "0.20.8"
 
 balanced-match@^1.0.0:
   version "1.0.2"
@@ -283,10 +283,10 @@ string_decoder@~1.1.1:
   resolved "https://registry.yarnpkg.com/traverse/-/traverse-0.3.9.tgz#717b8f220cc0bb7b44e40514c22b2e8bbc70d8b9"
   integrity sha1-cXuPIgzAu3tE5AUUwisui7xw2Lk=
 
-tree-sitter-awk@0.5.4:
-  version "0.5.4"
-  resolved "https://registry.yarnpkg.com/tree-sitter-awk/-/tree-sitter-awk-0.5.4.tgz#cff4e7fe904325b3b8bc6a7d94f7fcad54ce4c34"
-  integrity sha512-jIT1zkvRVTvoHDhLzEHCmaw3zi0uJJs9D9AO9qaqBcxKqKfwUMKUKVo+W8Xz+KT+1UwixRjkx8pCr+gCYnn//g==
+tree-sitter-awk@0.6.0:
+  version "0.6.0"
+  resolved "https://registry.yarnpkg.com/tree-sitter-awk/-/tree-sitter-awk-0.6.0.tgz#c99bf1f0a6ba1619ebc317958d826a995add1e72"
+  integrity sha512-bOz2UWopGA5vdgXWRBweiscyQWd8PuZtgGHpKKf1TQ0IMfZMRHqCo9YM5qcrBeMESDBOzu4pcAT6xT9z/18Uqw==
   dependencies:
     nan "2.17.0"
 
@@ -360,10 +360,10 @@ vscode-test@^1.3.0:
     rimraf "^3.0.2"
     unzipper "^0.10.11"
 
-web-tree-sitter@0.20.7:
-  version "0.20.7"
-  resolved "https://registry.yarnpkg.com/web-tree-sitter/-/web-tree-sitter-0.20.7.tgz#b0ddb78e8244221a3100f432c7e162516cd9cd09"
-  integrity sha512-flC9JJmTII9uAeeYpWF8hxDJ7bfY+leldQryetll8Nv4WgI+MXc6h7TiyAZASWl9uC9TvmfdgOjZn1DAQecb3A==
+web-tree-sitter@0.20.8:
+  version "0.20.8"
+  resolved "https://registry.yarnpkg.com/web-tree-sitter/-/web-tree-sitter-0.20.8.tgz#1e371cb577584789cadd75cb49c7ddfbc99d04c8"
+  integrity sha512-weOVgZ3aAARgdnb220GqYuh7+rZU0Ka9k9yfKtGAzEYMa6GgiCzW9JjQRJyCJakvibQW+dfjJdihjInKuuCAUQ==
 
 wrappy@1:
   version "1.0.2"

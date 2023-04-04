@@ -1,4 +1,40 @@
 {
+    "begin": {
+        "description": "BEGIN pattern",
+        "prefix": "begin",
+        "body": [
+            "BEGIN {",
+            "\t$0",
+            "}"
+        ]
+    },
+    "end": {
+        "description": "END pattern",
+        "prefix": "end",
+        "body": [
+            "END {",
+            "\t$0",
+            "}"
+        ]
+    },
+    "beginfile": {
+        "description": "BEGINFILE pattern",
+        "prefix": "beginfile",
+        "body": [
+            "BEGINFILE {",
+            "\t$0",
+            "}"
+        ]
+    },
+    "endfile": {
+        "description": "ENDFILE pattern",
+        "prefix": "endfile",
+        "body": [
+            "ENDFILE {",
+            "\t$0",
+            "}"
+        ]
+    },
     "not": {
         "description": "! operator",
         "prefix": "not",

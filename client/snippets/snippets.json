@@ -26,5 +26,49 @@
         "body": [
             "${1:expression} || ${2:expression}"
         ]
+    },
+    "if": {
+        "description": "if operator",
+        "prefix": "if",
+        "body": [
+            "if (${1:condition})",
+            "\t$0"
+        ]
+    },
+    "if else": {
+        "description": "if else operator",
+        "prefix": "if-else",
+        "body": [
+            "if (${1:condition})",
+            "\t${2:print}",
+            "else",
+            "\t$0",
+            "fi"
+        ]
+    },
+    "while": {
+        "description": "while operator",
+        "prefix": "while",
+        "body": [
+            "while (${1:condition})",
+            "\t$0"
+        ]
+    },
+    "do while": {
+        "description": "do while operator",
+        "prefix": "do-while",
+        "body": [
+            "do",
+            "\t$0",
+            "while (${1:condition})"
+        ]
+    },
+    "for": {
+        "description": "for operator",
+        "prefix": "for",
+        "body": [
+            "for (${1:variable}=${2:value}; ${3:condition}; ${4:command})",
+            "\t$0"
+        ]
     }
 }

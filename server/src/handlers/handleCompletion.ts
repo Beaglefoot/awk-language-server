@@ -1,10 +1,13 @@
 import {
-  CompletionItem,
   Position,
   SymbolInformation,
   TextDocumentPositionParams,
 } from 'vscode-languageserver-protocol/node'
-import { getPredefinedCompletionItems, symbolInfoToCompletionItem } from '../completion'
+import {
+  AWKCompletionItem,
+  getPredefinedCompletionItems,
+  symbolInfoToCompletionItem,
+} from '../completion'
 import { Context, NamespaceMap } from '../interfaces'
 import { isPositionWithinRange } from '../utils'
 
@@ -23,7 +26,9 @@ function getNamespaceUnderCursor(namespaces: NamespaceMap, position: Position): 
 export function getCompletionHandler(context: Context) {
   const { symbols, namespaces, dependencies } = context
 
-  return function handleCompletion(params: TextDocumentPositionParams): CompletionItem[] {
+  return function handleCompletion(
+    params: TextDocumentPositionParams,
+  ): AWKCompletionItem[] {
     const { textDocument, position } = params
     const namespaceUnderCursor = getNamespaceUnderCursor(
       namespaces[textDocument.uri],

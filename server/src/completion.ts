@@ -10,23 +10,43 @@ import { Documentation, dropParamList } from './documentation'
 import { Snippets } from './snippets'
 import { getFunctionSignature, getNodeAtRange, getPrecedingComments } from './utils'
 
-export interface UserDefinedDataEntry {
-  type: 'user_defined'
+export enum DataEntryType {
+  UserDefined,
+  Documentation,
+  Snippet,
+}
+
+interface DataEntry {
+  type: DataEntryType
+}
+
+export interface UserDefinedDataEntry extends DataEntry {
+  type: DataEntryType.UserDefined
   symbolInfo: SymbolInformation
 }
 
-export interface SnippetDataEntry {
-  type: 'snippet'
+export interface DocumentationDataEntry extends DataEntry {
+  type: DataEntryType.Documentation
+  jsonPath: string
 }
 
-const predefinedCompletionListLight: CompletionItem[] = []
+export interface SnippetDataEntry extends DataEntry {
+  type: DataEntryType.Snippet
+}
+
+export interface AWKCompletionItem<T extends DataEntry = DataEntry>
+  extends CompletionItem {
+  data: T
+}
+
+const predefinedCompletionListLight: AWKCompletionItem[] = []
 
 export function initCompletionList(docs: Documentation, snippets: Snippets): void {
   predefinedCompletionListLight.push(
     ...Object.keys(docs.builtins).map((key, i) => ({
       label: key,
       kind: CompletionItemKind.Variable,
-      data: `builtins.${key}`,
+      data: { type: DataEntryType.Documentation, jsonPath: `builtins.${key}` },
     })),
   )
 
@@ -34,7 +54,7 @@ export function initCompletionList(docs: Documentation, snippets: Snippets): voi
     ...Object.keys(docs.functions).map((key, i) => ({
       label: dropParamList(key),
       kind: CompletionItemKind.Function,
-      data: `functions.${key}`,
+      data: { type: DataEntryType.Documentation, jsonPath: `functions.${key}` },
     })),
   )
 
@@ -42,7 +62,7 @@ export function initCompletionList(docs: Documentation, snippets: Snippets): voi
     ...Object.keys(docs.io_statements).map((key, i) => ({
       label: key,
       kind: CompletionItemKind.Snippet,
-      data: `io_statements.${key}`,
+      data: { type: DataEntryType.Documentation, jsonPath: `io_statements.${key}` },
     })),
   )
 
@@ -50,7 +70,7 @@ export function initCompletionList(docs: Documentation, snippets: Snippets): voi
     ...Object.keys(docs.patterns).map((key, i) => ({
       label: key,
       kind: CompletionItemKind.Keyword,
-      data: `patterns.${key}`,
+      data: { type: DataEntryType.Documentation, jsonPath: `patterns.${key}` },
     })),
   )
 
@@ -58,35 +78,49 @@ export function initCompletionList(docs: Documentation, snippets: Snippets): voi
     ...Object.entries(snippets).map(([title, info]) => ({
       label: title,
       kind: CompletionItemKind.Snippet,
-      data: {
-        type: 'snippet',
-      },
+      data: { type: DataEntryType.Snippet },
     })),
   )
 }
 
-export function getPredefinedCompletionItems(): CompletionItem[] {
+export function getPredefinedCompletionItems(): AWKCompletionItem[] {
   return predefinedCompletionListLight
 }
 
-export function enrichWithDocumentation(item: CompletionItem, docs: Documentation): void {
-  const path = item.data.split('.') as [Exclude<keyof Documentation, 'version'>, string]
+export function enrichWithDocumentation(
+  item: AWKCompletionItem<DocumentationDataEntry>,
+  docs: Documentation,
+): AWKCompletionItem<DocumentationDataEntry> {
+  const path = item.data.jsonPath.split('.') as [
+    Exclude<keyof Documentation, 'version'>,
+    string,
+  ]
 
   const documentation = docs[path[0]][path[1]]
 
   item.detail = path[1]
   item.documentation = documentation
+
+  return item
 }
 
-export function enrichWithSnippetDetails(item: CompletionItem, snippets: Snippets): void {
+export function enrichWithSnippetDetails(
+  item: AWKCompletionItem<SnippetDataEntry>,
+  snippets: Snippets,
+): AWKCompletionItem<SnippetDataEntry> {
   const info = snippets[item.label]
 
   item.detail = info.description
   item.insertTextFormat = InsertTextFormat.Snippet
   item.insertText = info.body.join('\n')
+
+  return item
 }
 
-export function enrichWithSymbolInfo(item: CompletionItem, tree: Tree): void {
+export function enrichWithSymbolInfo(
+  item: AWKCompletionItem<UserDefinedDataEntry>,
+  tree: Tree,
+): AWKCompletionItem<UserDefinedDataEntry> {
   const { symbolInfo } = item.data as UserDefinedDataEntry
 
   if (item.kind === CompletionItemKind.Function) {
@@ -96,6 +130,8 @@ export function enrichWithSymbolInfo(item: CompletionItem, tree: Tree): void {
   } else if (item.kind === CompletionItemKind.Variable) {
     item.detail = `User defined variable`
   }
+
+  return item
 }
 
 const symbolCompletionKindMap = {
@@ -117,22 +153,21 @@ function getCompletionKind(symbolInfo: SymbolInformation, namespaceUnderCursor: 
 export function symbolInfoToCompletionItem(
   symbolInfo: SymbolInformation,
   namespaceUnderCursor: string,
-): CompletionItem {
+): AWKCompletionItem {
   const label =
     symbolInfo.containerName === namespaceUnderCursor ||
     symbolInfo.containerName?.includes('::')
       ? symbolInfo.name
       : `${symbolInfo.containerName}::${symbolInfo.name}`
 
-  const compItem = CompletionItem.create(label)
+  const compItem = CompletionItem.create(label) as AWKCompletionItem<UserDefinedDataEntry>
 
   compItem.kind = getCompletionKind(symbolInfo, namespaceUnderCursor)
 
-  // For now this interface differs from '.data' for builtins
   compItem.data = {
-    type: 'user_defined',
+    type: DataEntryType.UserDefined,
     symbolInfo,
-  } as UserDefinedDataEntry
+  }
 
   return compItem
 }

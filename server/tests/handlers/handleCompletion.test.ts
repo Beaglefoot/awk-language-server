@@ -15,6 +15,7 @@ import { getCompletionHandler } from '../../src/handlers/handleCompletion'
 import { initCompletionList } from '../../src/completion'
 import { getDocumentation } from '../../src/documentation'
 import * as Parser from 'web-tree-sitter'
+import { getSnippets } from '../../src/snippets'
 
 describe('handleCompletion', () => {
   let server: MessageConnection
@@ -128,7 +129,7 @@ describe('handleCompletion', () => {
 
   it('should provide completions for builtins', async () => {
     // Arrange
-    initCompletionList(getDocumentation())
+    initCompletionList(getDocumentation(), getSnippets())
 
     const sentParams: TextDocumentPositionParams = {
       textDocument: { uri },

@@ -1,6 +1,5 @@
 import {
   MessageConnection,
-  CompletionItem,
   CompletionItemKind,
   CompletionResolveRequest,
   SymbolInformation,
@@ -9,7 +8,12 @@ import {
 import { getConnections, getDummyContext, getRange } from '../helpers'
 import { Context } from '../../src/interfaces'
 import { getCompletionResolveHandler } from '../../src/handlers/handleCompletionResolve'
-import { UserDefinedDataEntry } from '../../src/completion'
+import {
+  AWKCompletionItem,
+  DataEntryType,
+  DocumentationDataEntry,
+  UserDefinedDataEntry,
+} from '../../src/completion'
 import { initializeParser } from '../../src/parser'
 import * as Parser from 'web-tree-sitter'
 
@@ -32,10 +36,13 @@ describe('handleCompletionResolve', () => {
 
   it('should provide details for builtins', async () => {
     // Arrange
-    const sentParams: CompletionItem = {
+    const sentParams: AWKCompletionItem<DocumentationDataEntry> = {
       label: 'tolower',
       kind: CompletionItemKind.Function,
-      data: 'functions.tolower(str)',
+      data: {
+        type: DataEntryType.Documentation,
+        jsonPath: 'functions.tolower(str)',
+      },
     }
 
     server.onRequest(CompletionResolveRequest.type, getCompletionResolveHandler(context))
@@ -61,11 +68,11 @@ describe('handleCompletionResolve', () => {
 
     context.trees[uri] = parser.parse(dummyFuncDefinition)
 
-    const sentParams: CompletionItem = {
+    const sentParams: AWKCompletionItem<UserDefinedDataEntry> = {
       label: 'tolower',
       kind: CompletionItemKind.Function,
       data: {
-        type: 'user_defined',
+        type: DataEntryType.UserDefined,
         symbolInfo,
       } as UserDefinedDataEntry,
     }

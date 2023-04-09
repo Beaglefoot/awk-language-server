@@ -26,7 +26,7 @@ const folderOperationFilter: FileOperationFilter = {
 }
 
 export function getInitializeHandler(context: Context) {
-  const { docs } = context
+  const { docs, snippets } = context
 
   return async function handleInitialize(
     params: InitializeParams,
@@ -36,7 +36,7 @@ export function getInitializeHandler(context: Context) {
     progressReporter.begin('Initializing')
 
     const parser = await initializeParser()
-    initCompletionList(docs)
+    initCompletionList(docs, snippets)
 
     context.capabilities = params.capabilities
     context.parser = parser

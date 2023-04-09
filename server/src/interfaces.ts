@@ -10,6 +10,7 @@ import { Tree } from 'web-tree-sitter'
 import * as Parser from 'web-tree-sitter'
 import { Documentation } from './documentation'
 import { DependencyMap } from './dependencies'
+import { Snippets } from './snippets'
 
 type SymbolName = string
 type Namespace = string
@@ -45,5 +46,6 @@ export interface Context {
   namespaces: NamespacesByUri
   dependencies: DependencyMap
   docs: Documentation
+  snippets: Snippets
   cliOptions?: CliOptions
 }

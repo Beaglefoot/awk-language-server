@@ -29,6 +29,7 @@ import {
 } from './handlers/handleDeleteFiles'
 import { getCreateFilesHandler } from './handlers/handleCreateFiles'
 import { getRenameFilesHandler } from './handlers/handleRenameFiles'
+import { getSnippets } from './snippets'
 
 // Enriched later
 const context = {
@@ -44,6 +45,7 @@ const context = {
   namespaces: {},
   dependencies: new DependencyMap(),
   docs: getDocumentation(),
+  snippets: getSnippets(),
 } as Context
 
 function registerHandlers() {

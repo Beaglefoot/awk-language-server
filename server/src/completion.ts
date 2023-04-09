@@ -1,3 +1,4 @@
+import { InsertTextFormat } from 'vscode-languageserver'
 import {
   CompletionItem,
   CompletionItemKind,
@@ -6,6 +7,7 @@ import {
 } from 'vscode-languageserver-types'
 import { SyntaxNode, Tree } from 'web-tree-sitter'
 import { Documentation, dropParamList } from './documentation'
+import { Snippets } from './snippets'
 import { getFunctionSignature, getNodeAtRange, getPrecedingComments } from './utils'
 
 export interface UserDefinedDataEntry {
@@ -13,9 +15,13 @@ export interface UserDefinedDataEntry {
   symbolInfo: SymbolInformation
 }
 
+export interface SnippetDataEntry {
+  type: 'snippet'
+}
+
 const predefinedCompletionListLight: CompletionItem[] = []
 
-export function initCompletionList(docs: Documentation): void {
+export function initCompletionList(docs: Documentation, snippets: Snippets): void {
   predefinedCompletionListLight.push(
     ...Object.keys(docs.builtins).map((key, i) => ({
       label: key,
@@ -47,6 +53,16 @@ export function initCompletionList(docs: Documentation): void {
       data: `patterns.${key}`,
     })),
   )
+
+  predefinedCompletionListLight.push(
+    ...Object.entries(snippets).map(([title, info]) => ({
+      label: title,
+      kind: CompletionItemKind.Snippet,
+      data: {
+        type: 'snippet',
+      },
+    })),
+  )
 }
 
 export function getPredefinedCompletionItems(): CompletionItem[] {
@@ -60,6 +76,14 @@ export function enrichWithDocumentation(item: CompletionItem, docs: Documentatio
 
   item.detail = path[1]
   item.documentation = documentation
+}
+
+export function enrichWithSnippetDetails(item: CompletionItem, snippets: Snippets): void {
+  const info = snippets[item.label]
+
+  item.detail = info.description
+  item.insertTextFormat = InsertTextFormat.Snippet
+  item.insertText = info.body.join('\n')
 }
 
 export function enrichWithSymbolInfo(item: CompletionItem, tree: Tree): void {

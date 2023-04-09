@@ -29,12 +29,6 @@
   ],
   "main": "./out/extension",
   "contributes": {
-    "snippets": [
-      {
-        "language": "awk",
-        "path": "./snippets/snippets.json"
-      }
-    ],
     "configuration": {
       "type": "object",
       "title": "AWK IDE",

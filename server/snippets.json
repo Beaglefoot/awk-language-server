@@ -42,7 +42,7 @@
             "!${1:expression}"
         ]
     },
-    "compare to": {
+    "compare-to": {
         "description": "comparison operator",
         "prefix": "compare-to",
         "body": [
@@ -71,7 +71,7 @@
             "\t$0"
         ]
     },
-    "if else": {
+    "if-else": {
         "description": "if else operator",
         "prefix": "if-else",
         "body": [
@@ -90,7 +90,7 @@
             "\t$0"
         ]
     },
-    "do while": {
+    "do-while": {
         "description": "do while operator",
         "prefix": "do-while",
         "body": [

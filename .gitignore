@@ -6,3 +6,5 @@ temp
 *.vsix
 *.log
 *.tsbuildinfo
+
+*.swp

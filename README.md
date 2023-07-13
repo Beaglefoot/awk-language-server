@@ -28,6 +28,22 @@ Implementation of AWK Language Server based on [tree-sitter](https://github.com/
 
 VSCode extension is developed as part of this project and can be downloaded from marketplace [here](https://marketplace.visualstudio.com/items?itemName=beaglefoot.awk-ide-vscode).
 
+### Emacs
+
+#### [Eglot](https://github.com/joaotavora/eglot)
+
+Add to your config:
+
+```lisp
+(with-eval-after-load 'eglot
+  (add-to-list 'eglot-server-programs
+               '(awk-mode . ("awk-language-server"))))
+```
+
+#### [lsp-mode](https://github.com/emacs-lsp/lsp-mode)
+
+[Support is built-in](https://emacs-lsp.github.io/lsp-mode/page/lsp-awk/), so no action is needed besides turning `lsp-mode` on.
+
 ### Vim
 
 - `npm install -g "awk-language-server@>=0.5.2"`

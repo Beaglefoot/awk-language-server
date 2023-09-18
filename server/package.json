@@ -24,10 +24,10 @@
   },
   "dependencies": {
     "minimist": "1.2.6",
-    "tree-sitter-awk": "0.5.4",
+    "tree-sitter-awk": "0.6.0",
     "vscode-languageserver": "^7.0.0",
     "vscode-languageserver-textdocument": "^1.0.1",
-    "web-tree-sitter": "0.20.7"
+    "web-tree-sitter": "0.20.8"
   },
   "devDependencies": {
     "@types/minimist": "1.2.2"

@@ -17,10 +17,10 @@ nan@2.17.0:
   resolved "https://registry.yarnpkg.com/nan/-/nan-2.17.0.tgz#c0150a2368a182f033e9aa5195ec76ea41a199cb"
   integrity sha512-2ZTgtl0nJsO0KQCjEpxcIr5D+Yv90plTitZt9JBfQvVJDS5seMl3FOvsh3+9CoYWXf/1l5OaZzzF6nDm4cagaQ==
 
-tree-sitter-awk@0.5.4:
-  version "0.5.4"
-  resolved "https://registry.yarnpkg.com/tree-sitter-awk/-/tree-sitter-awk-0.5.4.tgz#cff4e7fe904325b3b8bc6a7d94f7fcad54ce4c34"
-  integrity sha512-jIT1zkvRVTvoHDhLzEHCmaw3zi0uJJs9D9AO9qaqBcxKqKfwUMKUKVo+W8Xz+KT+1UwixRjkx8pCr+gCYnn//g==
+tree-sitter-awk@0.6.0:
+  version "0.6.0"
+  resolved "https://registry.yarnpkg.com/tree-sitter-awk/-/tree-sitter-awk-0.6.0.tgz#c99bf1f0a6ba1619ebc317958d826a995add1e72"
+  integrity sha512-bOz2UWopGA5vdgXWRBweiscyQWd8PuZtgGHpKKf1TQ0IMfZMRHqCo9YM5qcrBeMESDBOzu4pcAT6xT9z/18Uqw==
   dependencies:
     nan "2.17.0"
 
@@ -54,7 +54,7 @@ vscode-languageserver@^7.0.0:
   dependencies:
     vscode-languageserver-protocol "3.16.0"
 
-web-tree-sitter@0.20.7:
-  version "0.20.7"
-  resolved "https://registry.yarnpkg.com/web-tree-sitter/-/web-tree-sitter-0.20.7.tgz#b0ddb78e8244221a3100f432c7e162516cd9cd09"
-  integrity sha512-flC9JJmTII9uAeeYpWF8hxDJ7bfY+leldQryetll8Nv4WgI+MXc6h7TiyAZASWl9uC9TvmfdgOjZn1DAQecb3A==
+web-tree-sitter@0.20.8:
+  version "0.20.8"
+  resolved "https://registry.yarnpkg.com/web-tree-sitter/-/web-tree-sitter-0.20.8.tgz#1e371cb577584789cadd75cb49c7ddfbc99d04c8"
+  integrity sha512-weOVgZ3aAARgdnb220GqYuh7+rZU0Ka9k9yfKtGAzEYMa6GgiCzW9JjQRJyCJakvibQW+dfjJdihjInKuuCAUQ==

@@ -17,10 +17,10 @@ nan@2.17.0:
   resolved "https://registry.yarnpkg.com/nan/-/nan-2.17.0.tgz#c0150a2368a182f033e9aa5195ec76ea41a199cb"
   integrity sha512-2ZTgtl0nJsO0KQCjEpxcIr5D+Yv90plTitZt9JBfQvVJDS5seMl3FOvsh3+9CoYWXf/1l5OaZzzF6nDm4cagaQ==
 
-tree-sitter-awk@0.6.0:
-  version "0.6.0"
-  resolved "https://registry.yarnpkg.com/tree-sitter-awk/-/tree-sitter-awk-0.6.0.tgz#c99bf1f0a6ba1619ebc317958d826a995add1e72"
-  integrity sha512-bOz2UWopGA5vdgXWRBweiscyQWd8PuZtgGHpKKf1TQ0IMfZMRHqCo9YM5qcrBeMESDBOzu4pcAT6xT9z/18Uqw==
+tree-sitter-awk@0.6.1:
+  version "0.6.1"
+  resolved "https://registry.yarnpkg.com/tree-sitter-awk/-/tree-sitter-awk-0.6.1.tgz#c72206012bca110c01fc9dadaefb432191ff033e"
+  integrity sha512-xRDpu0Y+EMD84gqjmlANOIFPVpn1ZBor30LbhAzcwcv672pVxr+s/miKLyPcsIBLfiPC3Pbb4VcsFxQcVkixVA==
   dependencies:
     nan "2.17.0"
 

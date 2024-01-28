@@ -4,7 +4,7 @@
   "description": "VSCode client for AWK Language Server",
   "author": "Stanislav Chernov <ch-e-st@yandex.ru>",
   "license": "MIT",
-  "version": "0.10.2",
+  "version": "0.10.3",
   "publisher": "beaglefoot",
   "repository": {
     "type": "git",
@@ -80,7 +80,7 @@
     "vscode:prepublish": "cd .. && yarn build:client:force"
   },
   "dependencies": {
-    "awk-language-server": "0.10.2",
+    "awk-language-server": "0.10.3",
     "vscode-languageclient": "^7.0.0"
   },
   "devDependencies": {

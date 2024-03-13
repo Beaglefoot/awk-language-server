@@ -60,7 +60,7 @@ vscode-languageserver@^7.0.0:
   dependencies:
     vscode-languageserver-protocol "3.16.0"
 
-web-tree-sitter@0.20.8:
-  version "0.20.8"
-  resolved "https://registry.yarnpkg.com/web-tree-sitter/-/web-tree-sitter-0.20.8.tgz#1e371cb577584789cadd75cb49c7ddfbc99d04c8"
-  integrity sha512-weOVgZ3aAARgdnb220GqYuh7+rZU0Ka9k9yfKtGAzEYMa6GgiCzW9JjQRJyCJakvibQW+dfjJdihjInKuuCAUQ==
+web-tree-sitter@0.22.1:
+  version "0.22.1"
+  resolved "https://registry.yarnpkg.com/web-tree-sitter/-/web-tree-sitter-0.22.1.tgz#4b5243b082e85bd6ab5c0c56d1f826df29d8b9ed"
+  integrity sha512-3wfVqI6KredBmIo8Z1kycbcUIhPLzvqvuD1Y2GA6eRjYJOCypqy7Pv4P0Dm0JToi/oloBwvXfr7+7p42DgbC4Q==

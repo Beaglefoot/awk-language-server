@@ -6,11 +6,17 @@ on:
       - master
     paths:
       - '**/*.ts'
+      - '**/package.json'
+      - '**/tsconfig.json'
+      - .prettierrc
   pull_request:
     branches:
       - master
     paths:
       - '**/*.ts'
+      - '**/package.json'
+      - '**/tsconfig.json'
+      - .prettierrc
 
 jobs:
   check:
@@ -22,6 +28,7 @@ jobs:
         with:
           node-version: 20
           cache: yarn
+          cache-dependency-path: '**/yarn.lock'
       - run: yarn install --frozen-lockfile
       - run: yarn check:types
       - run: yarn check:style

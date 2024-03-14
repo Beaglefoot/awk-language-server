@@ -19,16 +19,16 @@ agent-base@6:
   dependencies:
     debug "4"
 
-awk-language-server@0.10.1:
-  version "0.10.1"
-  resolved "https://registry.yarnpkg.com/awk-language-server/-/awk-language-server-0.10.1.tgz#8795b14c2af47b2c656e5605a2c7c2d11c7ba006"
-  integrity sha512-kb+FrBbfsCVHyIPaJspacZ/n5xTn7tzR2w84wT576EKs5y5LENlZm5nJHorkIV2VeU4qzVYNmqXEKNfdtsdzVA==
+awk-language-server@0.10.5:
+  version "0.10.5"
+  resolved "https://registry.yarnpkg.com/awk-language-server/-/awk-language-server-0.10.5.tgz#4553a60bb6c89b9aa99dea882b458107c0584a1c"
+  integrity sha512-9as4R1Og2lOAT/AHyyjKHtc8T1/dOsNsC2aUGy7thdZWOiju1HsWo4jh6VeRu2TqLttN77xh2Ar2tFrNbbYGqg==
   dependencies:
     minimist "1.2.6"
-    tree-sitter-awk "0.6.0"
+    tree-sitter-awk "0.7.1"
     vscode-languageserver "^7.0.0"
     vscode-languageserver-textdocument "^1.0.1"
-    web-tree-sitter "0.20.8"
+    web-tree-sitter "0.22.1"
 
 balanced-match@^1.0.0:
   version "1.0.2"
@@ -205,10 +205,15 @@ ms@2.1.2:
   resolved "https://registry.yarnpkg.com/ms/-/ms-2.1.2.tgz#d09d1f357b443f493382a8eb3ccd183872ae6009"
   integrity sha512-sGkPx+VjMtmA6MX27oA4FBFELFCZZ4S4XqeGOXCv68tT+jb3vk/RyaKWP0PTKyWtmLSM0b+adUTEvbs1PEaH2w==
 
-nan@2.17.0:
-  version "2.17.0"
-  resolved "https://registry.yarnpkg.com/nan/-/nan-2.17.0.tgz#c0150a2368a182f033e9aa5195ec76ea41a199cb"
-  integrity sha512-2ZTgtl0nJsO0KQCjEpxcIr5D+Yv90plTitZt9JBfQvVJDS5seMl3FOvsh3+9CoYWXf/1l5OaZzzF6nDm4cagaQ==
+node-addon-api@^7.1.0:
+  version "7.1.0"
+  resolved "https://registry.yarnpkg.com/node-addon-api/-/node-addon-api-7.1.0.tgz#71f609369379c08e251c558527a107107b5e0fdb"
+  integrity sha512-mNcltoe1R8o7STTegSOHdnJNN7s5EUvhoS7ShnTHDyOSd+8H+UdWODq6qSv67PjC8Zc5JRT8+oLAMCr0SIXw7g==
+
+node-gyp-build@^4.8.0:
+  version "4.8.0"
+  resolved "https://registry.yarnpkg.com/node-gyp-build/-/node-gyp-build-4.8.0.tgz#3fee9c1731df4581a3f9ead74664369ff00d26dd"
+  integrity sha512-u6fs2AEUljNho3EYTJNBfImO5QTo/J/1Etd+NVdCj7qWKUSN/bSLkZwhDv7I+w/MSC6qJ4cknepkAYykDdK8og==
 
 once@^1.3.0:
   version "1.4.0"
@@ -283,12 +288,13 @@ string_decoder@~1.1.1:
   resolved "https://registry.yarnpkg.com/traverse/-/traverse-0.3.9.tgz#717b8f220cc0bb7b44e40514c22b2e8bbc70d8b9"
   integrity sha1-cXuPIgzAu3tE5AUUwisui7xw2Lk=
 
-tree-sitter-awk@0.6.0:
-  version "0.6.0"
-  resolved "https://registry.yarnpkg.com/tree-sitter-awk/-/tree-sitter-awk-0.6.0.tgz#c99bf1f0a6ba1619ebc317958d826a995add1e72"
-  integrity sha512-bOz2UWopGA5vdgXWRBweiscyQWd8PuZtgGHpKKf1TQ0IMfZMRHqCo9YM5qcrBeMESDBOzu4pcAT6xT9z/18Uqw==
+tree-sitter-awk@0.7.1:
+  version "0.7.1"
+  resolved "https://registry.yarnpkg.com/tree-sitter-awk/-/tree-sitter-awk-0.7.1.tgz#6ac93a10f58bacec9a7238b2356ae26c0b73e196"
+  integrity sha512-sCLS5P6oSqFgXqXN4vvp0JdBsdWPZy61Zl51Pv1MamOKXJpQxbjLTVeyBpx+kEhA9PuixeLOYNUIWo3gAJkRBg==
   dependencies:
-    nan "2.17.0"
+    node-addon-api "^7.1.0"
+    node-gyp-build "^4.8.0"
 
 unzipper@^0.10.11:
   version "0.10.11"
@@ -360,10 +366,10 @@ vscode-test@^1.3.0:
     rimraf "^3.0.2"
     unzipper "^0.10.11"
 
-web-tree-sitter@0.20.8:
-  version "0.20.8"
-  resolved "https://registry.yarnpkg.com/web-tree-sitter/-/web-tree-sitter-0.20.8.tgz#1e371cb577584789cadd75cb49c7ddfbc99d04c8"
-  integrity sha512-weOVgZ3aAARgdnb220GqYuh7+rZU0Ka9k9yfKtGAzEYMa6GgiCzW9JjQRJyCJakvibQW+dfjJdihjInKuuCAUQ==
+web-tree-sitter@0.22.1:
+  version "0.22.1"
+  resolved "https://registry.yarnpkg.com/web-tree-sitter/-/web-tree-sitter-0.22.1.tgz#4b5243b082e85bd6ab5c0c56d1f826df29d8b9ed"
+  integrity sha512-3wfVqI6KredBmIo8Z1kycbcUIhPLzvqvuD1Y2GA6eRjYJOCypqy7Pv4P0Dm0JToi/oloBwvXfr7+7p42DgbC4Q==
 
 wrappy@1:
   version "1.0.2"

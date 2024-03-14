@@ -4,20 +4,31 @@ on:
   push:
     branches:
       - master
+    paths:
+      - '**/*.ts'
+      - '**/package.json'
+      - '**/tsconfig.json'
+      - .prettierrc
   pull_request:
     branches:
       - master
+    paths:
+      - '**/*.ts'
+      - '**/package.json'
+      - '**/tsconfig.json'
+      - .prettierrc
 
 jobs:
   check:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-node@v2
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
-          node-version: 16
+          node-version: 20
           cache: yarn
+          cache-dependency-path: '**/yarn.lock'
       - run: yarn install --frozen-lockfile
       - run: yarn check:types
       - run: yarn check:style

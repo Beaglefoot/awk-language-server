@@ -15,7 +15,9 @@ jobs:
     strategy:
       fail-fast: true
       matrix:
-        os: [ubuntu-latest, macOS-latest, windows-latest]
+        # windows-latest is broken due to some security patches
+        # https://github.com/prebuild/node-gyp-build/issues/68
+        os: [ubuntu-latest, macOS-latest]
         node: [20, 21]
 
     steps:

@@ -22,10 +22,10 @@ node-gyp-build@^4.8.0:
   resolved "https://registry.yarnpkg.com/node-gyp-build/-/node-gyp-build-4.8.0.tgz#3fee9c1731df4581a3f9ead74664369ff00d26dd"
   integrity sha512-u6fs2AEUljNho3EYTJNBfImO5QTo/J/1Etd+NVdCj7qWKUSN/bSLkZwhDv7I+w/MSC6qJ4cknepkAYykDdK8og==
 
-tree-sitter-awk@0.7.1:
-  version "0.7.1"
-  resolved "https://registry.yarnpkg.com/tree-sitter-awk/-/tree-sitter-awk-0.7.1.tgz#6ac93a10f58bacec9a7238b2356ae26c0b73e196"
-  integrity sha512-sCLS5P6oSqFgXqXN4vvp0JdBsdWPZy61Zl51Pv1MamOKXJpQxbjLTVeyBpx+kEhA9PuixeLOYNUIWo3gAJkRBg==
+tree-sitter-awk@0.7.2:
+  version "0.7.2"
+  resolved "https://registry.yarnpkg.com/tree-sitter-awk/-/tree-sitter-awk-0.7.2.tgz#f8991fd4aae20938c9e86e24ee727fa73216cdca"
+  integrity sha512-Y9qGrM9a/AkeglOMSYzM0Tek5rox9WZmlV1/l3wyBJaMdpeMGsC3z4Jn+OvuevJO78gtmW1SuXfCva1f4veuTg==
   dependencies:
     node-addon-api "^7.1.0"
     node-gyp-build "^4.8.0"

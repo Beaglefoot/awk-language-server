@@ -76,9 +76,13 @@ export function initCompletionList(docs: Documentation, snippets: Snippets): voi
 
   predefinedCompletionListLight.push(
     ...Object.entries(snippets).map(([title, info]) => ({
-      label: title,
+      label: info.prefix,
       kind: CompletionItemKind.Snippet,
       data: { type: DataEntryType.Snippet },
+
+      detail: info.description,
+      insertText: info.body.join('\n'),
+      insertTextFormat: InsertTextFormat.Snippet,
     })),
   )
 }

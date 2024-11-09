@@ -37,7 +37,11 @@ export function getInitializedHandler(context: Context) {
     const workspaceFolders =
       (await context.connection.workspace.getWorkspaceFolders()) ?? []
 
-    if (context.cliOptions?.noIndex) {
+    const config = await context.connection.workspace.getConfiguration('awk-ide-vscode')
+
+    if (config) context.config = config
+
+    if (!context.config.indexing) {
       context.connection.console.log('Indexing skipped')
     } else {
       progressReporter.begin('Indexing')

@@ -30,8 +30,9 @@ import {
 import { getCreateFilesHandler } from './handlers/handleCreateFiles'
 import { getRenameFilesHandler } from './handlers/handleRenameFiles'
 import { getSnippets } from './snippets'
+import { cliOptionsToConfig, getConfigDefaults } from './config'
 
-// Enriched later
+// Enriched on initialization
 const context = {
   connection:
     require.main === module
@@ -46,6 +47,7 @@ const context = {
   dependencies: new DependencyMap(),
   docs: getDocumentation(),
   snippets: getSnippets(),
+  config: getConfigDefaults(),
 } as Context
 
 function registerHandlers() {
@@ -94,7 +96,7 @@ function registerHandlers() {
 export function main(cliOptions?: CliOptions) {
   const { documents, connection } = context
 
-  if (cliOptions) context.cliOptions = cliOptions
+  if (cliOptions) context.config = cliOptionsToConfig(cliOptions)
 
   registerHandlers()
 

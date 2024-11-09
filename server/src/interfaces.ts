@@ -36,6 +36,13 @@ export interface CliOptions {
   noIndex: boolean
 }
 
+export interface Config {
+  indexing: boolean
+  trace: {
+    server: 'off' | 'messages' | 'verbose'
+  }
+}
+
 export interface Context {
   connection: Connection
   documents: TextDocuments<TextDocument>
@@ -47,5 +54,5 @@ export interface Context {
   dependencies: DependencyMap
   docs: Documentation
   snippets: Snippets
-  cliOptions?: CliOptions
+  config: Config
 }

@@ -13,6 +13,7 @@ import { Range } from 'vscode-languageserver/node'
 import { getDocumentation } from '../src/documentation'
 import { DependencyMap } from '../src/dependencies'
 import { getSnippets } from '../src/snippets'
+import { getConfigDefaults } from '../src/config'
 
 export class NullLogger implements Logger {
   error(_message: string): void {}
@@ -100,6 +101,7 @@ export function getDummyContext(
     dependencies: new DependencyMap(),
     docs: getDocumentation(),
     snippets: getSnippets(),
+    config: getConfigDefaults(),
   }
 }
 
